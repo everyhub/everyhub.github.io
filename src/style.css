@@ -16,7 +16,14 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .wrap { width: min(100% - 2rem, 78rem); margin-inline: auto; }
 .site-head { background: #fff; border-bottom: 1px solid var(--line); }
 .site-head .wrap { display: flex; gap: .5rem 1rem; flex-wrap: wrap; align-items: center; padding-block: .65rem; }
-.brand { color: var(--ink); font-weight: 750; text-decoration: none; }
+.brand { display: inline-flex; align-items: center; gap: .45rem; color: var(--ink); font-weight: 750; text-decoration: none; }
+.brand img { flex: 0 0 auto; }
+@media (max-width: 30rem) {
+  .site-head .wrap { column-gap: .5rem; }
+  .brand { font-size: .875rem; }
+  .brand img { width: 24px; height: 24px; }
+}
+@media (max-width: 23rem) { .brand-latin { display: none; } }
 .home-link { margin-inline-start: auto; padding: .4rem .75rem; border: 1px solid var(--line); border-radius: .45rem; font-weight: 750; text-decoration: none; }
 .home-link:hover { background: #e8f6ef; }
 .nav-toggle { display: none; }
@@ -75,6 +82,15 @@ input, select { display: block; width: 100%; margin-top: .3rem; padding: .5rem .
 .dashboard-card-head, .dashboard-title { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .dashboard-card-head { margin-bottom: .65rem; }
 .dashboard-card-head h2, .dashboard-title h2 { margin: 0; }
+.dashboard-card-head h2 a { display: inline-flex; align-items: center; gap: .45rem; }
+.dashboard-card-head .nav-icon { width: 1.1rem; height: 1.1rem; }
+.home-hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 1rem; align-items: center; margin-bottom: 1.25rem; padding: clamp(.85rem, 2.1vw, 1.5rem); border: 1px solid #cde1d8; border-radius: 1rem; background: linear-gradient(120deg, #fff 35%, #edf7f3); }
+.home-hero h1 { margin-top: 0; font-size: clamp(1.85rem, 3.3vw, 2.85rem); }
+.home-hero-art { display: block; width: 100%; height: auto; border-radius: .65rem; }
+@media (max-width: 44rem) {
+  .home-hero { grid-template-columns: 1fr; gap: .65rem; }
+  .home-hero h1 { margin-bottom: .35rem; }
+}
 .dashboard-more { display: inline-flex; align-items: center; min-height: 2.75rem; flex: 0 0 auto; padding: .25rem .7rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: .8rem; font-weight: 750; text-decoration: none; }
 .dashboard-more:hover { border-color: var(--accent); color: var(--accent); background: #e8f6ef; }
 .dashboard-search { flex: 0 1 20rem; color: var(--muted); font-size: .85rem; font-weight: 700; }

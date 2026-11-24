@@ -15,7 +15,8 @@ const routes = (await readdir(dist, { recursive: true }))
   .filter((path) => /(^|\/)index\.html$/.test(path) && !/^(salary|hourly|severance|median-income)\/\d+\//.test(path))
   .map((path) => '/' + path.replace(/index\.html$/, ''))
   .sort();
-const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.wasm': 'application/wasm' };
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript',
+  '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
 const server = createServer(async (request, response) => {
   try {
     const path = new URL(request.url, 'http://localhost').pathname;
@@ -96,6 +97,19 @@ try {
         if (!response?.ok()) issue('Page did not return 200');
         const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
         if (await overflow() > 1) issue('Page overflows horizontally');
+        if (route === '/') {
+          const branding = await page.evaluate(() => ['.brand img', '.home-hero-art'].every((selector) => document.querySelector(selector)?.naturalWidth > 0));
+          if (!branding) issue('Home branding image failed to load');
+          const sameHeaderRow = await page.evaluate(() => {
+            const midpoint = (selector) => {
+              const { top, height } = document.querySelector(selector).getBoundingClientRect();
+              return top + height / 2;
+            };
+            return Math.abs(midpoint('.brand') - midpoint('.home-link')) < 2;
+          });
+          if (!sameHeaderRow) issue('Branded header wraps the home link onto another row');
+          cases++;
+        }
         if (route.startsWith('/info/holidays/')) {
           const calendar = await page.locator('.calendar-grid').evaluate((grid) => {
             const current = grid.querySelector('[aria-current="date"]');

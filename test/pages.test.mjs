@@ -78,6 +78,29 @@ test('개인 이름 없는 브랜드와 분류 탐색 패널', () => {
   assert.doesNotMatch(salary, /href="[^"]*salary\/\d+\//);
 });
 
+test('브랜드 이미지와 공유 메타는 하위 경로 및 중첩 페이지에서도 작동한다', async () => {
+  const configWithSubpath = { ...config, baseURL: 'https://example.com/everyhub/' };
+  const detail = salaryCalculatorPage(configWithSubpath);
+  const og = 'https://example.com/everyhub/assets/brand/og.png';
+  assert.ok(detail.includes(`property="og:image" content="${og}"`));
+  assert.ok(detail.includes(`name="twitter:image" content="${og}"`));
+  assert.match(detail, /rel="manifest" href="\.\.\/\.\.\/assets\/brand\/site\.webmanifest"/);
+  assert.match(detail, /alt=""><span>에브리허브/);
+  const home = homePage(configWithSubpath);
+  assert.match(home, /class="home-hero-art" src="\.\/assets\/brand\/hero\.svg"[^>]*alt=""/);
+  assert.equal([...home.matchAll(/<h2><a href="[^"]+"><svg class="nav-icon"/g)].length, navigationGroups.length);
+
+  const manifestURL = new URL('assets/brand/site.webmanifest', configWithSubpath.baseURL);
+  const manifest = JSON.parse(await readFile(new URL('../src/brand/site.webmanifest', import.meta.url), 'utf8'));
+  for (const key of ['start_url', 'scope']) assert.equal(new URL(manifest[key], manifestURL).href, configWithSubpath.baseURL);
+  assert.deepEqual(manifest.icons.map(({ sizes }) => sizes), ['192x192', '512x512']);
+  for (const [filename, width, height] of [32, 180, 192, 512].map((size) => [`icon-${size}.png`, size, size]).concat([['og.png', 1200, 630]])) {
+    const png = await readFile(new URL(`../src/brand/${filename}`, import.meta.url));
+    assert.equal(png.toString('ascii', 1, 4), 'PNG');
+    assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [width, height]);
+  }
+});
+
 test('새 브랜드와 한눈에 바로가기, 별도 연봉 계산기 및 기존 홈 앵커', () => {
   const home = homePage(config);
   assert.match(home, /<h1>에브리허브 \(EveryHub\)<\/h1>/);

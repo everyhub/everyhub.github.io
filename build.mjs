@@ -49,6 +49,7 @@ await Promise.all(['style.css', 'browser.mjs', 'calculator.mjs', 'display.mjs', 
   .map((name) => copyFile(join(source, name), join(dist, 'assets', name))));
 await cp(join(source, 'background-removal'), join(dist, 'assets', 'background-removal'), { recursive: true });
 await cp(join(source, 'utility-vendor'), join(dist, 'assets', 'utility-vendor'), { recursive: true });
+await cp(join(source, 'brand'), join(dist, 'assets', 'brand'), { recursive: true });
 await writeFile(join(dist, 'index.html'), homePage(config));
 {
   const folder = join(dist, adminPath);

@@ -3,7 +3,7 @@ import { breakdown, salaryName, won } from './display.mjs';
 import { rates, sources } from './rates.mjs';
 import { verifiedOn } from './labor-rates.mjs';
 import { brand } from './tool-specs.mjs';
-import { navigationGroups, salaryCalculatorPath, siteTree } from './navigation.mjs';
+import { categoryIcon, navigationGroups, salaryCalculatorPath, siteTree } from './navigation.mjs';
 import { utilitySections } from './utility-config.mjs';
 
 const { year } = rates;
@@ -19,6 +19,8 @@ const pageLink = (salary, root = './') => `<a href="${root}${salaryPath(salary)}
 const estimate = (salary, inputs) => calculate({ annualSalary: salary * 10_000, ...inputs });
 const modeled = new Map(salaries.map((salary) => [salary, estimate(salary)]));
 const assumptions = `퇴직금과 별도 상여금은 제외했습니다. 월 비과세 식대는 ${taxFree}, 공제 대상은 본인만으로 가정했습니다.`;
+const brandAssets = 'assets/brand/';
+const shareImageAlt = '에브리허브 — 계산기, 생활 도구, IT 소식';
 const disclaimer = '매달 급여를 받는 국내 직장가입자를 기준으로 한 추정치입니다. 회사가 신고한 기준소득월액·보수월액, 공제·감면, 상여금 및 연말정산에 따라 실제 금액은 달라질 수 있습니다.';
 
 export function escape(value) {
@@ -91,6 +93,7 @@ export function ad(config) {
 export function layout({ config, title, description, path, root, main, faq, calculator = false, application, script, payroll = false, localOnly = false, robots = '' }) {
   const privatePage = localOnly || path.startsWith('tools/');
   const canonical = new URL(path, config.baseURL).href;
+  const shareImage = escape(new URL(brandAssets + 'og.png', config.baseURL).href);
   const graph = [];
   if (calculator || application) graph.push({
     '@type': 'WebApplication', name: application ?? '연봉 실수령액 계산기', url: canonical,
@@ -124,6 +127,19 @@ export function layout({ config, title, description, path, root, main, faq, calc
   <meta property="og:title" content="${escape(title)}">
   <meta property="og:description" content="${escape(description)}">
   <meta property="og:url" content="${escape(canonical)}">
+  <meta property="og:image" content="${shareImage}">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${shareImageAlt}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="${shareImage}">
+  <meta name="twitter:image:alt" content="${shareImageAlt}">
+  <meta name="theme-color" content="#07674f">
+  <link rel="icon" href="${root}${brandAssets}icon-32.png" sizes="32x32" type="image/png">
+  <link rel="icon" href="${root}${brandAssets}mark.svg" sizes="any" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="${root}${brandAssets}icon-180.png" sizes="180x180">
+  <link rel="manifest" href="${root}${brandAssets}site.webmanifest">
   ${verification}
   <link rel="stylesheet" href="${root}assets/style.css">
   <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>
@@ -133,7 +149,8 @@ export function layout({ config, title, description, path, root, main, faq, calc
   ${!privatePage && config.adsenseClient ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(config.adsenseClient)}" crossorigin="anonymous"></script>` : ''}
 </head>
 <body data-page-path="${path}"${(application || calculator) && path.startsWith('tools/') ? ' data-recent-tool' : ''}>
-  <header class="site-head"><div class="wrap"><a class="brand" href="${root}">${brand}</a>
+  <header class="site-head"><div class="wrap"><a class="brand" href="${root}" aria-label="${brand}">
+    <img src="${root}${brandAssets}mark.svg" width="28" height="28" alt=""><span>에브리허브 <span class="brand-latin">(EveryHub)</span></span></a>
     <button type="button" class="nav-toggle" hidden aria-controls="site-navigation" aria-expanded="false">전체 메뉴</button>
     <a class="home-link" href="${root}">홈</a></div></header>
   <div class="page-grid wrap">
@@ -177,7 +194,7 @@ function salaryIndex(root) {
 
 function dashboard() {
   const section = (title, hub, links, hubName = `${title} 전체 보기`) => `
-    <section class="panel dashboard-card" data-dashboard-card><div class="dashboard-card-head"><h2><a href="./${hub}">${title}</a></h2>
+    <section class="panel dashboard-card" data-dashboard-card><div class="dashboard-card-head"><h2><a href="./${hub}">${categoryIcon(hub)}${title}</a></h2>
       <a class="dashboard-more" href="./${hub}" aria-label="${hubName}">전체 →</a></div>
       <ul class="dashboard-links">${links.map(({ path, name }) =>
         `<li><a href="./${path}">${name}</a></li>`).join('')}</ul></section>`;
@@ -192,7 +209,9 @@ export function homePage(config) {
     config, title: `${brand} | 계산기·생활 도구·IT 소식`,
     description: '연봉 실수령액과 퇴직금 계산기, 사진 배경 제거, 공휴일 달력, 국내외 IT·AI 소식을 한곳에서 찾아보세요.',
     path: '', root: './',
-    main: `<h1>${brand}</h1><p class="intro">급여·근로 계산기부터 사진 편집, 생활 정보와 IT·AI 소식까지 원하는 기능을 바로 열어 보세요.</p>
+    main: `<div class="home-hero"><div class="home-hero-copy"><h1>${brand}</h1>
+      <p class="intro">급여·근로 계산기부터 사진 편집, 생활 정보와 IT·AI 소식까지 원하는 기능을 바로 열어 보세요.</p></div>
+      <img class="home-hero-art" src="./${brandAssets}hero.svg" width="600" height="270" alt=""></div>
       <section aria-labelledby="shortcuts"><div class="dashboard-title"><h2 id="shortcuts">한눈에 바로가기</h2>
         <label class="dashboard-search" hidden>바로가기 검색<input type="search" data-dashboard-search placeholder="예: 연차, PDF, 주거" autocomplete="off"></label></div>
         <p class="dashboard-empty" data-dashboard-empty role="status" hidden>검색 결과가 없습니다.</p>
