@@ -14,6 +14,7 @@ export const adminTimeline = [
   { time: '2026-11-24 14:35', request: '좌측 메뉴를 읽기 쉽게 하고 상단 오른쪽에는 사이트맵 대신 메인으로 가는 링크를 보여 달라.', reflection: '분야별 SVG 아이콘, 넓은 터치 영역, 구분선, 활성 분야·항목 강조, 접힘 화살표, 자체 스크롤을 적용했습니다. 사이트맵은 메뉴 하단과 푸터로 옮겼고 상단에는 홈을 표시합니다.', status: '완료', links: ['9767ce9', 'https://github.com/everyhub/everyhub.github.io/actions/runs/45415782352'] },
   { time: '2026-11-24 14:36', request: '메인 페이지에는 바로가기만 남기고 기존 홈 연봉 계산 링크는 계속 작동하게 해 달라.', reflection: '홈의 입력형 연봉 계산 블록을 전용 /tools/salary-calculator/ 페이지로 이동하고, 기존 ?salary=금액#calculator 링크는 같은 query를 보존해 전용 페이지로 클라이언트 이동하게 했습니다.', status: '완료', links: ['작업 중'] },
   { time: '2026-11-24 14:37', request: '지금까지의 요청·반영·상태를 타임라인으로 볼 수 있는 연결되지 않은 관리 페이지를 남겨 달라.', reflection: '이 페이지입니다. 임의 경로의 noindex,nofollow 문서로 만들고 HTML/XML 사이트맵과 메뉴에는 넣지 않습니다.', status: '완료', links: ['작업 중'] },
+  { time: '2026-11-24 14:38', request: '방문자 수를 관리 페이지에서 확인할 수 있는지, 홈 바로가기 카드의 전체보기와 사이트 편의성을 개선해 달라.', reflection: '카드 오른쪽 위 전체보기 칩, 홈 바로가기 검색, 최근 본 도구, 결과 복사·입력 초기화·맨 위로 버튼과 브라우저 내 입력 기억을 추가했습니다.', status: '부분', reason: '방문자 분석은 개인정보·동의·GitHub Pages 정책을 확인한 뒤 결정하도록 이번에는 추가하지 않았습니다.', links: ['작업 중'] },
 ];
 
 export const adminPending = [
@@ -21,4 +22,5 @@ export const adminPending = [
   '공식 고시 전인 2027년 구직급여 상한·일부 보험 상·하한·산재 요율·간이세액표 확인',
   'Google Search Console·네이버 서치어드바이저 색인과 sitemap 처리 결과 확인',
   'AdSense 승인·광고 정책·상업 운영 조건 확인',
+  '방문자 분석 도입 여부와 개인정보·동의·GitHub Pages 정책 검토',
 ];

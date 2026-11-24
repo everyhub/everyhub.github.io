@@ -15,8 +15,8 @@ const cells = [...table.querySelectorAll('[data-period][data-amount]')];
 function updateResult() {
   try {
     const result = calculate({
-      annualSalary: salary.valueAsNumber * 10_000,
-      monthlyTaxFree: taxFree.valueAsNumber * 10_000,
+      annualSalary: Number(salary.value.replaceAll(',', '')) * 10_000,
+      monthlyTaxFree: Number(taxFree.value.replaceAll(',', '')) * 10_000,
       dependents: dependents.valueAsNumber,
       children: children.valueAsNumber,
     });

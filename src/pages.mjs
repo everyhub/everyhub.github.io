@@ -126,6 +126,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
   <link rel="stylesheet" href="${root}assets/style.css">
   <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>
   <script type="module" src="${root}assets/navigation-browser.mjs"></script>
+  <script type="module" src="${root}assets/convenience-browser.mjs"></script>
   ${script || calculator ? `<script type="module" src="${root}assets/${script ?? 'browser.mjs'}"></script>` : ''}
   ${!localOnly && config.adsenseClient ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(config.adsenseClient)}" crossorigin="anonymous"></script>` : ''}
 </head>
@@ -174,8 +175,9 @@ function salaryIndex(root) {
 
 function dashboard() {
   const section = (title, hub, links, hubName = `${title} 전체 보기`) => `
-    <section class="panel"><h2><a href="./${hub}">${title}</a></h2>
-      <ul class="dashboard-links">${[...links, { path: hub, name: hubName }].map(({ path, name }) =>
+    <section class="panel dashboard-card" data-dashboard-card><div class="dashboard-card-head"><h2><a href="./${hub}">${title}</a></h2>
+      <a class="dashboard-more" href="./${hub}" aria-label="${hubName}">전체 →</a></div>
+      <ul class="dashboard-links">${links.map(({ path, name }) =>
         `<li><a href="./${path}">${name}</a></li>`).join('')}</ul></section>`;
   return navigationGroups.map(({ name, path, items }) => section(name, path, items)).join('');
 }
@@ -186,7 +188,10 @@ export function homePage(config) {
     description: '연봉 실수령액과 퇴직금 계산기, 사진 배경 제거, 공휴일 달력, 국내외 IT·AI 소식을 한곳에서 찾아보세요.',
     path: '', root: './',
     main: `<h1>${brand}</h1><p class="intro">급여·근로 계산기부터 사진 편집, 생활 정보와 IT·AI 소식까지 원하는 기능을 바로 열어 보세요.</p>
-      <section aria-labelledby="shortcuts"><h2 id="shortcuts">한눈에 바로가기</h2>${dashboard()}</section>
+      <section aria-labelledby="shortcuts"><div class="dashboard-title"><h2 id="shortcuts">한눈에 바로가기</h2>
+        <label class="dashboard-search">바로가기 검색<input type="search" data-dashboard-search placeholder="예: 연차, PDF, 주거" autocomplete="off"></label></div>
+        <p class="dashboard-empty" data-dashboard-empty hidden>검색 결과가 없습니다.</p>${dashboard()}</section>
+      <section class="panel recent-tools" data-recent-tools hidden><h2>최근 본 도구</h2><ul class="tag-list"></ul></section>
       <p><a href="./${salaryCalculatorPath}">연봉 실수령액 계산기와 공식 계산 기준 보기</a></p>`,
   });
 }

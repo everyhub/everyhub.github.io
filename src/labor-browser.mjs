@@ -11,7 +11,7 @@ form.addEventListener('submit', (event) => {
   event.preventDefault();
   const values = Object.fromEntries(tool.fields.map(({ key, options }) => {
     const field = form.elements.namedItem(`field-${key}`);
-    return [key, options ? options.find(([option]) => String(option) === field.value)[0] : field.valueAsNumber];
+    return [key, options ? options.find(([option]) => String(option) === field.value)[0] : Number(field.value.replaceAll(',', ''))];
   }));
   const result = tool.calculate(values);
   for (const { key, format } of tool.outputs) {

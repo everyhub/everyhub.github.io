@@ -77,11 +77,15 @@ test('새 브랜드와 한눈에 바로가기, 별도 연봉 계산기 및 기�
   assert.match(home, /<h1>에브리허브 \(EveryHub\)<\/h1>/);
   assert.match(home, /"@type":"WebSite","name":"에브리허브 \(EveryHub\)"/);
   assert.match(home, /id="shortcuts">한눈에 바로가기/);
+  assert.match(home, /class="dashboard-more"[^>]*>전체 →/);
+  assert.match(home, /data-dashboard-search/);
+  assert.match(home, /data-recent-tools/);
   assert.match(home, /href="\.\/tools\/salary-calculator\/">연봉 실수령액 계산기와 공식 계산 기준 보기<\/a>/);
   assert.doesNotMatch(home, /id="salary-form"/);
   assert.doesNotMatch(home, /id="calculator"/);
   assert.match(home, /data-page-path=""/);
-  const buttons = [...home.matchAll(/class="dashboard-links">([\s\S]*?)<\/ul>/g)].map(([, list]) => list).join('');
+  const buttons = [...home.matchAll(/class="dashboard-links">([\s\S]*?)<\/ul>/g)].map(([, list]) => list).join('')
+    + [...home.matchAll(/class="dashboard-more" href="([^"]+)"/g)].map(([, href]) => `href="${href}"`).join('');
   const paths = [...navigationGroups.map(({ path }) => path), ...Object.keys(tools).map(toolPath),
     ...[...informationSections, ...newsSections, ...utilityGroups].map(({ path }) => path),
     'news/', 'info/', 'tools/', 'tools/salary-calculator/'];
@@ -91,6 +95,19 @@ test('새 브랜드와 한눈에 바로가기, 별도 연봉 계산기 및 기�
   assert.match(salary, /"@type":"FAQPage"/);
   assert.match(salary, /href="\.\.\/\.\.\/salary\/4000\/"/);
   assert.ok(salary.includes(`href="${config.baseURL}tools/salary-calculator/"`));
+});
+
+test('브라우저 편의 기능 자산과 홈 카드 검색·전체보기', async () => {
+  const convenience = await readFile(new URL('../src/convenience-browser.mjs', import.meta.url), 'utf8');
+  const home = homePage(config);
+  assert.match(home, /assets\/convenience-browser\.mjs/);
+  assert.match(convenience, /결과 복사/);
+  assert.match(convenience, /입력 초기화/);
+  assert.match(convenience, /everyhub:recent-tools/);
+  assert.match(convenience, /data-dashboard-search/);
+  assert.match(convenience, /moneyInput/);
+  assert.match(convenience, /numericValue/);
+  assert.match(await readFile(new URL('../src/browser.mjs', import.meta.url), 'utf8'), /value\.replaceAll\(',', ''\)/);
 });
 
 test('홈 레거시 연봉 링크와 연결되지 않은 작업 타임라인 페이지', async () => {
