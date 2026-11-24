@@ -58,12 +58,16 @@ test('개인 이름 없는 브랜드와 분류 탐색 패널', () => {
   assert.match(group.html, /href="\.\.\/leave\/" aria-current="page"/);
   assert.match(group.html, /href="\.\.\/tools\/annual-leave\/"/);
   assert.match(group.html, /aria-controls="site-navigation" aria-expanded="false"/);
+  assert.match(group.html, /<a class="home-link" href="\.\.\/">홈<\/a>/);
+  assert.match(group.html, /class="footer-nav"><a href="\.\.\/sitemap\/">전체 사이트맵<\/a>/);
   assert.match(group.html, /href="\.\.\/sitemap\/"/);
   const sidebar = (html) => html.match(/<nav class="sidebar"[\s\S]+?<\/nav>/)[0];
   assert.doesNotMatch(sidebar(home), /<details open>/);
-  assert.deepEqual([...sidebar(group.html).matchAll(/<details open><summary>(.*?)<\/summary>/g)].map(([, name]) => name), ['육아·휴가']);
+  assert.deepEqual([...sidebar(group.html).matchAll(/<details open><summary>[\s\S]*?<span>([^<]+)<\/span><\/span><\/summary>/g)].map(([, name]) => name), ['육아·휴가']);
+  assert.match(sidebar(group.html), /class="nav-icon"/);
+  assert.match(sidebar(group.html), /nav-ancestor/);
   const salary = sidebar(salaryPage(config, 4_000, salaries.indexOf(4_000)));
-  assert.match(salary, /<details open><summary>급여·세금/);
+  assert.match(salary, /<details open><summary>[\s\S]*?<span>급여·세금<\/span>/);
   assert.doesNotMatch(salary, /href="[^"]*salary\/\d+\//);
 });
 

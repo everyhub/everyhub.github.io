@@ -59,7 +59,7 @@ export function sourcesHTML(references) {
     `<li><a href="${escape(url)}">${escape(name)}</a>${effective ? ` <small>(적용 <time datetime="${effective}">${effective}</time>)</small>` : ''}</li>`).join('')}</ul>`;
 }
 
-function footer(config, payroll) {
+function footer(config, payroll, root) {
   const percent = ({ numerator, denominator }) => (100 * numerator / denominator).toLocaleString('ko-KR');
   const contributionLimits = rates.pension.periods.map(({ from, min, max }, i) => {
     const until = (rates.pension.periods[i + 1]?.from ?? 13) - 1;
@@ -67,6 +67,7 @@ function footer(config, payroll) {
   }).join(', ');
   const creditChange = rates.incomeTax.childCredits.at(-1).from;
   return `<footer class="site-foot"><div class="wrap">
+    <p class="footer-nav"><a href="${root}sitemap/">전체 사이트맵</a></p>
     <p>공식 자료 확인일 <time datetime="${verifiedOn}">${verifiedOn}</time> · 개인별 결과는 참고용입니다.</p>
     ${payroll ? `<p>${disclaimer}</p>
     <details id="sources"><summary>${year}년 연봉 실수령액 공식 계산 기준</summary>
@@ -130,12 +131,12 @@ export function layout({ config, title, description, path, root, main, faq, calc
 <body>
   <header class="site-head"><div class="wrap"><a class="brand" href="${root}">${brand}</a>
     <button type="button" class="nav-toggle" hidden aria-controls="site-navigation" aria-expanded="false">전체 메뉴</button>
-    <a class="sitemap-link" href="${root}sitemap/">사이트맵</a></div></header>
+    <a class="home-link" href="${root}">홈</a></div></header>
   <div class="page-grid wrap">
     <nav class="sidebar" id="site-navigation" aria-label="사이트 탐색"><p class="sidebar-title">분야별 찾아보기</p>${siteTree(root, path)}</nav>
     <main>${main}</main>
   </div>
-  ${footer(localOnly ? { ...config, adsenseClient: '' } : config, payroll)}
+  ${footer(localOnly ? { ...config, adsenseClient: '' } : config, payroll, root)}
 </body>
 </html>`;
 }
