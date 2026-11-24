@@ -133,6 +133,7 @@ function dashboardSearch() {
   const search = document.querySelector('[data-dashboard-search]');
   if (!search) return;
   search.closest('label').hidden = false;
+  if (location.hash === '#shortcut-search') search.focus();
   const cards = [...document.querySelectorAll('[data-dashboard-card]')];
   const empty = document.querySelector('[data-dashboard-empty]');
   const count = document.querySelector('[data-dashboard-count]');

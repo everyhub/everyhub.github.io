@@ -129,6 +129,26 @@ try {
         });
         if (!aligned) issue('Header, sidebar and content edges do not align');
         if (route === '/') {
+          const sidebar = page.locator('.sidebar');
+          const toggle = page.locator('.nav-toggle');
+          if (await toggle.isVisible()) await toggle.click();
+          const categories = sidebar.locator('.nav-category > details');
+          for (const category of await categories.all()) {
+            const summary = category.locator('summary');
+            await summary.press('Enter');
+            if (await category.getAttribute('open') === null) issue('Navigation category failed to expand');
+            const undersized = await category.locator('summary, a').evaluateAll(nodes => nodes.some(node => node.getBoundingClientRect().height < 44));
+            if (undersized) issue('Navigation category has a target under 44px');
+            await summary.press('Enter');
+            if (await category.getAttribute('open') !== null) issue('Navigation category failed to collapse');
+          }
+          if (!await toggle.isVisible() && !await sidebar.evaluate(node => getComputedStyle(node).position === 'sticky' && getComputedStyle(node).overflowY === 'auto')) {
+            issue('Desktop navigation is not sticky and independently scrollable');
+          }
+          await sidebar.getByRole('link', { name: '바로가기 검색' }).click();
+          if (!await page.locator('#shortcut-search').evaluate(input => input === document.activeElement) ||
+              (await toggle.isVisible() && await sidebar.isVisible())) issue('Sidebar shortcut did not focus search');
+          cases++;
           const home = await page.evaluate(() => {
             const heading = document.querySelector('#shortcuts').getBoundingClientRect();
             const input = document.querySelector('[data-dashboard-search]').getBoundingClientRect();
@@ -279,6 +299,8 @@ try {
             for (const source of route === '/news/korea/' ? ['geeknews', 'daangn'] : ['meta']) {
               const filter = page.locator(`[data-news-filter="${source}"]`);
               await filter.click({ timeout: 5000 });
+              if (new URL(page.url()).hash !== '#source-' + source) issue('Missing shareable source tab URL: ' + source);
+              await page.reload();
               const filtered = await page.locator('[data-news-source]:visible').evaluateAll((nodes) => nodes.map(({ dataset }) => dataset.newsSource));
               if (!filtered.length || !filtered.every((id) => id === source)) issue('Incorrect source filter: ' + source);
               await page.locator('[data-news-filter=""]').click();
@@ -426,6 +448,30 @@ try {
           const result = await form.locator('output').textContent();
           if (!await form.locator('svg').isVisible() || await form.locator('svg line').count() < 2 ||
               !/^1\. 가 → .*\n2\. 나 → /m.test(result)) issue('Missing ladder diagram or participant results');
+          cases++;
+        }
+        const preferences = {
+          '/tools/character-count/': { preset: 'x' },
+          '/tools/unit-converter/': { pair: 'in-cm' },
+          '/tools/area-converter/': { unit: 'pyeong' },
+          '/tools/password-generator/': { length: '24', symbols: false },
+        }[route];
+        if (preferences) {
+          for (const [name, value] of Object.entries(preferences)) {
+            const field = form.locator(`[name="${name}"]`);
+            if (typeof value === 'boolean') await field.setChecked(value);
+            else if (await field.evaluate(node => node.tagName === 'SELECT')) await field.selectOption(value);
+            else { await field.fill(value); await field.press('Tab'); }
+          }
+          await page.reload();
+          for (const [name, value] of Object.entries(preferences)) {
+            const field = form.locator(`[name="${name}"]`);
+            const actual = typeof value === 'boolean' ? await field.isChecked() : await field.inputValue();
+            if (actual !== value) issue('Non-sensitive preference did not restore: ' + name);
+          }
+          await form.getByRole('button', { name: '입력 초기화', exact: true }).click();
+          const stored = await page.evaluate(() => localStorage.getItem(`everyhub:preferences:${location.pathname}:${document.querySelector('main form').dataset.utility}`));
+          if (stored !== null) issue('Reset did not clear saved preference');
           cases++;
         }
         if (await overflow() > 1) issue('Page overflows horizontally after input');

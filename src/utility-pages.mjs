@@ -33,9 +33,9 @@ const forms = {
       { name: 'Bluesky · 게시글 공식 규격', url: 'https://github.com/bluesky-social/bsky/blob/main/lexicons/app/bsky/feed/post.json' },
       { name: 'X · 일반 게시글 글자 수 계산 규칙', url: 'https://docs.x.com/fundamentals/counting-characters' },
     ],
-    faq: [['이모지는 어떻게 세나요?', '눈으로 읽는 글자 단위로 셉니다. 예를 들어 가족 이모지처럼 여러 코드 포인트가 합쳐진 문자도 한 글자로 셉니다.'],
+    faq: [['이모지는 어떻게 세나요?', '기본 글자 수에서는 가족 이모지처럼 여러 문자가 합쳐져 보이는 이모지도 한 글자로 셉니다. X의 가중 글자 수는 별도로 표시합니다.'],
       ['바이트는 무엇을 기준으로 세나요?', '입력 전체를 UTF-8로 인코딩한 크기입니다. 공백과 줄바꿈도 포함하며 다른 인코딩을 쓰는 서비스와는 다를 수 있습니다.'],
-      ['글자 수 제한을 어떻게 확인하나요?', '자기소개서나 게시글에 적힌 제한을 선택하거나 직접 입력하세요. 공백 포함 글자 수를 기준으로 하며 서비스별 계산 방식은 다를 수 있습니다.']],
+      ['글자 수 제한을 어떻게 확인하나요?', '게시글 유형을 선택하거나 지원처에서 정한 글자 수를 직접 입력하세요. 직접 입력한 목표에는 공백을 포함합니다.']],
     html: '<label>텍스트<textarea name="text" rows="7" placeholder="여기에 글을 입력하거나 붙여 넣으세요."></textarea></label><div class="form-grid"><label>목표 글자 수<select name="preset"><option value="">사용하지 않음</option><optgroup label="자기소개서 분량 예시"><option>500</option><option>1000</option><option>1500</option></optgroup><optgroup label="SNS 게시글"><option value="bluesky">Bluesky · 300자 / 3,000바이트</option><option value="x">X 일반 게시글 · 가중 280자</option></optgroup><option value="custom">직접 입력</option></select></label><label>직접 입력 (자)<input type="number" name="target" min="1" max="1000000" disabled></label></div><p class="note">자기소개서 제한은 지원처마다 다릅니다. Bluesky는 글자 수와 바이트를 모두 제한합니다. X는 한글·이모지에 가중치 2, 링크에 길이와 관계없이 23을 적용합니다. 직접 입력은 공백 포함 글자 수를 기준으로 합니다.</p>',
   },
   age: {

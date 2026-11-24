@@ -18,6 +18,13 @@ function setOpen(open) {
 toggle.hidden = false;
 setOpen(false);
 toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') === 'false'));
+const search = document.querySelector('#shortcut-search');
+sidebar.querySelector('a[href$="#shortcut-search"]')?.addEventListener('click', (event) => {
+  if (!search || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  if (mobile.matches) setOpen(false);
+  search.focus();
+});
 mobile.addEventListener('change', () => setOpen(false));
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && mobile.matches && toggle.getAttribute('aria-expanded') === 'true') {

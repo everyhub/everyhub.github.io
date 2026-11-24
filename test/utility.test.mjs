@@ -80,7 +80,8 @@ test('tool groups keep the sidebar compact and link to all utility URLs', () => 
       assert.ok(sidebar.includes(`href="../../${path}"`));
       assert.ok(!sidebar.includes(`href="../../${tool.path}"`));
       assert.match(sidebar, /class="nav-icon"/);
-      assert.match(sidebar, /class="sidebar-footer"><a href="\.\.\/\.\.\/sitemap\/">전체 사이트맵<\/a>/);
+      assert.match(sidebar, /class="sidebar-footer"><a href="\.\.\/\.\.\/#shortcut-search">바로가기 검색<\/a>/);
+      assert.match(sidebar, /<a href="\.\.\/\.\.\/sitemap\/">전체 사이트맵<\/a>/);
     }
   }
   const char = pages.get('tools/character-count/');

@@ -4,7 +4,7 @@ import { escape, layout, sourcesHTML } from './pages.mjs';
 import { insurance2027, insurance2027Sources, rates, sources } from './rates.mjs';
 import { brand } from './tool-specs.mjs';
 
-const infoIntro = '계산하지 않아도 바로 확인할 수 있는 공휴일, 세금 신고 기간과 연도별 임금·보험료 기준입니다. 각 페이지에서 공식 원문을 함께 확인할 수 있습니다.';
+const infoIntro = '공휴일 달력, 정부 지원금 신청 기간, 세금 신고 일정과 연도별 임금·보험료 기준을 공식 자료와 함께 확인하세요.';
 const refs = (items) => `<section class="panel"><h2>공식 자료</h2>${sourcesHTML(items)}</section>`;
 const number = (value) => value.toLocaleString('ko-KR');
 const percent = ({ numerator, denominator }) => `${number(100 * numerator / denominator)}%`;
@@ -124,7 +124,7 @@ export function informationPages(config) {
   const [holidays26, holidays27, tax, yearly, support] = informationSections;
   return [
     { path: 'info/', html: layout({
-      config, root, path: 'info/', title: `생활 정보: 공휴일·세금 일정·임금 기준 | ${brand}`, description: infoIntro, localOnly: true,
+      config, root, path: 'info/', title: `생활 정보: 공휴일·신청 일정·임금 기준 | ${brand}`, description: infoIntro, localOnly: true,
       main: `<h1>생활 정보</h1><p class="intro">${infoIntro}</p><section class="panel"><h2>분야별 안내</h2>
       ${informationSections.map(({ path, name, description }) => `<h3><a href="${root}${path}">${name}</a></h3><p>${description}</p>`).join('')}
       <h3><a href="${root}living/">복지·소득 계산기</a></h3><p>가구원 수별 기준 중위소득과 복지 급여 선정 기준을 확인하세요.</p></section>`,

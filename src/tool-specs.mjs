@@ -159,7 +159,7 @@ export const tools = {
   },
   'unemployment-pay': {
     category: 'separation', name: '실업급여·구직급여 계산기',
-    description: '2026년 구직급여 일일 상·하한액, 소정급여일수와 예상 총액을 계산하고 2027년 최저임금 기준 하한액을 확인하세요.',
+    description: '2026년에 적용되는 하루 구직급여 상·하한액, 지급 일수와 예상 총액을 계산하고 2027년 최저임금 기준 하한액을 확인하세요.',
     scope: '수급 자격을 충족한 상용근로자를 가정합니다. 2027년 하한액은 확정 최저임금으로 계산합니다. 상한 산정 방식 개정안은 입법예고 단계여서 2027년 상한액과 예상 지급액은 표시하지 않습니다.',
     fields: [select('year', '이직 연도', 2026, [[2026, '2026년'], [2027, '2027년']]), number('dailyWage', '급여기초 임금일액 (원)', 100_000, 1), number('hours', '이직확인서의 1일 소정근로시간 (시간)', 8, 1, 8), number('insuranceMonths', '피보험기간 (개월)', 36, 0, 720), number('age', '이직 당시 만 나이 (세)', 35, 15, 100), select('disability', '법에서 정한 장애인에 해당하나요?', 'no', yesNo)],
     outputs: [output('floor', '일 하한액'), output('cap', '일 상한액'), output('daily', '예상 일 지급액'), output('days', '소정급여일수', days), output('expected', '예상 총 구직급여')],

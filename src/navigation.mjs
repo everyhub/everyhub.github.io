@@ -69,7 +69,7 @@ export function siteTree(root, path) {
     const active = group.path === hub || group.items.some((item) => item.path === parent);
     return `<li class="nav-category${active ? ' nav-ancestor' : ''}"><details${active ? ' open' : ''}><summary><span class="nav-summary">${categoryIcon(group.path)}<span>${group.name}</span></span></summary><ul>
       <li>${link(root, group.path, `${group.name} 전체 보기`, path === group.path ? path : parent)}</li>${groupLinks(root, group, path, parent)}</ul></details></li>`;
-  }).join('')}</ul><p class="sidebar-footer"><a href="${root}sitemap/">전체 사이트맵</a></p>`;
+  }).join('')}</ul><p class="sidebar-footer"><a href="${root}#shortcut-search">바로가기 검색</a><a href="${root}sitemap/">전체 사이트맵</a></p>`;
 }
 
 export function sitemapDirectory(root) {
