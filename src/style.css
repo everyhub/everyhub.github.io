@@ -224,6 +224,8 @@ summary { cursor: pointer; padding: .5rem 0; font-weight: 700; }
 .admin-timeline { margin: 0; }
 .admin-timeline th, .admin-timeline td { text-align: left; vertical-align: top; padding: var(--space-2); }
 .admin-timeline tbody th { white-space: nowrap; }
+.admin-timeline .admin-audit-detail td { padding-top: 0; border-bottom: 2px solid var(--line); }
+.admin-audit-detail details { max-width: 72ch; }
 .admin-audit-items { margin-block: var(--space-2); padding-inline-start: var(--space-4); }
 .admin-audit-items > li + li { margin-top: var(--space-3); }
 .admin-audit-items p { margin-block: var(--space-1); }
@@ -232,7 +234,9 @@ summary { cursor: pointer; padding: .5rem 0; font-weight: 700; }
   .admin-timeline, .admin-timeline tbody, .admin-timeline tr, .admin-timeline td, .admin-timeline tbody th { display: block; }
   .admin-timeline thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .admin-timeline tbody tr { padding: var(--space-3); }
-  .admin-timeline tbody tr + tr { border-top: 1px solid var(--line); }
+  .admin-timeline tbody tr[id]:not(:first-child) { border-top: 1px solid var(--line); }
+  .admin-timeline .admin-audit-detail { padding-top: 0; }
+  .admin-timeline .admin-audit-detail td { margin-top: 0; border: 0; }
   .admin-timeline td, .admin-timeline tbody th { padding: 0; border: 0; }
   .admin-timeline td { margin-top: var(--space-2); }
   .admin-cell-label { display: block; color: var(--muted); font-size: var(--text-small); font-weight: 750; }

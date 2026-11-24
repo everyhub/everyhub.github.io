@@ -25,7 +25,8 @@ export function adminTimelinePage(config) {
     <td role="cell"><span class="admin-cell-label" aria-hidden="true">상태</span><strong>${escape(status)}</strong></td>
     <td role="cell"><span class="admin-cell-label" aria-hidden="true">사유</span>${escape(reason ?? '—')}</td>
     <td role="cell"><span class="admin-cell-label" aria-hidden="true">근거 URL</span>${linkList(links)}</td>
-    <td role="cell"><span class="admin-cell-label" aria-hidden="true">세부 항목</span><details><summary>세부 상태 보기 (${items.length})</summary>
+  </tr><tr role="row" class="admin-audit-detail" data-request-id="${escape(id)}">
+    <td role="cell" colspan="6"><details><summary>세부 상태 보기 (${items.length})</summary>
       <ul class="admin-audit-items">${items.map((item) => `<li data-audit-status="${escape(item.status)}"><strong>${escape(item.status)}</strong> — ${escape(item.requirement)}
         <p>${escape(item.evidence ?? item.reason)}</p>${item.links.length ? linkList(item.links) : ''}</li>`).join('')}</ul></details></td>
   </tr>`).join('');
@@ -39,7 +40,7 @@ export function adminTimelinePage(config) {
       <h1>작업 요청 타임라인</h1>
       ${adminTabs('../', adminPath)}
       <p class="intro">진행 중인 작업을 먼저 표시하고, 각 그룹은 최신순으로 정렬합니다. 모든 세부 항목의 운영 증거가 있어야 요청을 완료로 표시합니다. 요청 시각이 없으면 관련 작업 시각을 한국시간으로 표시합니다. 이 페이지는 로그인으로 보호되지 않으며, 사이트맵과 메뉴에서 연결하지 않습니다. 새 요청은 <code>src/admin-log.mjs</code>에 기록합니다.</p>
-      <div class="admin-table-wrap"><table class="admin-timeline" role="table"><thead role="rowgroup"><tr role="row">${['시각(KST)', '요청', '반영 내용', '상태', '사유', '근거 URL', '세부 항목'].map((label) => `<th role="columnheader" scope="col">${label}</th>`).join('')}</tr></thead><tbody role="rowgroup">${rows}</tbody></table></div>
+      <div class="admin-table-wrap"><table class="admin-timeline" role="table"><thead role="rowgroup"><tr role="row">${['시각(KST)', '요청', '반영 내용', '상태', '사유', '근거 URL'].map((label) => `<th role="columnheader" scope="col">${label}</th>`).join('')}</tr></thead><tbody role="rowgroup">${rows}</tbody></table></div>
       <section class="panel"><h2>과거 운영 기록</h2><p>${escape(initialDeployment.request)} · <strong>${escape(initialDeployment.status)}</strong> — ${escape(initialDeployment.reason)} ${escape(initialDeployment.reflection)}</p></section>
       <section class="panel"><h2>보류·다음 확인</h2><ul>${pending}</ul></section>`,
   });

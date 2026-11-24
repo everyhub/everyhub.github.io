@@ -223,7 +223,7 @@ try {
         }
         if (route === '/ops-7f3a9c2d/') {
           const expected = sortAdminTimeline(adminTimeline);
-          const rows = page.locator('.admin-timeline tbody > tr');
+          const rows = page.locator('.admin-timeline tbody > tr[id]');
           const actual = await rows.evaluateAll((nodes) => nodes.map((row) => ({
             id: row.id,
             text: Array.from(row.cells).slice(0, 5).map((cell) => {
@@ -232,7 +232,7 @@ try {
               return node.textContent.trim();
             }),
             links: Array.from(row.cells[5].querySelectorAll('a'), (link) => link.href),
-            items: Array.from(row.querySelectorAll('.admin-audit-items > li'), (item) => ({
+            items: Array.from(row.nextElementSibling.querySelectorAll('.admin-audit-items > li'), (item) => ({
               status: item.dataset.auditStatus,
               requirement: item.firstChild.nextSibling.textContent.trim().replace(/^—\s*/, ''),
               note: item.querySelector('p').textContent.trim(),
@@ -246,9 +246,12 @@ try {
             })),
           }));
           if (JSON.stringify(actual) !== JSON.stringify(reference)) issue('Live audit timeline differs from exported audit data');
-          const details = rows.filter({ hasText: '글자수 계산기 같은게 있으면' }).locator('summary');
-          await details.click();
-          if (!await page.locator('#writing-tools .admin-audit-items').isVisible() || await overflow() > 1) issue('Admin audit details are hidden or overflow');
+          const details = page.locator('[data-request-id="writing-tools"]');
+          await details.locator('summary').click();
+          const list = details.locator('.admin-audit-items');
+          if (!await list.isVisible() || await overflow() > 1 || (width === 1440 && (await list.boundingBox()).width < 360)) {
+            issue('Admin audit details are hidden, cramped or overflow');
+          }
           cases += 2;
         }
         if (route === '/ops-7f3a9c2d/recommendations/') {
