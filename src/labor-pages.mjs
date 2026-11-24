@@ -5,8 +5,9 @@ import { ad, escape, faqHTML, layout, sourcesHTML } from './pages.mjs';
 import { formatNumber, salaryName, won } from './display.mjs';
 import { severancePay, wageConversion } from './labor.mjs';
 import { medianIncome } from './guides.mjs';
-import { examplePages, groupedTools, medianPages, salaryCalculatorPath, sitemapDirectory } from './navigation.mjs';
+import { examplePages, groupedTools, medianPages, moveInGuide, salaryCalculatorPath, sitemapDirectory } from './navigation.mjs';
 import { housingExamples } from './housing-examples.mjs';
+import { moveInPage } from './move-in-page.mjs';
 
 const examples = [...examplePages, ...medianPages, ...housingExamples];
 const toolLink = (root, id) => `<a href="${root}${toolPath(id)}">${tools[id].name}</a>`;
@@ -37,6 +38,7 @@ function categoryPage(config, category) {
     <section class="panel" aria-labelledby="category-tools"><h2 id="category-tools">계산기 고르기</h2>
     ${category.id === 'pay' ? `<h3><a href="${root}${salaryCalculatorPath}">연봉 실수령액 계산기</a></h3><p>공제항목별 월평균·연간 실수령액과 <a href="${root}${salaryCalculatorPath}#salary-index">연봉별 예시</a>를 비교하세요.</p>` : ''}
     ${members.map(([id, tool]) => `<h3>${toolLink(root, id)}</h3><p>${escape(tool.description)}</p>`).join('')}
+    ${category.id === 'housing' ? `<h3><a href="${root}${moveInGuide.path}">${moveInGuide.name}</a></h3><p>이사 전에 신청 순서와 준비물, 공식 접수처를 확인하세요.</p>` : ''}
     ${category.id === 'pay' ? `<h3><a href="${root}tax/">프리랜서·세금 계산기</a></h3><p>원천징수, 종합소득세, 부가가치세와 증여재산공제를 확인하세요.</p>` : ''}</section>
     ${faqHTML(faq)}`,
   });
@@ -62,6 +64,7 @@ function toolPage(config, id, tool) {
     main: `<p class="eyebrow"><a href="${root}${category.id}/">${category.title}</a> · ${review}</p>
       <h1>${tool.name}</h1><p class="intro">${escape(tool.description)}</p>
       ${tool.related?.length ? `<ul class="tag-list" aria-label="관련 계산기">${tool.related.map((related) => `<li>${toolLink(root, related)}</li>`).join('')}</ul>` : ''}
+      ${id === 'tenancy-renewal-report' ? `<p><a href="${root}${moveInGuide.path}">${moveInGuide.name}</a></p>` : ''}
       <section class="panel" aria-labelledby="tool-calculate"><h2 id="tool-calculate">조건 입력</h2>
         <form id="tool-form" data-tool="${id}"><div class="form-grid">${tool.fields.map(formField).join('')}</div>
           <p><button type="submit">계산하기</button></p>
@@ -82,8 +85,8 @@ function toolPage(config, id, tool) {
 }
 
 function scenarioRows(rows, heading) {
-  return `<table><caption>${heading}</caption><thead><tr><th scope="col">조건</th><th scope="col">기준</th><th scope="col">예상 금액</th></tr></thead>
-    <tbody>${rows.map(([label, basis, amount]) => `<tr><th scope="row">${label}</th><td>${basis}</td><td>${won(amount)}</td></tr>`).join('')}</tbody></table>`;
+  return `<table class="example-amounts"><caption>${heading}</caption><thead><tr><th scope="col">조건</th><th scope="col">기준</th><th scope="col">예상 금액</th></tr></thead>
+    <tbody>${rows.map(([label, basis, amount]) => `<tr><th scope="row">${label}</th><td>${basis}</td><td class="amount">${won(amount)}</td></tr>`).join('')}</tbody></table>`;
 }
 
 function hourlyExample(amount) {
@@ -206,9 +209,9 @@ function housingExample(config, { id, path, title, description, rowKeys, cases }
     config, path, root, title: `${title} | ${brand}`, description, faq,
     main: `<p class="eyebrow"><a href="${root}housing/">주거·전월세</a> · ${review}</p>
     <h1>${title}</h1><p class="intro">${description}</p>
-    <section class="panel"><h2>조건별 예상 금액</h2><table><thead><tr><th scope="col">조건</th>
+    <section class="panel"><h2>조건별 예상 금액</h2><table class="example-amounts"><thead><tr><th scope="col">조건</th>
     ${columns.map(({ label }) => `<th scope="col">${escape(label)}</th>`).join('')}</tr></thead><tbody>
-    ${rows.map(({ name, values }) => `<tr><th scope="row">${name}</th>${values.map((value) => `<td>${escape(value)}</td>`).join('')}</tr>`).join('')}
+    ${rows.map(({ name, values }) => `<tr><th scope="row">${name}</th>${values.map((value) => `<td${/^\d[\d,.]*(?:원|%)$/.test(value) ? ' class="amount"' : ''}>${escape(value)}</td>`).join('')}</tr>`).join('')}
     </tbody></table><p class="note">${escape(tool.scope)}</p><p>${toolLink(root, id)}</p>
     ${related.map((example) => `<p>${exampleLink(root, example)}</p>`).join('')}</section>
     <section class="panel"><h2>공식 계산 기준</h2>${sourcesHTML(tool.sources)}</section>${faqHTML(faq)}`,
@@ -222,6 +225,7 @@ export function extraPages(config) {
     ...examplePages.map((example) => ({ path: example.path, html: examplePage(config, example) })),
     ...medianPages.map((example) => ({ path: example.path, html: medianPage(config, example) })),
     ...housingExamples.map((example) => ({ path: example.path, html: housingExample(config, example) })),
+    { path: moveInGuide.path, html: moveInPage(config) },
     { path: 'sitemap/', html: sitemapPage(config) },
   ];
 }

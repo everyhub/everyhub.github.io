@@ -141,6 +141,17 @@ test('브라우저 편의 기능 자산과 홈 카드 검색·전체보기', asy
   assert.match(salaryCalculatorPage(config), /id="annualSalary" type="number"/);
 });
 
+test('전입신고 안내는 신고·확정일자·전입 절차를 구분하고 공식 접수처와 연결한다', () => {
+  const pages = extraPages(config);
+  const guide = pages.find(({ path }) => path === 'housing/move-in-checklist/').html;
+  for (const text of ['30일 이내', '14일 이내', '확정일자가 부여된 것으로 봅니다', 'www.gov.kr', 'www.iros.go.kr', 'rtms.molit.go.kr']) {
+    assert.ok(guide.includes(text), text);
+  }
+  for (const path of ['housing/', 'sitemap/', toolPath('tenancy-renewal-report')]) {
+    assert.match(pages.find((page) => page.path === path).html, /href="[^"]*housing\/move-in-checklist\/"/);
+  }
+});
+
 test('홈 레거시 연봉 링크와 연결되지 않은 작업 타임라인 페이지', async () => {
   const browser = await readFile(new URL('../src/navigation-browser.mjs', import.meta.url), 'utf8');
   const admin = adminTimelinePage(config);
@@ -234,7 +245,7 @@ test('추천 탭은 검토할 제안을 먼저 보여 주고 승인은 해당 Gi
 
 test('각 도구의 공식 출처, 캐노니컬·FAQ·계산기 구조화 데이터', () => {
   const pages = extraPages(config);
-  assert.equal(pages.length, 81);
+  assert.equal(pages.length, 82);
   assert.equal(new Set(pages.map(({ path }) => path)).size, pages.length);
   for (const [id, tool] of Object.entries(tools)) {
     const path = toolPath(id);

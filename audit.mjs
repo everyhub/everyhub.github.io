@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { adminTimeline, sortAdminTimeline } from './src/admin-log.mjs';
 import { PDFDocument } from './src/utility-vendor/pdf-lib-1.17.1.mjs';
+import { jpegLocation } from './src/photo-location.mjs';
+import { jpegWithGPS } from './test/photo-location-fixture.mjs';
 
 const dist = fileURLToPath(new URL('./dist', import.meta.url));
 const live = process.env.AUDIT_LIVE_URL && new URL(process.env.AUDIT_LIVE_URL);
@@ -107,6 +109,13 @@ try {
     return canvas.toDataURL().split(',')[1];
   });
   const imageFixture = { name: 'audit.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') };
+  const jpeg = await page.evaluate(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 16;
+    return canvas.toDataURL('image/jpeg').split(',')[1];
+  });
+  const jpegFixture = { name: 'audit.jpg', mimeType: 'image/jpeg', buffer: jpegWithGPS(Buffer.from(jpeg, 'base64')) };
   const heicFixture = { name: 'audit.heic', mimeType: 'image/heic', buffer: await readFile(new URL('./test/sample.heic', import.meta.url)) };
 
   for (width of [390, 768, 1024, 1440]) {
@@ -226,7 +235,7 @@ try {
           const main = page.locator('main');
           const schedules = await main.locator('time').evaluateAll((nodes) => nodes.map((time) => time.dateTime));
           if (schedules.join() !== '2026-12-01,2026-06-15,2026-12-31,2026-08-07,2026-12-31' ||
-              await main.locator('.tax-timeline > li').count() !== 4 ||
+              await main.locator('.support-schedule > li').count() !== 4 ||
               !await main.getByRole('link', { name: '고용24 상시 신청 안내' }).isVisible()) issue('Missing official support application dates or notice');
           cases++;
         }
@@ -317,9 +326,51 @@ try {
           cases++;
           continue;
         }
+        if (route === '/housing/move-in-checklist/') {
+          const sections = page.locator('main section');
+          if (!/30일 이내/.test(await sections.nth(0).textContent()) ||
+              !/확정일자가 부여된/.test(await sections.nth(1).textContent()) ||
+              !/14일 이내/.test(await sections.nth(2).textContent())) issue('Move-in steps are missing the official deadlines or deemed date rule');
+          const links = await page.locator('main a[href^="https:"]').evaluateAll(nodes => nodes.map(node => new URL(node.href).hostname));
+          if (!['www.gov.kr', 'www.iros.go.kr', 'rtms.molit.go.kr', 'www.law.go.kr'].every(host => links.includes(host))) {
+            issue('Move-in checklist is missing an official link');
+          }
+          cases++;
+        }
         const form = page.locator('main form');
         if (!await form.count()) continue;
         forms++;
+        if (route === '/tools/photo-location/') {
+          const start = requests.length;
+          await context.setOffline(true);
+          try {
+            const input = form.locator('[name="file"]');
+            const save = form.locator('.utility-download');
+            const submit = form.locator('[type="submit"]');
+            await input.setInputFiles(jpegFixture);
+            await submit.click();
+            await save.waitFor();
+            if (!/위도 -37\.500000, 경도 127\.250000/.test(await form.locator('output').textContent())) issue('GPS coordinates not read');
+            const downloaded = page.waitForEvent('download');
+            await save.click();
+            const file = await downloaded;
+            const bytes = await readFile(await file.path());
+            if (jpegLocation(Uint8Array.from(bytes).buffer) !== null || bytes.includes(Buffer.from('Exif'))) issue('Downloaded JPEG retains original EXIF');
+            if (!await page.evaluate(async (base64) => {
+              const image = new Image();
+              image.src = 'data:image/jpeg;base64,' + base64;
+              await image.decode();
+              return image.naturalWidth === 16 && image.naturalHeight === 32;
+            }, bytes.toString('base64'))) issue('EXIF orientation was not applied to the downloaded JPEG');
+            await input.setInputFiles(invalidFile);
+            await submit.click();
+            await page.getByText('JPG 사진을 선택하세요.', { exact: true }).waitFor();
+            if (await save.isVisible()) issue('Invalid JPEG produced a download');
+            if (requests.length !== start) issue('Photo inspection, removal or download made a network request');
+            cases += 4;
+          } finally { await context.setOffline(false); }
+          continue;
+        }
         const fixture = route.includes('/pdf-') ? pdfFixture : imageFixture;
         const file = form.locator('input[type="file"]');
         const hasFile = await file.count();
@@ -434,6 +485,12 @@ try {
           await form.locator('[type="submit"]').click();
           if (!/2028-06-23/.test(await form.locator('output').textContent())) issue('Wrong leap lunar to solar result');
           cases += 2;
+        }
+        if (route === '/tools/json-formatter/') {
+          await form.locator('[name="text"]').fill('{invalid}');
+          await form.locator('[type="submit"]').click();
+          if (!/올바른 JSON을 입력하세요/.test(await form.locator('output').textContent())) issue('Invalid JSON lacks useful Korean guidance');
+          cases++;
         }
         if (route === '/tools/character-count/') {
           await form.locator('[name="preset"]').selectOption('bluesky');

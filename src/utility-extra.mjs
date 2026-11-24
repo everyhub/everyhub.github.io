@@ -53,7 +53,7 @@ export function worldTime(date, time) {
 }
 
 export function bmi(cm, kg) {
-  if (!(cm > 0 && kg > 0) || !Number.isFinite(cm + kg)) throw new Error('양수인 키와 체중을 입력해 주세요.');
+  if (!(cm > 0 && kg > 0) || !Number.isFinite(cm + kg)) throw new Error('키와 체중을 각각 0보다 큰 수로 입력해 주세요.');
   const value = kg / (cm / 100) ** 2;
   return { value, category: [[18.5, '저체중'], [23, '정상'], [25, '비만 전단계'], [30, '1단계 비만'],
     [35, '2단계 비만'], [Infinity, '3단계 비만']].find(([limit]) => value < limit)[1] };
@@ -94,7 +94,7 @@ export function secureIndex(size, cryptoSource = globalThis.crypto) {
 
 export function drawNames(text, count, random = secureIndex) {
   const items = [...new Set(lines(text).map((line) => line.trim()).filter(Boolean))];
-  if (!Number.isSafeInteger(count) || count < 1 || count > items.length) throw new Error('중복을 제외한 후보 수 이내로 당첨 인원을 입력해 주세요.');
+  if (!Number.isSafeInteger(count) || count < 1 || count > items.length) throw new Error('당첨 인원은 1명 이상, 중복을 뺀 후보 수 이하로 입력해 주세요.');
   for (let i = 0; i < count; i++) {
     const j = i + random(items.length - i);
     [items[i], items[j]] = [items[j], items[i]];
@@ -103,7 +103,7 @@ export function drawNames(text, count, random = secureIndex) {
 }
 
 export function randomPassword(length, symbols, random = secureIndex) {
-  if (!Number.isSafeInteger(length) || length < 8 || length > 128) throw new Error('8~128자 사이 길이를 입력해 주세요.');
+  if (!Number.isSafeInteger(length) || length < 8 || length > 128) throw new Error('비밀번호 길이를 8~128자로 입력해 주세요.');
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' + (symbols ? '!@#$%^&*_-+=' : '');
   return Array.from({ length }, () => alphabet[random(alphabet.length)]).join('');
 }

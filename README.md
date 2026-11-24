@@ -84,6 +84,9 @@ python3 -m http.server 8080 --bind 127.0.0.1 --directory dist
 
 ## 배포 및 장애 대응
 
+- **사진 위치정보 확인·삭제:** JPG의 EXIF GPS 좌표를 기기에서 읽고, 회전 방향을 적용한 새 JPG를 저장합니다. 사진을 업로드하거나 원본 파일을 변경하지 않습니다. 브라우저 감사는 페이지를 연 뒤 오프라인 상태에서 합성 사진의 확인·저장을 실행하며 네트워크 요청이 0건인지 검사합니다.
+- **전입신고·확정일자 체크리스트:** 주거 허브와 전월세 신고 대상 계산기에서 이사 절차, 신고 기한, 계약서 준비, 정부24·인터넷등기소·국토교통부 접수처를 안내합니다.
+
 - 뉴스의 출처 보기는 `#source-geeknews` 같은 주소로 공유할 수 있습니다. 우아한형제들 기술블로그는 수집 환경에서 공식 피드가 접근을 허용하지 않아 원문 링크만 제공합니다.
 
 - 조직 사이트 기본 URL은 `https://everyhub.github.io/`입니다. 저장소의 **Settings → Pages → Build and deployment → Source**는 **GitHub Actions**입니다. CI는 Pages의 URL을 사용하므로 하위 경로도 지원합니다. 운영 URL을 덮어쓸 때만 **Settings → Secrets and variables → Actions → Variables**의 `SITE_URL`을 설정합니다.

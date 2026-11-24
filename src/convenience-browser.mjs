@@ -75,6 +75,7 @@ function copyText(value) {
 }
 
 function addCopyButton() {
+  if (document.querySelector('[data-utility="photo-location"]')) return;
   const result = document.querySelector('#tool-form ~ .tool-result, #salary-form ~ .net, .utility-result');
   if (!result) return;
   const button = document.createElement('button');

@@ -7,6 +7,7 @@ import { utilityGroups, utilitySections } from './utility-config.mjs';
 import { housingExamples } from './housing-examples.mjs';
 
 export const salaryCalculatorPath = 'tools/salary-calculator/';
+export const moveInGuide = { path: 'housing/move-in-checklist/', name: '전입신고·확정일자 체크리스트' };
 
 export const examplePages = [
   ...[10_000, ...laborRates.minimum.map(({ hourly }) => hourly), 11_000, 12_000, 13_000, 14_000, 15_000, 16_000, 18_000, 20_000, 25_000, 30_000]
@@ -29,7 +30,7 @@ export const navigationGroups = [
     path: `${id}/`, name: title,
     items: id === 'pay'
       ? [{ path: salaryCalculatorPath, name: '연봉 실수령액 계산기' }, ...entries(id), ...entries('tax')]
-      : entries(id),
+      : id === 'housing' ? [...entries(id), moveInGuide] : entries(id),
   })),
   { path: 'tools/', name: '도구', items: utilityGroups },
   { path: 'news/', name: 'IT·AI 소식', items: newsSections },

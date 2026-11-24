@@ -88,7 +88,7 @@ export const housingTools = {
     '민영주택 일반공급 가점제의 점수 계산입니다. 무주택 인정 시작일, 주택 보유 예외, 부양가족 인정 및 미성년 가입기간 인정은 입주자 모집공고일 기준 청약홈에서 확인한 값만 입력하세요.',
     [num('homeFree', '인정 무주택기간 (지난 연수, 비해당 -1)', 10, -1, 100),
       num('dependents', '인정 부양가족 (본인 제외, 명)', 2, 0, 30), num('account', '본인 인정 가입기간 (지난 개월)', 110, 0, 1_200),
-      num('spouse', '배우자 가입기간 (지난 개월, 미가입·해당없음 -1)', -1, -1, 1_200)],
+      num('spouse', '배우자 가입 기간 (개월, 미가입·해당 없음은 -1)', -1, -1, 1_200)],
     [out('noHome', '무주택기간', points), out('family', '부양가족', points), out('own', '본인 청약통장', points),
       out('spousePoints', '배우자 청약통장 (합산 상한 적용 전)', points), out('accounts', '통장 합산 (17점 한도)', points), out('total', '총 가점 (84점 만점)', points)],
     calc.subscriptionScore, [s.supply, s.score, s.spouseScore], [['배우자 청약통장은 몇 점까지 더하나요?', '배우자의 인정 가입기간은 50%만 반영해 최대 3점이며, 본인과 합한 청약통장 점수는 17점을 넘을 수 없습니다.']]),

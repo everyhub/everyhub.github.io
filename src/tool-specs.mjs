@@ -45,6 +45,8 @@ export const shortcutKeywords = {
   'lunar-calendar': ['음력', '양력', '윤달', '음력 생일'],
   'background-removal': ['사진', '누끼따기', '배경삭제', '배경 투명'],
   'image-resize': ['사진', '용량 줄이기', '파일 크기', '사진 변환'],
+  'photo-location': ['사진', '위치', 'GPS', 'EXIF', '메타데이터'],
+  'move-in-checklist': ['집', '이사', '전입신고', '확정일자', '임대차 신고'],
   'passport-photo': ['사진', '여권사진', '증명사진'],
   'pdf-merge': ['피디에프', 'PDF 병합', 'PDF 묶기'],
   'pdf-split': ['피디에프', 'PDF 분리', 'PDF 자르기'],

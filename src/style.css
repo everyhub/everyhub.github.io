@@ -162,6 +162,8 @@ th { text-align: left; }
 td, thead th:not(:first-child) { text-align: right; }
 thead th, tfoot th, tfoot td { font-weight: 760; }
 tfoot { color: var(--accent); }
+.example-amounts .amount { white-space: nowrap; }
+@media (max-width: 34rem) { .example-amounts { font-size: var(--text-small); } }
 .calendar-section, #holiday-list { margin-block: 1.5rem; scroll-margin-top: 1rem; }
 .calendar-years, .calendar-legend, .calendar-jumps { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
 .calendar-years a { display: block; padding: .5rem .9rem; border: 1px solid var(--line); border-radius: 999px; background: white; font-weight: 750; text-decoration: none; }
@@ -197,6 +199,10 @@ tfoot { color: var(--accent); }
 .tax-timeline ul li + li { margin-top: .5rem; }
 .tax-range { display: inline-block; color: var(--accent); font-weight: 700; margin-right: .25rem; }
 .tax-timeline small, .rate-comparison small { display: block; font-weight: 400; }
+.support-schedule { padding: 0; list-style: none; }
+.support-schedule li + li { border-top: 1px solid var(--line); padding-top: 1rem; margin-top: 1rem; }
+.support-schedule h3 { margin: 0; }
+.support-schedule time { white-space: nowrap; }
 .rate-comparison { table-layout: fixed; }
 .rate-comparison th:first-child { width: 40%; }
 .rate-comparison th, .rate-comparison td { overflow-wrap: anywhere; }

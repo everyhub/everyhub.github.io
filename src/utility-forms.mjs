@@ -29,7 +29,7 @@ export const extraUtilityForms = {
     grid(area('first', '원본', 'maxlength="50000"'), area('second', '비교할 내용', 'maxlength="50000"')) + button('줄 비교'),
     '중간에 줄을 삽입하면 어떻게 표시하나요?', '같은 줄 번호에 있는 내용끼리 비교합니다. 중간에 줄을 넣으면 뒤의 줄 번호가 모두 달라질 수 있습니다. 다른 줄 중 처음 100개를 표시합니다.'),
   'pdf-merge': form(
-    pdf('multiple') + '<p class="note">선택된 파일 순서입니다. 순서를 바꾸려면 파일을 다시 선택하세요.</p><ol class="utility-file-list"></ol>' + pdfCaveat + button('PDF 합치기') + download,
+    pdf('multiple') + '<p class="note">아래 목록의 위에서부터 합칩니다. 순서를 바꾸려면 파일을 다시 선택하세요.</p><ol class="utility-file-list"></ol>' + pdfCaveat + button('PDF 합치기') + download,
     '합치기 순서는 어떻게 정하나요?', '파일을 고르면 화면에 표시되는 목록 위에서부터 페이지를 가져옵니다. PDF를 두 개 이상 선택하세요.'),
   'pdf-split': form(
     pdf() + input('pages', '페이지 또는 범위 (예: 1, 3–5)', 'placeholder="1, 3-5" required maxlength="1000"') + pdfCaveat + button('선택한 페이지 추출') + download,

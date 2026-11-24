@@ -49,11 +49,11 @@ test('면적 환산과 이미지 크기 조절', () => {
 
 test('공개 도구는 광고 없이 렌더링하고 편집기와 Worker를 같은 출처로 제한한다', async () => {
   const pages = utilityPages({ baseURL: 'https://example.com/subpath/', adsenseClient: 'ca-pub-1' });
-  assert.equal(pages.length, 32);
+  assert.equal(pages.length, 33);
   const hubs = new Set(['tools/', ...utilityGroups.map(({ path }) => path)]);
   for (const { path, html } of pages) {
     assert.ok(html.includes(`rel="canonical" href="https://example.com/subpath/${path}"`));
-    assert.match(html, /connect-src 'self'/);
+    assert.ok(html.includes(path === 'tools/photo-location/' ? "connect-src 'none'" : "connect-src 'self'"), path);
     assert.doesNotMatch(html, /googlesyndication|Google AdSense/);
     if (!hubs.has(path)) {
       assert.match(html, /"applicationCategory":"UtilitiesApplication"/);

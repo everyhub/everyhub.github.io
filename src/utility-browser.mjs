@@ -111,7 +111,13 @@ const calculate = {
     preview.removeAttribute('hidden');
     return matches.map(({ index, end, player, result }) => `${index + 1}. ${player} → ${end + 1}. ${result}`).join('\n');
   },
-  'json-formatter': () => extra.formatJSON(fields.text.value, fields.mode.value === 'pretty'),
+  'json-formatter'() {
+    try {
+      return extra.formatJSON(fields.text.value, fields.mode.value === 'pretty');
+    } catch {
+      throw new Error('올바른 JSON을 입력하세요. 따옴표, 쉼표 및 괄호를 확인해 주세요.');
+    }
+  },
   'text-encoding'() {
     try {
       return extra.encodeText(fields.text.value, fields.mode.value);

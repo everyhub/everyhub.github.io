@@ -7,6 +7,15 @@ import { maxArea } from './utility.mjs';
 const root = '../../';
 const toolIntro = '글쓰기, 이미지·PDF, 날짜·시간, 생활 계산과 개발 도구를 브라우저에서 바로 사용하세요. 파일과 입력값은 서버로 보내지 않습니다.';
 const forms = {
+  'photo-location': {
+    faq: [
+      ['사진을 업로드하나요?', '아니요. 페이지를 연 뒤 사진 확인과 사본 저장은 기기에서만 진행됩니다. 원본 파일은 변경하지 않습니다.'],
+      ['사본에는 무엇이 남나요?', '사진에 보이는 모습은 그대로 남습니다. 촬영 장소를 짐작할 수 있는 건물이나 주소는 직접 가려야 합니다. 사본은 JPG로 다시 인코딩하므로 용량이나 화질이 달라질 수 있습니다.'],
+    ],
+    html: `<label>JPG 사진<input type="file" name="file" accept="image/jpeg,.jpg,.jpeg" required></label>
+    <p class="note">30MB 이하의 JPG만 지원합니다. 좌표는 EXIF에서만 읽습니다. 저장용 사본은 GPS뿐 아니라 원본 EXIF·XMP 등 메타데이터를 제외하고, 회전 방향은 이미지에 반영합니다.</p>
+    <button type="submit">위치정보 확인</button> <a class="button utility-download" hidden>위치정보 없는 사본 저장</a>`,
+  },
   'background-removal': {
     faq: [
       ['이미지를 업로드하나요?', '아니요. 사이트에서 모델 파일만 받아 브라우저가 이미지를 메모리에서 처리합니다. PNG 저장 버튼을 누를 때만 결과가 기기에 내려받아집니다.'],
@@ -85,7 +94,7 @@ export function utilityPages(config) {
     ${faqHTML(faq)}`;
     return { path, html: layout({
       config, root, path, description, title: `${name} | ${brand}`, application: name, faq, localOnly: true,
-      script: embedded ? undefined : 'utility-browser.mjs', main,
+      script: embedded ? undefined : id === 'photo-location' ? 'photo-location-browser.mjs' : 'utility-browser.mjs', main,
     }) };
   })];
 }

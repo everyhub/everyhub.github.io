@@ -115,7 +115,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  ${privatePage ? `<meta http-equiv="Content-Security-Policy" content="default-src 'self';${path === 'tools/image-resize/' ? " script-src 'self' 'wasm-unsafe-eval';" : ''} connect-src 'self'; img-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'">` : ''}
+  ${privatePage ? `<meta http-equiv="Content-Security-Policy" content="default-src 'self';${path === 'tools/image-resize/' ? " script-src 'self' 'wasm-unsafe-eval';" : ''} connect-src ${path === 'tools/photo-location/' ? "'none'" : "'self'"}; img-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'">` : ''}
   <meta name="viewport" content="width=device-width, initial-scale=1">
   ${robots ? `<meta name="robots" content="${escape(robots)}">` : ''}
   <title>${escape(title)}</title>
@@ -269,7 +269,7 @@ export function salaryPage(config, salary, index) {
   const faq = [
     [`${name}이면 한 달에 얼마를 받나요?`, `${year}년 기준 월평균 ${won(monthly.net)}, 연간 ${won(annual.net)}으로 예상됩니다. ${assumptions}`],
     [`${name}에 비과세 식대가 없다면 월급이 얼마나 달라지나요?`, `같은 세전 연봉에서 비과세액을 0원으로 두면 월평균 ${won(noMeal.monthly.net)}으로, 기본 조건보다 ${won(monthly.net - noMeal.monthly.net)} 적습니다.`],
-    [`인접 연봉인 ${salaryName(other)}의 월 실수령액은 얼마나 다른가요?`, `같은 비과세·부양가족 조건에서 ${label(other)}의 월평균 실수령액은 ${won(modeled.get(other).monthly.net)}입니다. 월 차이는 ${won(difference)}입니다.`],
+    [`${salaryName(other)}이면 월 실수령액은 얼마나 달라지나요?`, `같은 비과세·부양가족 조건에서 ${label(other)}의 월평균 실수령액은 ${won(modeled.get(other).monthly.net)}입니다. 월 차이는 ${won(difference)}입니다.`],
   ];
   const title = `${year} ${name} 실수령액 | 월 ${won(monthly.net)} 예상`;
   return layout({
