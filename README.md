@@ -51,7 +51,7 @@ python3 -m http.server 8080 --bind 127.0.0.1 --directory dist
 
 ## 브라우저 도구의 개인정보와 배포 용량
 
-**푸시 전 필수:** `npm test`와 `npm run audit`를 실행하세요. 감사는 정적 상세 페이지를 제외한 모든 페이지를 390px·1280px Chromium에서 열고, 입력 경계·비정상 값·합성 파일, 콘솔 오류와 가로 넘침을 점검합니다. 같은 출처의 쿼리 없는 GET/HEAD 외의 요청을 차단하고 실패로 보고합니다. 설치된 Chromium은 `AUDIT_CHROMIUM_PATH`로 지정할 수 있습니다. 요청 경로·메서드 보고서는 `AUDIT_REPORT`에 지정한 파일에 쓰며 쿼리 값은 기록하지 않습니다. 뉴스 목록까지 점검하려면 `NEWS_REFRESH=1 npm run audit`를 사용하세요(피드는 브라우저가 아니라 빌드에서 수집합니다).
+**푸시 전 필수:** `npm test`와 `npm run audit`를 실행하세요. 일반 페이지와 대표 상세 템플릿을 390·768·1024·1440px Chromium에서 열고 헤더·본문 정렬과 가로 넘침을 확인합니다. 390·1440px에서 입력 경계·비정상 값·합성 파일과 콘솔도 점검합니다. 같은 출처의 쿼리 없는 GET/HEAD 외의 요청을 차단하고 실패로 보고합니다. 설치된 Chromium은 `AUDIT_CHROMIUM_PATH`로, 화면 캡처 폴더는 `AUDIT_SCREENSHOTS`로 지정할 수 있습니다. 요청 경로·메서드 보고서는 `AUDIT_REPORT`에 지정한 파일에 쓰며 쿼리 값은 기록하지 않습니다. 뉴스 목록까지 점검하려면 `NEWS_REFRESH=1 npm run audit`를 사용하세요(피드는 브라우저가 아니라 빌드에서 수집합니다).
 
 - 헤더 마크, 홈 일러스트, 1200×630 공유 이미지는 직접 만든 SVG이며 32·180·192·512px 아이콘과 함께 동일 출처에서 제공됩니다. 스톡 이미지나 외부 폰트 파일을 쓰지 않으며, 원본·PNG는 `src/brand/LICENSE.txt`의 CC0 적용 대상입니다. SVG 수정 후 감사 환경의 Chromium과 로컬 한글 글꼴(권장: Noto Sans CJK KR)로 `node render-brand.mjs`를 실행해 PNG를 다시 만듭니다.
 
@@ -86,7 +86,7 @@ git -c credential.helper= \
   push https://x-access-token@github.com/everyhub/everyhub.github.io.git main
 ```
 
-- `main` 푸시, 매월 1일 03:17 UTC, 수동 실행은 전체 빌드·배포합니다. 30분 주기 예약 실행은 게시물이나 배포 대상 커밋이 달라진 경우에만 아티팩트를 올리고 배포합니다. 30분은 목표 주기이며 GitHub 예약 실행이 지연되거나 누락될 수 있습니다. 겹치는 Pages 실행은 최신 실행이 앞선 실행을 취소합니다.
+- `main` 푸시, 매월 1일 03:17 UTC, 기본 수동 실행은 전체 빌드·배포합니다. 뉴스 예약은 정각을 피해 UTC 매시 07·37분으로 잡습니다. 예약이 누락되면 GitHub Actions의 **Deploy to GitHub Pages → Run workflow → news_only**로 뉴스 갱신을 수동 실행할 수 있습니다. 둘 다 게시물이나 배포 대상 커밋이 달라진 경우에만 배포합니다. 예약 시각은 목표이며 GitHub가 실행을 지연하거나 누락할 수 있습니다. 수동 실행 성공과 예약 실행 확인은 별개입니다. 겹치는 Pages 실행은 최신 실행이 앞선 실행을 취소합니다.
 - 피드가 실패하면 운영 `news-data.json`의 해당 피드 마지막 정상 목록을 사용합니다. 새 피드에 이전 데이터가 없으면 다른 피드를 배포하면서 출처 링크를 표시합니다. 이전 스냅샷이 404가 아닌 오류로 읽히지 않으면 기존 사이트를 보존하도록 빌드를 중단합니다. 수집 오류와 건수는 Actions 로그를 확인하세요.
 - 배포 후 Actions에서 **Deploy to GitHub Pages**의 결과와 커밋을 확인하고 운영 홈·대표 계산기·새 페이지·`sitemap.xml`을 HTTP로 확인합니다. 예약 실행에서 ‘소식 변경 없음’으로 배포 작업이 건너뛰어지는 것은 정상입니다.
 

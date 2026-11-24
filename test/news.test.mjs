@@ -69,6 +69,7 @@ test('소식 페이지는 출처와 한국시간을 표시하고 제목을 이�
   assert.match(html, /&lt;script&gt;NEWS&lt;\/script&gt;/);
   assert.match(html, /네이버 D2 · <time datetime="2026-11-24T01:00:00.000Z"/);
   assert.match(html, /한국시간/);
+  assert.match(html, /30분마다 확인하는 것을 목표로 합니다\. 예약 실행이 지연되거나 누락될 수 있으며/);
   assert.match(html, /rel="canonical" href="https:\/\/example.com\/subpath\/news\/korea\/"/);
 });
 

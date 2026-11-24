@@ -147,6 +147,9 @@ test('홈 레거시 연봉 링크와 연결되지 않은 작업 타임라인 페
   assert.match(browser, /target\.search = location\.search/);
   assert.match(admin, /name="robots" content="noindex,nofollow"/);
   assert.match(admin, /작업 요청 타임라인/);
+  assert.match(admin, /<strong>미확인<\/strong>/);
+  assert.match(admin, /<strong>실패<\/strong>/);
+  assert.match(admin, /class="admin-cell-label" aria-hidden="true">반영 내용<\/span>/);
   assert.match(admin, /src\/admin-log\.mjs/);
   assert.equal(navigationGroups.some(({ path }) => path === adminPath), false);
 });

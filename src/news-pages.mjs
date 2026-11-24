@@ -31,7 +31,7 @@ function topicPage(config, section, news) {
     script: filters ? 'news-browser.mjs' : undefined,
     main: `<p class="eyebrow"><a href="${root}news/">IT·AI 소식</a></p><h1>${section.name} 소식</h1>
     <p class="intro">${section.description}</p>${cards(root, section.path)}
-    <p class="note">30분 간격으로 원본 피드를 확인합니다. 예약 실행이 지연될 수 있으며, 수집에 실패하면 마지막으로 확보한 목록을 유지합니다.</p>
+    <p class="note">원본 피드는 30분마다 확인하는 것을 목표로 합니다. 예약 실행이 지연되거나 누락될 수 있으며, 수집에 실패하면 마지막으로 확보한 목록을 유지합니다.</p>
     ${filters}${list || '<p class="panel">아직 수집한 글이 없습니다. 아래 출처에서 최신 소식을 직접 확인할 수 있습니다.</p>'}
     <section class="panel"><h2>출처</h2><ul>${sources.map(({ name, url }) => `<li><a href="${escape(url)}">${escape(name)} 공식 피드</a></li>`).join('')}</ul></section>`,
   });
@@ -45,7 +45,7 @@ export function newsPages(config, news = {}) {
       main: `<h1>IT·AI 소식</h1><p class="intro">${newsIntro}</p>
       <section class="panel"><h2>분야별 소식</h2>${newsSections.map(({ path, name, description }) =>
         `<h3><a href="${root}${path}">${name}</a></h3><p>${description}</p>`).join('')}</section>
-      <section class="panel"><h2>수집 방식</h2><p>발행처 공식 RSS·Atom 또는 공식 API만 사용합니다. 예약 빌드는 30분 간격으로 변경 여부를 확인하며, 글이 바뀌었을 때만 소식 배포를 진행합니다.</p></section>`,
+      <section class="panel"><h2>수집 방식</h2><p>발행처 공식 RSS·Atom 또는 공식 API만 사용합니다. 30분 간격으로 갱신하는 것을 목표로 하며, 뉴스나 배포할 사이트 버전이 바뀌지 않으면 예약 빌드는 배포를 건너뜁니다.</p></section>`,
     }) },
     ...newsSections.map((section) => ({ path: section.path, html: topicPage(config, section, news) })),
   ];

@@ -15,6 +15,8 @@ const routes = (await readdir(dist, { recursive: true }))
   .filter((path) => /(^|\/)index\.html$/.test(path) && !/^(salary|hourly|severance|median-income)\/\d+\//.test(path))
   .map((path) => '/' + path.replace(/index\.html$/, ''))
   .sort();
+const detailTemplates = ['/salary/4000/', '/hourly/12000/', '/severance/4000/', '/median-income/2026/4/'];
+const screenshotDir = process.env.AUDIT_SCREENSHOTS;
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript',
   '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
 const server = createServer(async (request, response) => {
@@ -38,6 +40,7 @@ const issues = [];
 const requests = [];
 let cases = 0;
 let forms = 0;
+let layouts = 0;
 let browser;
 let route;
 let width;
@@ -89,14 +92,28 @@ try {
   });
   const imageFixture = { name: 'audit.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') };
 
-  for (width of [390, 1280]) {
+  for (width of [390, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 850 });
-    for (route of routes) {
+    for (route of [...routes, ...detailTemplates]) {
       try {
         const response = await page.goto(origin + route, { waitUntil: 'load' });
         if (!response?.ok()) issue('Page did not return 200');
         const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
         if (await overflow() > 1) issue('Page overflows horizontally');
+        const aligned = route === '/assets/background-removal/' || await page.evaluate(() => {
+          const edge = (selector) => document.querySelector(selector).getBoundingClientRect();
+          const frame = edge('.page-grid');
+          const sidebar = document.querySelector('.sidebar');
+          const main = edge('.page-grid main');
+          const near = (a, b) => Math.abs(a - b) <= 1;
+          return near(edge('.brand').left, frame.left)
+            && near(edge('.home-link').right, main.right)
+            && (sidebar.hidden ? near(main.left, frame.left) : near(edge('.sidebar').left, frame.left) && near(edge('.sidebar').top, main.top));
+        });
+        if (!aligned) issue('Header, sidebar and content edges do not align');
+        if (screenshotDir) await page.screenshot({ path: join(screenshotDir, `${width}-${route.split('/').filter(Boolean).join('_') || 'home'}.png`) });
+        layouts++;
+        if (detailTemplates.includes(route) || width === 768 || width === 1024) continue;
         if (route === '/') {
           const branding = await page.evaluate(() => ['.brand img', '.home-hero-art'].every((selector) => document.querySelector(selector)?.naturalWidth > 0));
           if (!branding) issue('Home branding image failed to load');
@@ -264,6 +281,6 @@ try {
   if (process.env.AUDIT_REPORT) await writeFile(process.env.AUDIT_REPORT, JSON.stringify({ requests, issues }, null, 2) + '\n');
 }
 
-console.log(`Browser audit: ${routes.length} pages × 2 viewports, ${forms} form runs, ${cases} cases, ${requests.length} HTTP requests, ${issues.length} issues.`);
+console.log(`Browser audit: ${layouts} layouts at 4 widths; ${routes.length} pages × 2 functional viewports, ${forms} form runs, ${cases} cases, ${requests.length} HTTP requests, ${issues.length} issues.`);
 for (const entry of issues) console.error(`${entry.width}px ${entry.route}: ${entry.message}`);
 process.exitCode = Number(issues.length > 0);
