@@ -15,8 +15,7 @@ export function pdfPageSelection(input, total) {
   return [...pages];
 }
 
-export function cropWindow(width, height, zoom, x, y) {
-  const [outWidth, outHeight] = passportSize;
+export function cropWindow(width, height, zoom, x, y, [outWidth, outHeight] = passportSize) {
   const scale = Math.max(outWidth / width, outHeight / height) * zoom;
   const w = outWidth / scale;
   const h = outHeight / scale;

@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { ageAt, convertArea, countText, difference, fitImage } from '../src/utility.mjs';
+import { ageAt, characterLimit, convertArea, countText, difference, fitImage } from '../src/utility.mjs';
+import { lunarToSolar, solarToLunar } from '../src/lunar-calendar.mjs';
 import { utilityPages } from '../src/utility-pages.mjs';
 import { utilityGroups, utilitySections } from '../src/utility-config.mjs';
-import { bmi, cleanText, colorCode, compareLines, convertUnit, drawNames, encodeText, formatJSON, percentage, randomPassword, secureIndex, splitBill, workdays, worldTime } from '../src/utility-extra.mjs';
+import { bmi, cleanText, colorCode, compareLines, convertUnit, drawNames, encodeText, formatJSON, ladderDraw, percentage, randomPassword, secureIndex, splitBill, workdays, worldTime } from '../src/utility-extra.mjs';
 import { cropWindow, drawQR, makePDF, pdfPageSelection } from '../src/utility-files.mjs';
 import { PDFDocument } from '../src/utility-vendor/pdf-lib-1.17.1.mjs';
 
@@ -48,7 +49,7 @@ test('면적 환산과 이미지 크기 조절', () => {
 
 test('공개 도구는 광고 없이 렌더링하고 편집기와 Worker를 같은 출처로 제한한다', async () => {
   const pages = utilityPages({ baseURL: 'https://example.com/subpath/', adsenseClient: 'ca-pub-1' });
-  assert.equal(pages.length, 30);
+  assert.equal(pages.length, 32);
   const hubs = new Set(['tools/', ...utilityGroups.map(({ path }) => path)]);
   for (const { path, html } of pages) {
     assert.ok(html.includes(`rel="canonical" href="https://example.com/subpath/${path}"`));
@@ -84,6 +85,33 @@ test('tool groups keep the sidebar compact and link to all utility URLs', () => 
   }
   const char = pages.get('tools/character-count/');
   assert.match(char, /<option>500<\/option><option>1000<\/option><option>1500<\/option>/);
+  assert.match(char, /Bluesky 게시글 · 300자 \/ 3,000바이트/);
+});
+
+test('글자 수 목표는 자소서 예시, 사용자 지정 및 SNS 바이트 제한을 구분한다', () => {
+  assert.deepEqual(characterLimit('500'), { characters: 500 });
+  assert.deepEqual(characterLimit('custom', 42), { characters: 42 });
+  assert.deepEqual(characterLimit('bluesky'), { characters: 300, bytes: 3000 });
+  assert.deepEqual(characterLimit('custom', -1), {});
+});
+
+test('공식 음양력 범위, 윤달과 29일 월의 경계를 올바르게 변환한다', () => {
+  assert.deepEqual(solarToLunar('2026-02-17'), { year: 2026, month: 1, day: 1, leap: false });
+  assert.deepEqual(solarToLunar('2028-06-23'), { year: 2028, month: 5, day: 1, leap: true });
+  assert.equal(lunarToSolar(2028, 5, 29, true), '2028-07-21');
+  assert.equal(lunarToSolar(2028, 12, 29), '2029-02-12');
+  assert.throws(() => lunarToSolar(2028, 5, 30, true), /없는 날짜/);
+  assert.throws(() => lunarToSolar(2027, 5, 1, true), /윤달이 없습니다/);
+  assert.throws(() => solarToLunar('2029-02-13'), /자료 범위/);
+});
+
+test('사다리 연결이 실제 무작위 배정과 같고 참가자와 결과 수를 검증한다', () => {
+  assert.deepEqual(ladderDraw('가\n나', '당첨\n꽝', () => 0), {
+    rungs: [0],
+    matches: [{ index: 0, end: 1, player: '가', result: '꽝' }, { index: 1, end: 0, player: '나', result: '당첨' }],
+  });
+  assert.deepEqual(ladderDraw('가\n나', '당첨\n당첨', () => 1).rungs, []);
+  assert.throws(() => ladderDraw('가\n가', '당첨\n꽝'), /서로 다른 참가자/);
 });
 
 test('text cleanup and comparison respect order, Unicode, and line boundaries', () => {

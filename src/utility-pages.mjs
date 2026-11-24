@@ -29,10 +29,11 @@ const forms = {
     <button type="submit">이미지 변환</button> <a class="button utility-download" hidden>이미지 저장</a>`,
   },
   'character-count': {
+    sources: [{ name: 'Bluesky · 게시글 공식 규격', url: 'https://github.com/bluesky-social/bsky/blob/main/lexicons/app/bsky/feed/post.json' }],
     faq: [['이모지는 어떻게 세나요?', '눈으로 읽는 글자 단위로 셉니다. 예를 들어 가족 이모지처럼 여러 코드 포인트가 합쳐진 문자도 한 글자로 셉니다.'],
       ['바이트는 무엇을 기준으로 세나요?', '입력 전체를 UTF-8로 인코딩한 크기입니다. 공백과 줄바꿈도 포함하며 다른 인코딩을 쓰는 서비스와는 다를 수 있습니다.'],
       ['글자 수 제한을 어떻게 확인하나요?', '자기소개서나 게시글에 적힌 제한을 선택하거나 직접 입력하세요. 공백 포함 글자 수를 기준으로 하며 서비스별 계산 방식은 다를 수 있습니다.']],
-    html: '<label>텍스트<textarea name="text" rows="7" placeholder="여기에 글을 입력하거나 붙여 넣으세요."></textarea></label><div class="form-grid"><label>목표 글자 수<select name="preset"><option value="">사용하지 않음</option><option>500</option><option>1000</option><option>1500</option><option value="custom">직접 입력</option></select></label><label>직접 입력 (자)<input type="number" name="target" min="1" max="1000000" disabled></label></div>',
+    html: '<label>텍스트<textarea name="text" rows="7" placeholder="여기에 글을 입력하거나 붙여 넣으세요."></textarea></label><div class="form-grid"><label>목표 글자 수<select name="preset"><option value="">사용하지 않음</option><optgroup label="자기소개서 분량 예시"><option>500</option><option>1000</option><option>1500</option></optgroup><option value="bluesky">Bluesky 게시글 · 300자 / 3,000바이트</option><option value="custom">직접 입력</option></select></label><label>직접 입력 (자)<input type="number" name="target" min="1" max="1000000" disabled></label></div><p class="note">자기소개서 제한은 지원처마다 다릅니다. Bluesky는 글자 수와 UTF-8 바이트 제한을 모두 적용합니다. 다른 SNS는 직접 입력을 사용하세요.</p>',
   },
   age: {
     faq: [['만 나이는 언제 한 살 늘어나나요?', '출생일에 0세이며 생일마다 한 살 늘어납니다. 이 도구는 2월 29일생의 평년 기준에서는 3월 1일부터 한 살을 더합니다.'],

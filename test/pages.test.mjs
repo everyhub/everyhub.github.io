@@ -11,7 +11,7 @@ import { newsSections } from '../src/news-config.mjs';
 import { utilityGroups } from '../src/utility-config.mjs';
 import { examplePages, medianPages, navigationGroups } from '../src/navigation.mjs';
 import { adminPath, adminTimelinePage, adminProposalsPath, adminProposalsPage } from '../src/admin-pages.mjs';
-import { adminTimeline, renderRequirementsAudit, sortAdminTimeline } from '../src/admin-log.mjs';
+import { adminTimeline, auditRequest, hasCompletionEvidence, renderRequirementsAudit, sortAdminTimeline } from '../src/admin-log.mjs';
 import { sortAdminProposals } from '../src/admin-proposals.mjs';
 
 const config = { baseURL: 'https://example.com/salary-calc/' };
@@ -183,6 +183,25 @@ test('관리 요청과 Markdown 감사 내보내기는 같은 순서·상태·�
     assert.match(body.split(`id="${id}">`)[1].split('</tr>')[0], new RegExp(`<strong>${status}</strong>`));
     assert.ok(markdown.includes(`| ${time} | ${request} |`));
     for (const url of links) assert.ok(markdown.includes(`(<${url}>)`));
+  }
+  for (const { status, items } of rows) {
+    assert.ok(items.length);
+    assert.equal(status === '완료', items.every(hasCompletionEvidence));
+    for (const item of items) {
+      assert.ok(item.evidence ?? item.reason);
+      assert.ok(markdown.includes(item.requirement));
+      assert.match(html, new RegExp(`data-audit-status="${item.status}"`));
+    }
+  }
+});
+
+test('운영 검사의 설명·근거가 빠지거나 세부 항목이 남아 있으면 완료로 표시하지 않는다', () => {
+  const entry = { id: 'test', request: '예시', status: '완료', links: [] };
+  const done = { status: '완료', requirement: '확인', evidence: '운영 폼 검사', links: ['https://example.com/'] };
+  assert.equal(auditRequest(entry, [done]).status, '완료');
+  for (const incomplete of [[], [{ ...done, evidence: '' }], [{ ...done, links: [] }],
+    [{ ...done, status: '부분', reason: '한 경계만 확인' }], [done, { ...done, status: '미확인', reason: '운영 증거 없음' }]]) {
+    assert.notEqual(auditRequest(entry, incomplete).status, '완료');
   }
 });
 

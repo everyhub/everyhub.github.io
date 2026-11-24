@@ -13,6 +13,12 @@ export function countText(text) {
   return { total: count(text), noSpace: count(text.replace(/\s/gu, '')), bytes: new TextEncoder().encode(text).length };
 }
 
+export function characterLimit(preset, custom) {
+  if (preset === 'bluesky') return { characters: 300, bytes: 3000 };
+  const characters = preset === 'custom' ? custom : Number(preset);
+  return Number.isInteger(characters) && characters >= 1 && characters <= 1_000_000 ? { characters } : {};
+}
+
 function parseDate(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || value < dateRange[0] || value > dateRange[1]) {
     throw new Error('1900~2100년 사이의 날짜를 네 자리 연도로 입력해 주세요.');

@@ -5,6 +5,7 @@ import { createServer } from 'node:http';
 import { extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
+import { adminTimeline, sortAdminTimeline } from './src/admin-log.mjs';
 import { PDFDocument } from './src/utility-vendor/pdf-lib-1.17.1.mjs';
 
 const dist = fileURLToPath(new URL('./dist', import.meta.url));
@@ -164,7 +165,10 @@ try {
           for (const [query, first, related] of [
             ['나이', 'age', 'date-difference'],
             ['집', 'rent-conversion', 'subscription-score'],
+            ['방', 'rent-conversion', 'subscription-score'],
+            ['주거', 'rent-conversion', 'subscription-score'],
             ['ㅇㅂ', 'salary-calculator'],
+            ['디데히', 'date-difference'],
             ['퇴사', 'severance-pay', 'unemployment-pay'],
             ['pdf', 'pdf-merge', 'pdf-split'],
           ]) {
@@ -186,6 +190,15 @@ try {
           if (await search.inputValue() !== '집' || await matches.count() < 6) issue('Shortcut suggestion did not run the related search');
           await search.fill('');
           if (!await page.locator('[data-dashboard-card]').first().isVisible()) issue('Clearing search did not restore shortcut cards');
+          if (await page.getByText('연봉 실수령액 계산기와 공식 계산 기준 보기', { exact: true }).count() ||
+              await page.locator('main form[id="calculator"]').count()) issue('Standalone salary content remains on the home page');
+          if (width === 390) {
+            const toggle = page.locator('.nav-toggle');
+            await toggle.click();
+            if (await toggle.getAttribute('aria-expanded') !== 'true' || !await page.locator('.sidebar').isVisible()) issue('Mobile navigation did not open');
+            await page.keyboard.press('Escape');
+            if (await toggle.getAttribute('aria-expanded') !== 'false') issue('Mobile navigation did not close on Escape');
+          }
           cases += 3;
         }
         if (route.startsWith('/info/holidays/')) {
@@ -207,6 +220,56 @@ try {
             issue('Incorrect active calendar year');
           }
           cases++;
+        }
+        if (route === '/ops-7f3a9c2d/') {
+          const expected = sortAdminTimeline(adminTimeline);
+          const rows = page.locator('.admin-timeline tbody > tr');
+          const actual = await rows.evaluateAll((nodes) => nodes.map((row) => ({
+            id: row.id,
+            text: Array.from(row.cells).slice(0, 5).map((cell) => {
+              const node = cell.cloneNode(true);
+              node.querySelector('.admin-cell-label')?.remove();
+              return node.textContent.trim();
+            }),
+            links: Array.from(row.cells[5].querySelectorAll('a'), (link) => link.href),
+            items: Array.from(row.querySelectorAll('.admin-audit-items > li'), (item) => ({
+              status: item.dataset.auditStatus,
+              requirement: item.firstChild.nextSibling.textContent.trim().replace(/^—\s*/, ''),
+              note: item.querySelector('p').textContent.trim(),
+              links: Array.from(item.querySelectorAll('a'), (link) => link.href),
+            })),
+          })));
+          const reference = expected.map(({ id, time, request, reflection, status, reason, links, items }) => ({
+            id, text: [time, request, reflection, status, reason ?? '—'], links: links.map((link) => new URL(link).href),
+            items: items.map(({ status, requirement, evidence, reason, links }) => ({
+              status, requirement, note: evidence ?? reason, links: links.map((link) => new URL(link).href),
+            })),
+          }));
+          if (JSON.stringify(actual) !== JSON.stringify(reference)) issue('Live audit timeline differs from exported audit data');
+          const details = rows.filter({ hasText: '글자수 계산기 같은게 있으면' }).locator('summary');
+          await details.click();
+          if (!await page.locator('#writing-tools .admin-audit-items').isVisible() || await overflow() > 1) issue('Admin audit details are hidden or overflow');
+          cases += 2;
+        }
+        if (route === '/ops-7f3a9c2d/recommendations/') {
+          if (!await page.getByText('등록됨 · 첫 실행 확인 대기', { exact: true }).isVisible()) issue('Daily Devin status missing');
+          const cards = page.locator('.proposal-card');
+          if (await cards.count() < 3 || !await cards.first().getByText('왜 필요하나요?', { exact: true }).isVisible()) issue('Missing proposal detail');
+          cases += 2;
+        }
+        if (route === '/news/korea/' || route === '/news/world/') {
+          const articles = page.locator('[data-news-source]');
+          if (await articles.count()) {
+            if (route === '/news/korea/' && await articles.first().getAttribute('data-news-source') !== 'geeknews') issue('GeekNews is not first');
+            for (const source of route === '/news/korea/' ? ['geeknews', 'daangn', 'woowahan'] : ['meta']) {
+              const filter = page.locator(`[data-news-filter="${source}"]`);
+              await filter.click();
+              const filtered = await page.locator('[data-news-source]:visible').evaluateAll((nodes) => nodes.map(({ dataset }) => dataset.newsSource));
+              if (!filtered.length || !filtered.every((id) => id === source)) issue('Incorrect source filter: ' + source);
+              await page.locator('[data-news-filter=""]').click();
+              cases++;
+            }
+          }
         }
         if (route === '/tools/background-removal/') {
           const embedded = page.frameLocator('iframe');
@@ -231,7 +294,8 @@ try {
           const result = () => (output?.value ?? output?.textContent ?? '').trim();
           const badNumber = /(?:\b(?:NaN|Infinity)\b|∞)/;
           const fields = [...form.elements];
-          const data = { first: '첫 줄', second: '다른 줄', pages: '1', text: form.dataset.utility === 'json-formatter' ? '{"audit":1}' : '테스트 한 줄\n두 번째 줄' };
+          const data = { first: '첫 줄', second: '다른 줄', pages: '1', people: '가\n나', choices: '당첨\n꽝',
+            text: form.dataset.utility === 'json-formatter' ? '{"audit":1}' : '테스트 한 줄\n두 번째 줄' };
           if (fields.some((field) => field.name === 'preset')) {
             form.elements.preset.value = 'custom';
             form.elements.preset.dispatchEvent(new Event('input', { bubbles: true }));
@@ -267,7 +331,7 @@ try {
             field.dispatchEvent(new Event('input', { bubbles: true }));
           };
           for (const field of fields) {
-            if (field.disabled) continue;
+            if (field.matches(':disabled')) continue;
             if (field.type === 'number') {
               fuzz(field, [['', field.required], ['abc', field.required], ['-1', Number(field.min) >= 0],
                 ['0', Number(field.min) > 0], ['1e308', !!field.max], ...[field.min, field.max].filter(Boolean).map((value) => [value, false])]);
@@ -298,6 +362,37 @@ try {
           }
           await submit();
           await download.waitFor({ timeout: 10000 });
+          cases++;
+          if (route === '/tools/passport-photo/') {
+            await form.locator('[name="format"]').selectOption('custom');
+            await form.locator('[name="width"]').fill('320');
+            await form.locator('[name="height"]').fill('400');
+            await submit();
+            await download.waitFor({ timeout: 10000 });
+            if (await download.getAttribute('download') !== 'id-photo-320x400.jpg') issue('Wrong custom ID photo output');
+            cases++;
+          }
+        }
+        if (route === '/tools/lunar-calendar/') {
+          await form.locator('[name="solar"]').fill('2028-06-23');
+          await form.locator('[type="submit"]').click();
+          if (!/2028년 윤5월 1일/.test(await form.locator('output').textContent())) issue('Wrong solar to leap lunar result');
+          await form.locator('[name="mode"]').selectOption('lunar');
+          await form.locator('[name="leap"]').check();
+          await form.locator('[type="submit"]').click();
+          if (!/2028-06-23/.test(await form.locator('output').textContent())) issue('Wrong leap lunar to solar result');
+          cases += 2;
+        }
+        if (route === '/tools/character-count/') {
+          await form.locator('[name="preset"]').selectOption('bluesky');
+          await form.locator('[name="text"]').fill('가'.repeat(301));
+          if (!/1자 초과[\s\S]*2,097바이트 남음/.test(await form.locator('output').textContent())) issue('Wrong Bluesky character and byte limits');
+          cases++;
+        }
+        if (route === '/tools/ladder-draw/') {
+          const result = await form.locator('output').textContent();
+          if (!await form.locator('svg').isVisible() || await form.locator('svg line').count() < 2 ||
+              !/^1\. 가 → .*\n2\. 나 → /m.test(result)) issue('Missing ladder diagram or participant results');
           cases++;
         }
         if (await overflow() > 1) issue('Page overflows horizontally after input');

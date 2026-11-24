@@ -1,6 +1,7 @@
 import { informationSources as calendar } from './information.mjs';
 import { dateRange } from './utility.mjs';
 import { worldTimeRange } from './utility-extra.mjs';
+import { lunarSolarRange, lunarSources } from './lunar-calendar.mjs';
 
 const source = (name, url) => ({ name, url });
 const area = (name, label, attributes = '') => `<label>${label}<textarea name="${name}" rows="5" ${attributes}></textarea></label>`;
@@ -39,10 +40,13 @@ export const extraUtilityForms = {
     '사진 비율이 달라지나요?', '아닙니다. 사진의 가로세로 비율을 유지하고 페이지 가운데에 놓습니다.'),
   'passport-photo': form(
     input('file', '사진 파일', 'type="file" accept="image/jpeg,image/png,image/webp" required') +
+      select('format', '사진 용도', [['passport', '여권 · 413 × 531px'], ['custom', '증명사진 · 요구 크기 직접 입력']]) +
+      `<fieldset data-custom-photo hidden disabled>${grid(num('width', '가로 (px)', 300, 1, 1, 2000),
+        num('height', '세로 (px)', 400, 1, 1, 2000))}</fieldset>` +
       '<p class="note">되도록 앞을 바라보는 흰 배경 사진을 사용하세요. 머리 길이, 배경, 촬영일 등은 자동 판정하지 않습니다.</p>' +
       grid(input('x', '좌우 위치', 'type="range" min="0" max="100" value="50"'), input('y', '상하 위치', 'type="range" min="0" max="100" value="50"'),
         input('zoom', '확대 배율', 'type="range" min="1" max="4" step="0.01" value="1"')) +
-      '<canvas class="utility-preview passport-preview" width="413" height="531" role="img" aria-label="여권 사진 자르기 미리보기" hidden></canvas>' +
+      '<canvas class="utility-preview passport-preview" width="413" height="531" role="img" aria-label="사진 자르기 미리보기" hidden></canvas>' +
       button('JPG 만들기') + download,
     '자른 사진이 여권 심사를 통과하나요?', '외교부 권장 온라인 픽셀 크기로만 자릅니다. 인화 크기는 3.5cm × 4.5cm, 머리 길이는 3.2~3.6cm입니다. 표정, 배경, 촬영일 등은 제출 전 외교부 안내와 직접 비교하세요.',
     [source('외교부 여권안내 · 여권사진 규격', 'https://www.passport.go.kr/home/kor/contents.do?menuPos=32'),
@@ -56,6 +60,14 @@ export const extraUtilityForms = {
     grid(dateInput('reference', '서울 날짜', worldTimeRange), input('time', '서울 시각', 'type="time" value="12:00" required')) + button('현지 시각 보기'),
     '서머타임을 반영하나요?', '브라우저가 제공하는 IANA 시간대 데이터의 날짜별 시차와 서머타임을 반영합니다. 출발 시각인 서울은 UTC+9를 적용하는 1989년 이후 날짜를 지원합니다.',
     [source('IANA · Time Zone Database', 'https://www.iana.org/time-zones')]),
+  'lunar-calendar': form(
+    select('mode', '변환 방향', [['solar', '양력 → 음력'], ['lunar', '음력 → 양력']]) +
+      `<fieldset data-calendar="solar">${dateInput('solar', '양력 날짜', lunarSolarRange, lunarSolarRange[0])}</fieldset>` +
+      `<fieldset data-calendar="lunar" hidden disabled>${grid(num('year', '음력 연도', 2028, 2026, 1, 2028),
+        num('month', '월', 5, 1, 1, 12), num('day', '일', 1, 1, 1, 30), check('leap', '윤달'))}</fieldset>` +
+      button('변환'),
+    '지원 범위는 어디까지인가요?', '음력 2026~2028년(양력 2026-02-17~2029-02-12)입니다. 한국천문연구원의 월초 자료를 사용하고 날짜를 외부로 보내지 않습니다.',
+    [...lunarSources, source('한국천문연구원 · 음양력 변환', 'https://astro.kasi.re.kr/kor/life/pageView/8')]),
   bmi: form(
     grid(num('height', '키 (cm)', 170, 50, 'any', 300), num('weight', '체중 (kg)', 65, 1, 'any', 600)) + button('BMI 계산'),
     'BMI만으로 건강 상태를 판단할 수 있나요?', '아닙니다. 한국 성인의 참고 구간이며 어린이·청소년과 임신 중에는 적용하지 않습니다. 근육량과 체지방 분포를 반영하지 않아 진단에 사용할 수 없습니다.',
@@ -73,6 +85,10 @@ export const extraUtilityForms = {
   'random-picker': form(area('text', '후보 (한 줄에 하나)', 'maxlength="50000" required') +
     num('count', '당첨 인원 (명)', 1, 1, 1, 1000) + button('추첨'),
     '같은 이름이 여러 번 들어가면 어떻게 되나요?', '앞뒤 공백을 지운 뒤 같은 이름은 한 명으로 처리합니다. 당첨자는 중복 없이 뽑습니다.'),
+  'ladder-draw': form(
+    grid(area('people', '참가자 (한 줄에 하나)', 'maxlength="240" required'), area('choices', '결과 (한 줄에 하나)', 'maxlength="240" required')) + button('사다리 만들기') +
+      '<svg class="utility-preview ladder-preview" role="img" aria-label="사다리 연결도" hidden></svg>',
+    '인원과 결과는 몇 개 넣나요?', '두 목록 모두 2~8개로 개수를 맞추고 참가자 이름은 서로 다르게 쓰세요. 같은 결과는 여러 줄에 입력해도 됩니다.'),
   'json-formatter': form(text() + select('mode', '출력 형식', [['pretty', '2칸 들여쓰기'], ['compact', '공백 줄이기']]) + button('JSON 정리'),
     '입력한 값이 그대로 유지되나요?', '브라우저의 JSON 파서를 사용합니다. 매우 큰 정수는 정밀도를 잃을 수 있고 중복 키는 마지막 값만 남으므로 이런 데이터에는 사용하지 마세요.'),
   'text-encoding': form(text() + select('mode', '인코딩 방식', [['base64-encode', 'UTF-8 → Base64'], ['base64-decode', 'Base64 → UTF-8'],

@@ -1,5 +1,7 @@
+import { auditItems, unconfirmed } from './admin-audit-items.mjs';
+
 // Times are KST; when unavailable, use the nearest known milestone.
-export const adminTimeline = [
+const requests = [
   { time: "2026-11-24 22:04", id: "business-model", request: "기존 프로젝트 무관하게 자동화 수익형 모델을 고민해서 알려줘", status: "완료", reflection: "아이디어 비교 후 별도 정적 정보·도구 허브를 선택했습니다. 수익이나 광고 승인을 보장하지 않습니다.", links: ["https://everyhub.github.io/","https://github.com/everyhub/everyhub.github.io/blob/main/README.md"] },
   { time: "2026-11-24 22:04", id: "search-visibility", request: "국내에서 사용자들이 네이버나 구글 검색을 활용할텐데 거기 노출될거라고 보는지", status: "부분", reflection: "검색 요건과 한계를 안내했습니다. 운영 사이트의 인증 태그·canonical·구조화 데이터·사이트맵을 확인했습니다.", reason: "검색 서비스의 실제 색인·순위·노출 수는 공개 사이트에서 확인할 수 없습니다.", links: ["https://everyhub.github.io/","https://everyhub.github.io/sitemap.xml","https://search.google.com/search-console/","https://searchadvisor.naver.com/"] },
   { time: "2026-11-24 22:04", id: "pages-start", request: "그럼 깃허브 페이지 기준으로 진행해봐", status: "완료", reflection: "정적 사이트와 GitHub Pages 배포를 확인했습니다.", links: ["https://everyhub.github.io/","https://github.com/everyhub/everyhub.github.io/actions/workflows/pages.yml"] },
@@ -61,7 +63,30 @@ export const adminTimeline = [
   { time: "2026-11-25 00:30", id: "schedule-experiment", request: "Find root cause … move news refresh into its own workflow file news.yml with cron 7,37 * * * * … watch for a schedule run", status: "미확인", reflection: "기본 브랜치의 별도 워크플로가 2026-11-25 00:31 KST에 active로 등록됐고 수동 빌드·배포에 성공했습니다. 등록 45분 후인 01:16까지 00:37·01:07의 예정 시각이 지났으나 예약 실행은 0건입니다.", reason: "세부 Actions 권한 설정 API가 403이며 워크플로 API는 내부 예약 등록 여부를 공개하지 않아 미실행 원인은 확정할 수 없습니다.", links: ["https://github.com/everyhub/everyhub.github.io/actions/workflows/news.yml","https://github.com/everyhub/everyhub.github.io/actions/runs/45426475348"] },
   { time: "2026-11-25 00:30", id: "publish-audit", request: "Commit/push/verify as usual.", status: "완료", reflection: "요청 감사와 홈 개선을 기본 브랜치에서 배포하고 운영에서 확인합니다.", links: ["https://github.com/everyhub/everyhub.github.io/actions/workflows/pages.yml","https://everyhub.github.io/ops-7f3a9c2d/"] },
   { time: "2026-11-25 00:30", id: "home-polish", request: "heading should vertically align with the search input … card category titles … remove underline … hero paragraph wraps “기능을 / 바로” … Recheck 390 too.", status: "완료", reflection: "큰 화면 제목·검색 입력을 가운데로 정렬하고 모바일은 세로로 배치합니다. 카테고리 링크 밑줄은 호버만 켜고 기능을 바로를 한 묶음으로 유지합니다.", links: ["https://everyhub.github.io/#shortcuts"] },
+  { time: "2026-11-25 01:18", id: "automation-correction", request: "the daily Devin automation IS registered … Update the “하루 1번” row", status: "진행중", reflection: "등록됨 · 첫 실행 확인 대기", reason: "매일 09:13 KST, 첫 실행 예정 2026-11-25 09:13 KST.", links: ["https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9", "https://github.com/everyhub/everyhub.github.io/actions/runs/45436070005"] },
+  { time: "2026-11-25 01:18", id: "strict-audit", request: "잘 반영되었는지 전수조사하고 이렇게 반영되지 않고 중간에 끝나는일은 없도록해줘", status: "진행중", reflection: "요청과 이전 답변의 약속을 세부 항목으로 나누고 완료에는 운영 증거를 요구합니다.", reason: "세부 항목에 남은 확인과 미반영 기능을 기록합니다.", links: ["https://everyhub.github.io/ops-7f3a9c2d/"] },
 ];
+
+export function hasCompletionEvidence(item) {
+  return item.status === '완료' && !!item.evidence?.trim() &&
+    Array.isArray(item.links) && item.links.some((url) => URL.canParse(url) && new URL(url).protocol === 'https:');
+}
+
+export function auditRequest({ status: priorStatus, reason, ...entry }, items) {
+  if (!items?.length) items = [unconfirmed(entry.request,
+    reason ?? '이전 답변에서 처리했지만 이 항목의 독립적인 운영 증거를 아직 확인하지 않았습니다.', entry.links)];
+  items = items.map((item) => item.status === '완료' && !hasCompletionEvidence(item)
+    ? unconfirmed(item.requirement, '운영 검사 설명이나 근거 URL이 없어 완료할 수 없습니다.', item.links)
+    : item);
+  const status = items.every(hasCompletionEvidence) ? '완료'
+    : items.every((item) => item.status === '제외') ? '제외'
+      : items.some((item) => item.status === '진행중') ? '진행중'
+        : priorStatus === '미확인' ? '미확인'
+          : items.some((item) => item.status === '완료' || item.status === '부분') ? '부분' : '미확인';
+  return { ...entry, status, reason: status === '완료' ? undefined : reason ?? '세부 항목의 사유와 남은 확인을 참고하세요.', items };
+}
+
+export const adminTimeline = requests.map((entry) => auditRequest(entry, auditItems[entry.id]));
 
 export const initialDeployment = { time: '2026-11-24 22:04', request: '초기 GitHub Pages 배포 실행', reflection: '이전 저장소의 첫 실행은 실패했습니다. 현재 에브리허브 저장소의 배포 성공은 별도 실행에서 확인했습니다.', status: '실패', reason: '이전 저장소에서 Pages 설정이 끝나기 전에 실행했습니다.', links: [] };
 
@@ -81,17 +106,19 @@ export function auditEvidenceLabel(url) {
 
 export function renderRequirementsAudit(entries = adminTimeline) {
   const cell = (value) => value.replaceAll('|', '\\|').replace(/\s*\n\s*/g, ' ');
-  const lines = sortAdminTimeline(entries).map(({ time, request, reflection, status, reason, links }) => {
-    const evidence = links.map((url) => `[${auditEvidenceLabel(url)}](<${url}>)`).join(' · ');
-    return `| ${[time, request, reflection, status, reason ?? '—', evidence || '—'].map(cell).join(' | ')} |`;
+  const evidence = (links) => links.map((url) => `[${auditEvidenceLabel(url)}](<${url}>)`).join(' · ');
+  const lines = sortAdminTimeline(entries).map(({ time, request, reflection, status, reason, links, items }) => {
+    const detail = items.map((item) => `**${item.status}** — ${item.requirement}: ${item.evidence ?? item.reason} ${evidence(item.links)}`.trim())
+      .join('<br>');
+    return `| ${[time, request, reflection, status, reason ?? '—', evidence(links) || '—', detail].map(cell).join(' | ')} |`;
   });
   return [
     '# 에브리허브 전체 요청 감사',
     '',
-    '보관된 대화와 현재 세션의 사용자 원문 발췌(반복 URL 목록과 인증값 제외). 정확한 요청 시각이 없는 행은 인접 작업 시각(KST)입니다. 계정 전용 상태나 실제 예약 이벤트를 검증하지 못한 항목은 완료로 보지 않습니다.',
+    '보관된 대화와 현재 세션의 사용자 원문 발췌(반복 URL 목록과 인증값 제외). 정확한 요청 시각이 없는 행은 인접 작업 시각(KST)입니다. 모든 세부 항목에 운영 검사 설명과 근거 URL이 있어야 완료입니다. 이전 운영 기록은 별도로 표시합니다.',
     '',
-    '| 시각(KST) | 요청 | 반영 내용 | 상태 | 사유 | 근거 URL |',
-    '| --- | --- | --- | --- | --- | --- |',
+    '| 시각(KST) | 요청 | 반영 내용 | 상태 | 사유 | 근거 URL | 세부 항목 · 상태 · 검사/사유 · 근거 |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
     ...lines,
     '',
   ].join('\n');

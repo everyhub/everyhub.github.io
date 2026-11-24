@@ -149,6 +149,8 @@ button:hover, .button:hover { background: #04523e; }
 .utility-result:not(:empty) { margin-top: .8rem; }
 .utility-preview:not([hidden]) { display: block; max-width: 100%; height: auto; margin: .75rem 0; border: 1px solid var(--line); }
 .passport-preview { width: min(100%, 15rem); }
+.ladder-preview { width: min(100%, 22rem); }
+.ladder-preview[hidden] { display: none; }
 [data-utility] input[type="checkbox"] { width: auto; min-height: 0; }
 .net { display: grid; gap: .5rem 1.5rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); margin-block: 1rem; }
 .net > div { padding: .9rem 1rem; background: #e8f6ef; border-radius: .65rem; }
@@ -222,6 +224,9 @@ summary { cursor: pointer; padding: .5rem 0; font-weight: 700; }
 .admin-timeline { margin: 0; }
 .admin-timeline th, .admin-timeline td { text-align: left; vertical-align: top; padding: var(--space-2); }
 .admin-timeline tbody th { white-space: nowrap; }
+.admin-audit-items { margin-block: var(--space-2); padding-inline-start: var(--space-4); }
+.admin-audit-items > li + li { margin-top: var(--space-3); }
+.admin-audit-items p { margin-block: var(--space-1); }
 .admin-cell-label { display: none; }
 @media (max-width: 72rem) {
   .admin-timeline, .admin-timeline tbody, .admin-timeline tr, .admin-timeline td, .admin-timeline tbody th { display: block; }

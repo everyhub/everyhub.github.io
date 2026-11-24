@@ -108,6 +108,31 @@ export function randomPassword(length, symbols, random = secureIndex) {
   return Array.from({ length }, () => alphabet[random(alphabet.length)]).join('');
 }
 
+export function ladderDraw(people, choices, random = secureIndex) {
+  const entries = (input) => lines(input).map((line) => line.trim()).filter(Boolean);
+  const players = entries(people);
+  const results = entries(choices);
+  if (players.length < 2 || players.length > 8 || players.length !== results.length || new Set(players).size !== players.length) {
+    throw new Error('서로 다른 참가자와 결과의 개수를 2~8개로 맞춰 주세요.');
+  }
+  const positions = players.map((_, index) => index);
+  const target = positions.slice();
+  for (let i = target.length - 1; i > 0; i--) {
+    const j = random(i + 1);
+    [target[i], target[j]] = [target[j], target[i]];
+  }
+  const rungs = [];
+  for (const [end, index] of target.entries()) {
+    for (let from = positions.indexOf(index); from > end; from--) {
+      [positions[from - 1], positions[from]] = [positions[from], positions[from - 1]];
+      rungs.push(from - 1);
+    }
+  }
+  const matches = positions.map((index, end) => ({ index, end, player: players[index], result: results[end] }))
+    .sort((a, b) => a.index - b.index);
+  return { rungs, matches };
+}
+
 export function encodeText(text, mode) {
   if (mode === 'url-encode') return encodeURIComponent(text);
   if (mode === 'url-decode') return decodeURIComponent(text);
