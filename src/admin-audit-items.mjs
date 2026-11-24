@@ -66,11 +66,11 @@ export const auditItems = {
   ],
   'year-2027': [
     verified('공개된 2026·2027 항목 구분', '/info/yearly-rates/', '연도별 비교표와 공식 근거 섹션을 확인'),
-    open('미확정 2027 항목 자동 추정 없이 갱신', '구직급여 상한·일부 보험 상하한·산재 요율·간이세액표의 확정 출처를 기다립니다.', '부분'),
+    open('미확정 2027 항목 자동 추정 없이 갱신', '고용노동부의 구직급여·출산휴가 상한과 업종별 산재 요율, 공단의 하반기 연금·건강보험 상하한, 국세청의 근로소득 간이세액표 확정 원문이 필요합니다. 행정예고는 적용하지 않습니다.', '부분', [site + '/info/yearly-rates/', repo + '/blob/main/README.md']),
   ],
   'korean-wording': [
     verified('주요 메뉴와 홈 제목의 한국어 표기', '/', '홈·주요 허브 제목/메뉴를 확인'),
-    open('전체 페이지의 한국어 편집 감수', '자동 레이아웃 검사가 모든 문장의 자연스러움을 검증하지는 않습니다.'),
+    open('전체 페이지의 한국어 편집 감수', '공개 템플릿의 제목·도입문을 검토하고 표현을 수정했습니다. 전체 본문·폼 도움말·오류 문구의 수동 감수까지는 완료하지 못했습니다.', '부분', [site + '/sitemap/']),
   ],
   'panel-and-content': [
     verified('사이트맵형 좌측 패널', '/', '좌측 메뉴와 모바일 메뉴 그룹 렌더링 확인'),
@@ -79,7 +79,7 @@ export const auditItems = {
   ],
   'maintain-readme': [
     verified('현재 구조·실행·배포·운영 설명', repo + '/blob/main/README.md', '운영 절차와 감사 명령을 공개 README에서 확인'),
-    open('이후 변경에도 README 계속 최신 유지', '향후 변경마다 적용하는 지속적인 운영 규칙입니다.'),
+    verified('변경 시 README 갱신 기준', repo + '/blob/main/README.md', '새 작업의 검증 및 README 갱신 규칙을 문서화하고 이번 변경 설명도 갱신'),
   ],
   'news-categories': [
     ...[['korea', '국내 IT'], ['world', '해외 IT'], ['ai', 'AI 모델·이슈'], ['trending', '핫이슈']].map(([id, name]) =>
@@ -87,12 +87,12 @@ export const auditItems = {
   ],
   'news-cadence': [
     verified('별도 뉴스 작업 수동 실행 경로', repo + '/actions/runs/45426475348', 'workflow_dispatch의 build 및 deploy 성공'),
-    open('권장 주기 30분 실제 예약 실행', '별도 워크플로 등록 후 45분 관찰에서 schedule 이벤트 0건이었습니다.'),
+    open('권장 주기 30분 실제 예약 실행', '2026-11-25 01:45 KST 재조회에서 schedule 실행 0건입니다. 저장소 또는 조직 관리자가 Actions 정책을 확인한 뒤 실제 예약 실행 기록이 필요합니다.', '미확인', [repo + '/actions/workflows/news.yml']),
   ],
   'non-calculators': [
     verified('계산기 외 생활정보 허브', '/info/', '공휴일, 세무 일정, 연도별 기준 안내 링크 확인'),
     verified('공휴일과 주요 일정 캘린더', '/info/holidays/2026/', '월별 표, 오늘과 대체공휴일 표시 검사'),
-    open('정부 지원금 일정', '복지 안내와 별개인 통합 지원금 일정은 추가하지 않았습니다. 기관별 확인된 신청 기간만 사용할 수 있습니다.', '부분'),
+    verified('정부 지원금·신청 일정', '/info/support-calendar/', '9216f93 운영 390·1440px에서 복지로 온라인 신청 기간과 국세청 마감일, 고용24 상시 접수 및 접수처 확인'),
   ],
   'background-tool': [
     tool('도구 메뉴에서 누끼 실행 및 저장', 'background-removal', '합성 이미지 선택 후 모델 실행과 저장 활성화 확인'),
@@ -101,7 +101,7 @@ export const auditItems = {
       ['글자 수', 'character-count'], ['만 나이', 'age'], ['D-day', 'date-difference'], ['평수 변환', 'area-converter'],
       ['이미지 크기 변경·압축', 'image-resize'], ['QR 생성', 'qr-generator'], ['비밀번호 생성', 'password-generator'],
     ].map(([name, id]) => tool(name, id, '운영 폼 실행, 결과 또는 다운로드 표시 검사')),
-    open('HEIC → JPG 변환', '운영 이미지 변환기의 입력 형식에 없고, 주요 브라우저에서 검증된 동일 출처 HEIC 디코더가 아직 없습니다.', '부분', [site + '/tools/image-resize/']),
+    tool('HEIC → JPG 변환', 'image-resize', '9216f93 운영 Chromium 390·1440px에서 합성 HEIC가 12×8 JPG로 저장되며 WASM 포함 같은 출처 GET만 사용함을 확인'),
   ],
   'shortcut-home': [
     verified('홈에서 카드별 바로가기', '/#shortcuts', '카드와 바로가기 검색의 데스크톱·모바일 배치 확인'),
@@ -124,13 +124,13 @@ export const auditItems = {
   'github-permission': [
     verified('변경된 권한으로 기본 브랜치 푸시', repo + '/actions/runs/45436070005', '푸시 이벤트와 빌드·배포 성공 확인'),
     verified('수동 워크플로 실행 권한', repo + '/actions/runs/45426475348', '수동 뉴스 워크플로 성공 확인'),
-    open('저장소 내부 Actions 정책·세부 권한', 'Actions permissions 조회는 현재 자격 증명에서 403입니다. 가능한 작업만 검증했습니다.'),
+    open('저장소 내부 Actions 정책·세부 권한', 'Actions permissions 조회가 403입니다. 저장소·조직 관리자의 정책 화면 확인 또는 해당 권한으로 읽은 결과가 필요합니다.'),
   ],
   'writing-tools': [
     tool('공백 포함·제외 및 UTF-8 글자 수', 'character-count', '합성 한글 입력으로 운영 결과 검사'),
     tool('자기소개서 목표값·직접 입력', 'character-count', '500·1,000·1,500자 예시 및 직접 입력 결과'),
     tool('공식 Bluesky 글자 수·바이트 한도', 'character-count', '390·1440px에서 301자 입력 시 1자 초과 및 2,097바이트 남음 확인'),
-    open('다른 SNS의 특수 계산 방식', '자소서 예시, 공식 Bluesky 규격, 직접 입력만 지원합니다. X 가중치·링크 계산을 동일한 규칙으로 단정하지 않습니다.', '부분'),
+    tool('X 일반 게시글 가중치·링크 규칙', 'character-count', '9216f93 운영 390·1440px에서 한글·가족 이모지·긴 URL 입력의 가중치 29, 280 중 251 남음 확인'),
     tool('여권 사진 자르기', 'passport-photo', '390·1440px에서 합성 PNG로 413×531 JPG 생성과 다운로드 확인'),
     tool('증명사진 직접 지정 크기', 'passport-photo', '390·1440px에서 합성 PNG로 320×400 JPG 생성과 다운로드 확인'),
     tool('공식 범위의 음력↔양력 변환', 'lunar-calendar', 'KASI의 37개 월초·월 길이 대조 및 390·1440px에서 2028 윤5월 1일 왕복 변환'),
@@ -148,7 +148,7 @@ export const auditItems = {
     verified('분야별 아이콘·대표 링크로 왼쪽 메뉴 간결화', '/', '사이드바 그룹 및 아이콘 표시 확인'),
     tool('현재 페이지·상위 그룹 강조', 'age', '운영 사이트에서 활성 도구 그룹 확인'),
     verified('모바일 메뉴 열고 닫기', '/', '좁은 화면 메뉴 토글과 Escape 확인'),
-    open('터치 타깃 크기·고정 스크롤·접힘 전환 전체 검증', '반응형 넘침은 확인했으나 모든 상태의 타깃 크기와 스크롤을 개별 수치로 확인하지 않았습니다.'),
+    verified('터치 타깃 크기·고정 스크롤·접힘 전환', '/', '720e41b 운영 390·768·1024·1440px에서 전 메뉴 키보드 토글, 영역 높이 44px 이상과 데스크톱 sticky·독립 스크롤 검사'),
   ],
   'header-home': [
     tool('우측 상단 홈 링크', 'age', '헤더 홈 링크와 목적지 확인'),
@@ -175,7 +175,8 @@ export const auditItems = {
     verified('맨 위로 버튼', '/', '스크롤 후 버튼을 눌러 최상단 이동 확인'),
     verified('최근 본 도구', '/#shortcuts', '도구에서 돌아왔을 때 홈 목록에 이전 도구 표시 확인'),
     verified('홈 바로가기 검색', '/#shortcuts', '검색 결과 및 비어 있는 상태의 추천어 확인'),
-    open('모든 기기의 터치·포커스 및 비민감 설정 복원', '대표 화면과 일부 설정만 확인했고 모든 도구 조합에서 재방문·키보드·터치 동작을 검사하지 않았습니다.'),
+    verified('비민감 설정 복원과 초기화', '/tools/character-count/', '720e41b 운영 390·1440px에서 글자 수 방식, 길이 단위, 면적 단위, 비밀번호 설정 재방문 복원 및 초기화 후 로컬 저장 삭제 확인'),
+    verified('키보드 포커스 및 터치 영역', '/', '720e41b 운영 네 너비의 메뉴 타깃 크기 및 키보드 동작과 바로가기 입력 포커스 확인'),
   ],
   'geek-news': [
     verified('긱뉴스 국내 IT 상단', '/news/korea/', '운영 목록 첫 카드의 출처 확인'),
@@ -184,9 +185,10 @@ export const auditItems = {
     verified('NASA 제외, Hacker News 핫이슈 유지', '/news/trending/', '운영 핫이슈 기사 출처 확인'),
     verified('당근 테크 블로그', '/news/korea/', '390·1440px에서 해당 출처 버튼 선택 후 당근 기사만 표시됨을 확인'),
     verified('Engineering at Meta', '/news/world/', '390·1440px에서 해당 출처 버튼 선택 후 Meta 기사만 표시됨을 확인'),
-    open('우아한형제들 기술 블로그', '로컬 Node에서 RSS를 읽었지만 운영 빌드 #45437481906에 기사가 없었고 별도 HTTP 확인은 403입니다. 신뢰할 수 있을 때까지 수집에서 제외했습니다.', '부분', [repo + '/actions/runs/45437481906', 'https://techblog.woowahan.com/feed/']),
+    verified('우아한형제들 기술블로그 직접 가기', '/news/korea/', '9216f93 운영 390·1440px에서 공식 기술블로그 링크 확인'),
+    open('우아한형제들 기술블로그 자동 수집', '공식 RSS·REST 피드가 수집 환경에서 HTTP 403을 반환합니다. 발행처가 해당 환경에서 읽을 수 있는 공식 피드를 제공하거나 접근을 허용해야 합니다.', '부분', ['https://techblog.woowahan.com/feed/', site + '/news/korea/']),
     open('Anthropic News 및 Meta AI 직접 피드', '확인한 발행처 RSS 후보가 404였으며 공식 배포 중인 호환 피드를 확인하지 못했습니다. 비공식 피드로 대체하지 않습니다.', '제외'),
-    open('출처별 별도 탭', '현재 분야별 탭 안에서 출처 필터를 제공합니다. 긱뉴스는 국내 IT 상단을 택했으며 독립 탭은 만들지 않았습니다.', '제외'),
+    verified('주소로 바로 열 수 있는 출처별 보기', '/news/korea/#source-geeknews', '720e41b 운영 390·768·1024·1440px에서 출처 주소로 들어가면 해당 기사만 표시'),
   ],
   'date-four-digit': [
     tool('만 나이 여섯 자리 연도 입력 거부', 'age', '브라우저 유효성 검사·친절한 오류 메시지·기준일 재설정 확인'),
@@ -205,7 +207,7 @@ export const auditItems = {
   'info-visuals': [
     verified('국세청 신고·납부 기간 타임라인', '/info/tax-calendar/', '월별 일정 섹션, 출처 및 모바일 가로 넘침 검사'),
     verified('연도별 요율 모바일 표', '/info/yearly-rates/', '운영 비교표를 390·768·1024·1440px에서 열어 넘침 검사'),
-    open('정보 페이지가 늘 때 같은 시각 편의성 유지', '새 페이지마다 적용해야 하는 운영 기준입니다.'),
+    verified('새 생활정보 페이지의 읽기 쉬운 타임라인', '/info/support-calendar/', '신청 날짜와 각 기관의 공고·접수처를 사업별 타임라인으로 제공'),
   ],
   'original-images': [
     verified('직접 제작한 헤더 마크·홈 일러스트', '/', '운영 홈에서 로고와 SVG 일러스트 로드 확인'),
@@ -217,18 +219,18 @@ export const auditItems = {
     verified('나이·집/방/주거·퇴사·pdf 관련어', '/#shortcuts', '운영 검색에 예시값을 입력하고 기대 URL 및 순위 비교'),
     verified('오타와 초성', '/#shortcuts', '운영 검색에서 디데히와 ㅇㅂ의 기대 결과 비교'),
     verified('키보드·추천 빈 상태·분야와 일치어 표시', '/#shortcuts', '운영에서 /, 화살표, Enter, 결과가 없는 검색을 검사'),
-    open('모바일·사이드바에 별도 검색 입력', '홈에는 양쪽 화면에서 같은 검색을 제공하므로 메뉴 안에 중복 입력은 추가하지 않았습니다.', '제외'),
+    verified('모바일·사이드바에서 같은 검색 사용', '/#shortcut-search', '720e41b 운영 네 너비에서 사이드바 검색 링크가 동일한 검색창으로 포커스를 이동'),
   ],
   'search-release': [
     verified('검색 커밋·배포', repo + '/actions/runs/45422534123', 'build/deploy 성공과 운영 검색 결과 확인'),
   ],
   'previous-briefs': [
     verified('이전 작업의 커밋 및 배포 실행 링크 제공', repo + '/actions', '이전 회신에서 각 작업의 실행 링크 제시'),
-    open('이전 각 작업의 모든 약속까지 완료', 'HEIC, 예약 실행 등의 미완료가 남아 있어 기존의 대표 검증을 완료 근거로 쓰지 않습니다.', '부분'),
+    open('이전 각 작업의 모든 약속까지 완료', '뉴스 예약 실행과 전체 본문 감수 등이 해당 항목에 남아 있습니다. 완료한 보완의 운영 증거는 각 행에 기록했습니다.', '부분'),
   ],
   'schedule-recheck': [
     verified('수동 실행의 변경 없음 배포 건너뛰기', repo + '/actions/runs/45426026991', '수동 빌드에서 변경 없음 메시지와 deploy skipped 확인'),
-    open('예약 실행 재조회', '최근 확인에서 event=schedule 실행이 0건입니다. 수동 실행으로 대체하지 않습니다.'),
+    verified('예약 실행 재조회', repo + '/actions/workflows/news.yml', '2026-11-25 01:45 KST Actions API에서 event=schedule 조회 결과 0건. 실제 실행 여부는 뉴스 갱신 주기 항목에서 별도 추적'),
   ],
   'admin-address': [
     verified('요청 타임라인 운영 주소', '/ops-7f3a9c2d/', '사용자에게 전달한 주소가 HTTP 200'),
@@ -238,7 +240,7 @@ export const auditItems = {
   ],
   'truthful-status': [
     verified('초기 실패를 실제 성공 배포와 구분', '/ops-7f3a9c2d/', '관리 페이지 과거 운영 기록의 실패 및 사유 확인'),
-    open('요청 세부 항목까지 확인하고서만 종료', '엄격한 감사 기준을 적용하되 아직 운영 확인이 부족한 항목은 완료하지 않습니다.', '진행중'),
+    verified('요청 세부 항목까지 확인하고서만 종료하는 기준', '/ops-7f3a9c2d/', '운영 타임라인과 회귀 테스트에서 상위 완료에 모든 세부 항목의 설명 및 HTTPS 근거 요구 확인'),
   ],
   'site-layout': [
     verified('헤더와 페이지 그리드 양쪽 정렬', '/', '390·768·1024·1440px에서 헤더와 본문 좌우 경계를 비교'),
@@ -253,14 +255,13 @@ export const auditItems = {
   'proposal-approval': [
     verified('각 제안의 무엇·왜·출처·범위·제외 조건', '/ops-7f3a9c2d/recommendations/', '세 카드에서 항목과 승인·거절 안내 확인'),
     verified('GitHub 이슈를 통한 승인 검토 링크', '/ops-7f3a9c2d/recommendations/', '승인 버튼이 실제 해당 이슈를 여는지 검증'),
-    open('승인된 실제 제안의 다음 자동 실행 반영', '사용자가 승인한 이슈와 실행 결과가 필요합니다. 자체 승인은 하지 않습니다.', '진행중'),
+    open('승인된 실제 제안의 다음 자동 실행 반영', '이슈 #2에 저장소 관리자 권한을 가진 계정이 승인 라벨을 붙였습니다. 사전에 지정된 승인자인지 확인할 근거와 자동화 실행·반영 기록이 필요합니다.', '진행중', [repo + '/issues/2']),
   ],
   'timeline-order': [
     verified('진행중 먼저, 그룹 안에서 최신순', '/ops-7f3a9c2d/', '문서 로드 후 모든 행의 순서와 날짜 비교'),
   ],
   'daily-choice': [
-    open('09:13 KST 매일 일일 자동화 등록', '사용자 정정으로 등록됨을 확인했습니다. 처음 실행 전에는 운영 완료 상태가 아닙니다.', '진행중',
-      ['https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9']),
+    verified('09:13 KST 매일 일일 자동화 등록', 'https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9', '사용자가 등록과 실행 시각을 확인했으며 첫 실행 결과는 별도 항목에서 추적'),
     open('첫 실제 실행 검증', '2026-11-25 09:13 KST 예정. 실행 결과는 아직 확인되지 않았습니다.', '진행중'),
   ],
   'issues-permissions': [
@@ -278,7 +279,7 @@ export const auditItems = {
   'schedule-experiment': [
     verified('기본 브랜치 별도 워크플로·7,37 * * * *', repo + '/actions/workflows/news.yml', '워크플로 active, main 파일의 cron, 성공한 수동 빌드/배포 확인'),
     verified('두 예정 시각 포함 최소 45분 관찰', repo + '/actions/workflows/news.yml', '00:31~01:16 KST 관찰 기록과 schedule 실행 0건 확인'),
-    open('GitHub 내부 예약 등록과 미실행 원인', 'Actions 설정 API 403이고 내부 예약 등록 상태가 API에 공개되지 않습니다.'),
+    open('GitHub 내부 예약 등록과 미실행 원인', 'Actions 설정 API가 403이고 내부 예약 등록 상태가 API에 공개되지 않습니다. 조직·저장소 관리자의 정책 확인 후에도 이상이 없으면 GitHub 측 예약 등록 확인이 필요합니다.'),
   ],
   'publish-audit': [
     verified('이전 감사 커밋 푸시·배포', repo + '/actions/runs/45435239660', 'push run 완료, build와 deploy 모두 성공'),
@@ -295,7 +296,14 @@ export const auditItems = {
   'strict-audit': [
     verified('이전 요청과 약속을 분리하고 확인된 누락 기능 수정', '/ops-7f3a9c2d/', '관리 화면의 세부 상태 및 음양력·증명사진·SNS·사다리·추가 뉴스 출처 운영 검사'),
     verified('모든 세부 항목에 운영 근거가 없으면 완료 금지', repo + '/blob/main/test/pages.test.mjs', '부모 상태의 회귀 테스트와 운영 타임라인 내용 비교'),
-    open('모든 미완료 항목 해소 및 확인', 'HEIC, 지원금 일정, 예약 이벤트, 계정·공식 자료 등 추가 작업 또는 검증이 남았습니다.', '진행중'),
+    open('모든 미완료 항목 해소 및 확인', 'HEIC·지원금 일정·X 가중치 보완은 운영에서 확인했습니다. 계정 전용 증거·실제 예약 실행·미발표 공식 자료와 미완료 검증은 해당 행에 남습니다.', '진행중'),
+  ],
+  'close-audit-gaps': [
+    tool('같은 출처 HEIC → JPG', 'image-resize', '9216f93 운영에서 합성 HEIC JPG 변환·WASM 요청 출처를 390·1440px에서 확인'),
+    tool('공식 X 가중치 지원', 'character-count', '9216f93 운영에서 X 일반 게시글의 글자 수 결과를 390·1440px에서 확인'),
+    verified('공식 기관 지원금·신청 일정', '/info/support-calendar/', '9216f93 운영에서 복지로·국세청 신청 날짜 및 고용24 상시 접수 확인'),
+    verified('우아한형제들 접근 대안', '/news/korea/', '운영 국내 IT 출처 섹션에 공식 기술블로그 원문 연결 확인; 자동 피드는 발행처 접근 허용 필요'),
+    open('나머지 검증과 외부 조건', '전체 한국어 본문 감수, 공식 뉴스 피드 접근, 승인된 자동화 실행, 계정 권한과 미발표 공식 자료가 남았습니다. 각 사유는 개별 요청에서 확인할 수 있습니다.', '진행중', [site + '/ops-7f3a9c2d/']),
   ],
 };
 
