@@ -88,7 +88,7 @@ git -c credential.helper= \
   push https://x-access-token@github.com/everyhub/everyhub.github.io.git main
 ```
 
-- `main` 푸시, 매월 1일 03:17 UTC, 기본 수동 실행은 전체 빌드·배포합니다. 뉴스 예약은 정각을 피해 UTC 매시 07·37분으로 잡습니다. 예약이 누락되면 GitHub Actions의 **Deploy to GitHub Pages → Run workflow → news_only**로 뉴스 갱신을 수동 실행할 수 있습니다. 둘 다 게시물이나 배포 대상 커밋이 달라진 경우에만 배포합니다. 예약 시각은 목표이며 GitHub가 실행을 지연하거나 누락할 수 있습니다. 수동 실행 성공과 예약 실행 확인은 별개입니다. 겹치는 Pages 실행은 최신 실행이 앞선 실행을 취소합니다.
+- `main` 푸시, 매월 1일 03:17 UTC, 기본 수동 실행은 전체 빌드·배포합니다. [Refresh news](https://github.com/everyhub/everyhub.github.io/actions/workflows/news.yml)는 정각을 피해 UTC 매시 07·37분에 공통 Pages 워크플로를 호출합니다. 예약이 누락되면 **Refresh news → Run workflow**로 수동 실행할 수 있습니다(기존 **Deploy to GitHub Pages → Run workflow → news_only**도 동작합니다). 뉴스 실행은 게시물이나 배포 대상 커밋이 달라진 경우에만 배포합니다. 예약 시각은 목표이며 GitHub가 실행을 지연하거나 누락할 수 있습니다. 수동 실행 성공과 예약 실행 확인은 별개입니다. 겹치는 Pages 실행은 최신 실행이 앞선 실행을 취소합니다.
 - 피드가 실패하면 운영 `news-data.json`의 해당 피드 마지막 정상 목록을 사용합니다. 새 피드에 이전 데이터가 없으면 다른 피드를 배포하면서 출처 링크를 표시합니다. 이전 스냅샷이 404가 아닌 오류로 읽히지 않으면 기존 사이트를 보존하도록 빌드를 중단합니다. 수집 오류와 건수는 Actions 로그를 확인하세요.
 - 배포 후 Actions에서 **Deploy to GitHub Pages**의 결과와 커밋을 확인하고 운영 홈·대표 계산기·새 페이지·`sitemap.xml`을 HTTP로 확인합니다. 예약 실행에서 ‘소식 변경 없음’으로 배포 작업이 건너뛰어지는 것은 정상입니다.
 
