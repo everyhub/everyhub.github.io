@@ -12,7 +12,7 @@
 body { margin: 0; color: var(--ink); background: var(--paper); }
 a { color: var(--accent); text-underline-offset: .2em; }
 a:hover { text-decoration-thickness: .13em; }
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #0b73b3; outline-offset: 3px; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 3px solid #0b73b3; outline-offset: 3px; }
 .wrap { width: min(100% - 2rem, 78rem); margin-inline: auto; }
 .site-head { background: #fff; border-bottom: 1px solid var(--line); }
 .site-head .wrap { display: flex; gap: .5rem 1rem; flex-wrap: wrap; align-items: center; padding-block: .65rem; }
@@ -24,11 +24,18 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .sidebar-title { margin: 0; padding-left: .35rem; font-weight: 750; }
 .site-tree { margin: .4rem 0; padding: 0; list-style: none; font-size: .9rem; }
 .site-tree ul { margin-left: .55rem; padding-left: .55rem; list-style: none; border-left: 1px solid var(--line); }
-.site-tree > li { margin-block: .65rem; }
-.site-tree > li > a { font-weight: 750; }
+.site-tree > li { margin-block: .2rem; }
+.site-tree summary { padding: .4rem .35rem; border-radius: .35rem; font-weight: 750; cursor: pointer; }
+.site-tree summary:hover, .site-tree details[open] > summary { background: #e8f6ef; }
+.example-index > summary { color: var(--accent); cursor: pointer; font-weight: 700; }
 .site-tree a { display: block; padding: .2rem .35rem; border-radius: .35rem; text-decoration: none; overflow-wrap: anywhere; }
 .site-tree a:hover, .site-tree a[aria-current] { background: #e8f6ef; text-decoration: underline; }
 .site-tree a[aria-current] { font-weight: 750; }
+.sitemap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: .75rem; align-items: start; margin-block: 1rem; }
+.sitemap-card { padding: 1rem; background: #fff; border: 1px solid var(--line); border-radius: .75rem; }
+.sitemap-card h2 { margin: 0 0 .45rem; font-size: 1.05rem; }
+.sitemap-card ul { list-style: none; margin: 0; padding: 0; }
+.sitemap-card li a { display: block; padding-block: .24rem; }
 @media (max-width: 52rem) {
   .page-grid { display: block; }
   .sidebar { position: static; max-height: 65dvh; }

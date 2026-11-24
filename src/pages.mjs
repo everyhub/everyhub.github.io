@@ -2,11 +2,8 @@ import { calculate, defaults, limits } from './calculator.mjs';
 import { breakdown, salaryName, won } from './display.mjs';
 import { rates, sources } from './rates.mjs';
 import { verifiedOn } from './labor-rates.mjs';
-import { brand, categories, toolPath, tools } from './tool-specs.mjs';
-import { salaryCalculatorPath, siteTree } from './navigation.mjs';
-import { informationSections } from './information.mjs';
-import { newsSections } from './news-config.mjs';
-import { utilitySections } from './utility-config.mjs';
+import { brand } from './tool-specs.mjs';
+import { navigationGroups, salaryCalculatorPath, siteTree } from './navigation.mjs';
 
 const { year } = rates;
 const taxFree = won(defaults.monthlyTaxFree);
@@ -168,8 +165,9 @@ function salaryIndex(root) {
     return `<h3>${salaryName(entries[0])} ~ ${salaryName(entries.at(-1))}</h3>
       <ul class="tag-list">${entries.map((salary) => `<li>${pageLink(salary, root)}</li>`).join('')}</ul>`;
   }).join('');
-  return `<section class="panel" aria-labelledby="salary-index"><h2 id="salary-index">연봉별 실수령액</h2>
-      <p>같은 조건에서 연봉이 달라지면 실제 월급이 얼마나 달라지는지 확인해 보세요.</p>${index}</section>`;
+  return `<section class="panel" aria-labelledby="salary-index"><h2 id="salary-index">연봉별 바로보기</h2>
+      <ul class="tag-list">${[3_000, 4_000, 5_000].map((salary) => `<li>${pageLink(salary, root)}</li>`).join('')}</ul>
+      <details class="example-index"><summary>전체 연봉 구간 (${salaries.length}개)</summary>${index}</details></section>`;
 }
 
 function dashboard() {
@@ -177,14 +175,7 @@ function dashboard() {
     <section class="panel"><h2><a href="./${hub}">${title}</a></h2>
       <ul class="dashboard-links">${[...links, { path: hub, name: hubName }].map(({ path, name }) =>
         `<li><a href="./${path}">${name}</a></li>`).join('')}</ul></section>`;
-  const payroll = categories.map(({ id, title }) => {
-    const links = Object.entries(tools).filter(([, tool]) => tool.category === id)
-      .map(([toolId, tool]) => ({ path: toolPath(toolId), name: tool.name }));
-    if (id === 'pay') links.unshift({ path: salaryCalculatorPath, name: '연봉 실수령액 계산기' });
-    return section(title, `${id}/`, links);
-  });
-  return [...payroll, section('도구', 'tools/', utilitySections), section('IT·AI 소식', 'news/', newsSections),
-    section('생활 정보', 'info/', informationSections)].join('');
+  return navigationGroups.map(({ name, path, items }) => section(name, path, items)).join('');
 }
 
 export function homePage(config) {
@@ -254,7 +245,7 @@ export function salaryPage(config, salary, index) {
             const delta = net - monthly.net;
             return `<tr><th scope="row">${neighbor === salary ? `<strong>${salaryName(neighbor)}</strong>` : pageLink(neighbor, root)}</th><td>${won(net)}</td><td>${delta ? `${delta > 0 ? '+' : '−'}${won(Math.abs(delta))}` : '—'}</td></tr>`;
           }).join('')}</tbody>
-        </table>
+        </table><p><a href="${root}${salaryCalculatorPath}#salary-index">다른 연봉 구간 보기</a></p>
       </section>
       <section class="panel" aria-labelledby="scenario"><h2 id="scenario">부양가족이 있다면?</h2>
         <p>공제 대상 배우자와 만 8~20세 자녀 1명을 추가하면 월평균 실수령액은 ${won(family.monthly.net)}입니다. 본인만 공제받는 경우와 월평균 ${won(family.monthly.net - monthly.net)} 차이가 납니다.</p>

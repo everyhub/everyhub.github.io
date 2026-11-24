@@ -100,8 +100,10 @@ test('housing pages are linked from the home and sitemap and include canonical a
   assert.match(homePage(config), /href="\.\/housing\/"[^>]*>주거·전월세/);
   assert.match(pages.get('tools/rent-conversion/'), /href="\.\.\/\.\.\/tools\/public-rent-conversion\//);
   assert.match(pages.get('tools/public-rent-conversion/'), /"@type":"WebApplication"/);
-  for (const { path } of housingExamples) {
-    assert.ok(pages.get('sitemap/').includes(`href="../${path}"`));
+  for (const { id, path } of housingExamples) {
+    assert.ok(pages.get('sitemap/').includes(`href="../tools/${id}/"`));
+    assert.ok(!pages.get('sitemap/').includes(`href="../${path}"`));
+    assert.ok(pages.get(`tools/${id}/`).includes(`href="../../${path}"`));
     assert.ok(pages.get(path).includes(`href="${new URL(path, config.baseURL)}"`));
     assert.match(pages.get(path), /"@type":"FAQPage"/);
   }

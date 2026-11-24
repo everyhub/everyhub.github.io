@@ -77,7 +77,8 @@ export function informationPages(config) {
     { path: 'info/', html: layout({
       config, root, path: 'info/', title: `생활 정보: 공휴일·세금 일정·임금 기준 | ${brand}`, description: infoIntro,
       main: `<h1>생활 정보</h1><p class="intro">${infoIntro}</p><section class="panel"><h2>분야별 안내</h2>
-      ${informationSections.map(({ path, name, description }) => `<h3><a href="${root}${path}">${name}</a></h3><p>${description}</p>`).join('')}</section>`,
+      ${informationSections.map(({ path, name, description }) => `<h3><a href="${root}${path}">${name}</a></h3><p>${description}</p>`).join('')}
+      <h3><a href="${root}living/">복지·소득 계산기</a></h3><p>가구원 수별 기준 중위소득과 복지 급여 선정 기준을 확인하세요.</p></section>`,
     }) },
     holidayPage(config, holidays26, 2026),
     holidayPage(config, holidays27, 2027),

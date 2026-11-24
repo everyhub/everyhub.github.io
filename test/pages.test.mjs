@@ -4,10 +4,11 @@ import { homePage, salaries, salaryCalculatorPage, salaryPage } from '../src/pag
 import { extraPages } from '../src/labor-pages.mjs';
 import { informationPages } from '../src/information-pages.mjs';
 import { holidayCalendar } from '../src/information.mjs';
-import { brand, categories, toolPath, tools } from '../src/tool-specs.mjs';
+import { brand, toolPath, tools } from '../src/tool-specs.mjs';
 import { informationSections } from '../src/information.mjs';
 import { newsSections } from '../src/news-config.mjs';
 import { utilitySections } from '../src/utility-config.mjs';
+import { examplePages, medianPages, navigationGroups } from '../src/navigation.mjs';
 
 const config = { baseURL: 'https://example.com/salary-calc/' };
 
@@ -20,6 +21,8 @@ test('연봉 구간의 범위, 간격, 인덱스 링크', () => {
   }
   const home = homePage(config);
   for (const salary of salaries) assert.ok(home.includes(`href="./salary/${salary}/"`));
+  const salaryIndex = salaryCalculatorPage(config).match(/<details class="example-index">([\s\S]+?)<\/details>/)[1];
+  for (const salary of salaries) assert.ok(salaryIndex.includes(`href="../../salary/${salary}/"`));
   assert.match(home, /"@type":"WebApplication"/);
   assert.doesNotMatch(home, /pagead2\.googlesyndication/);
 });
@@ -49,12 +52,19 @@ test('설정한 검색 소유권 태그와 광고 슬롯을 렌더링', () => {
 test('개인 이름 없는 브랜드와 분류 탐색 패널', () => {
   const home = homePage(config);
   assert.ok(home.includes(`<meta property="og:site_name" content="${brand}">`));
-  for (const { id } of categories) assert.ok(home.includes(`href="./${id}/"`));
+  assert.equal(navigationGroups.length, 8);
+  for (const { path } of navigationGroups) assert.ok(home.includes(`href="./${path}"`));
   const group = extraPages(config).find(({ path }) => path === 'leave/');
   assert.match(group.html, /href="\.\.\/leave\/" aria-current="page"/);
   assert.match(group.html, /href="\.\.\/tools\/annual-leave\/"/);
   assert.match(group.html, /aria-controls="site-navigation" aria-expanded="false"/);
   assert.match(group.html, /href="\.\.\/sitemap\/"/);
+  const sidebar = (html) => html.match(/<nav class="sidebar"[\s\S]+?<\/nav>/)[0];
+  assert.doesNotMatch(sidebar(home), /<details open>/);
+  assert.deepEqual([...sidebar(group.html).matchAll(/<details open><summary>(.*?)<\/summary>/g)].map(([, name]) => name), ['육아·휴가']);
+  const salary = sidebar(salaryPage(config, 4_000, salaries.indexOf(4_000)));
+  assert.match(salary, /<details open><summary>급여·세금/);
+  assert.doesNotMatch(salary, /href="[^"]*salary\/\d+\//);
 });
 
 test('새 브랜드와 한눈에 바로가기, 별도 연봉 계산기 및 기존 홈 앵커', () => {
@@ -64,7 +74,7 @@ test('새 브랜드와 한눈에 바로가기, 별도 연봉 계산기 및 기�
   assert.match(home, /id="shortcuts">한눈에 바로가기/);
   assert.match(home, /id="calculator"/);
   const buttons = [...home.matchAll(/class="dashboard-links">([\s\S]*?)<\/ul>/g)].map(([, list]) => list).join('');
-  const paths = [...categories.map(({ id }) => `${id}/`), ...Object.keys(tools).map(toolPath),
+  const paths = [...navigationGroups.map(({ path }) => path), ...Object.keys(tools).map(toolPath),
     ...[...informationSections, ...newsSections, ...utilitySections].map(({ path }) => path),
     'news/', 'info/', 'tools/', 'tools/salary-calculator/'];
   for (const path of paths) assert.ok(buttons.includes(`href="./${path}"`), path);
@@ -93,11 +103,18 @@ test('각 도구의 공식 출처, 캐노니컬·FAQ·계산기 구조화 데이
   }
 });
 
-test('HTML 사이트맵은 이전 연봉 URL과 2027년 가구별 예시를 연결', () => {
+test('HTML 사이트맵에는 도구만 표시하며 상세 예시는 계산기에서 연결', () => {
   const pages = extraPages(config);
   const sitemap = pages.find(({ path }) => path === 'sitemap/').html;
-  for (const salary of salaries) assert.ok(sitemap.includes(`href="../salary/${salary}/"`));
-  assert.match(sitemap, /href="\.\.\/median-income\/2027\/7\/"/);
+  assert.equal((sitemap.match(/class="sitemap-card"/g) ?? []).length, navigationGroups.length);
+  for (const salary of salaries) assert.ok(!sitemap.includes(`href="../salary/${salary}/"`));
+  for (const { id, path } of [...examplePages, ...medianPages]) {
+    assert.ok(!sitemap.includes(`href="../${path}"`));
+    const calculator = pages.find((page) => page.path === toolPath(id)).html;
+    assert.match(calculator, /<details class="example-index">/);
+    assert.ok(calculator.includes(`href="../../${path}"`));
+    assert.ok(pages.some((page) => page.path === path));
+  }
   assert.match(sitemap, /href="\.\.\/news\/ai\/"/);
   assert.match(sitemap, /href="\.\.\/tools\/background-removal\/"/);
   assert.match(sitemap, /href="\.\.\/tools\/salary-calculator\/"/);

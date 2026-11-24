@@ -23,29 +23,39 @@ export const medianPages = [2026, 2027].flatMap((year) =>
 
 export const groupedTools = (category) => Object.entries(tools).filter(([, tool]) => tool.category === category);
 
-const keyPaths = ['hourly/10320/', 'hourly/10700/', 'hourly/12000/', 'severance/4000/', 'severance/5000/',
-  'median-income/2026/1/', 'median-income/2027/1/', 'median-income/2027/4/',
-  ...housingExamples.map(({ path }) => path)];
+const entries = (category) => groupedTools(category).map(([id, { name }]) => ({ path: toolPath(id), name }));
+export const navigationGroups = [
+  ...categories.filter(({ id }) => id !== 'tax' && id !== 'living').map(({ id, title }) => ({
+    path: `${id}/`, name: title,
+    items: id === 'pay'
+      ? [{ path: salaryCalculatorPath, name: '연봉 실수령액 계산기' }, ...entries(id), ...entries('tax')]
+      : entries(id),
+  })),
+  { path: 'tools/', name: '도구', items: utilitySections },
+  { path: 'news/', name: 'IT·AI 소식', items: newsSections },
+  { path: 'info/', name: '생활 정보·복지', items: [...informationSections, ...entries('living')] },
+];
 
 function link(root, path, title, current) {
   return `<a href="${root}${path}"${path === current ? ' aria-current="page"' : ''}>${title}</a>`;
 }
 
-export function siteTree(root, path, { full = false, salaries = [] } = {}) {
-  const examples = [...examplePages, ...medianPages, ...housingExamples];
-  const directory = (group, name, pages) => `<li>${link(root, group, name, path)}<ul>
-    ${pages.map(({ path: childPath, name: childName }) => `<li>${link(root, childPath, childName, path)}</li>`).join('')}</ul></li>`;
-  return `<ul class="site-tree">${categories.map(({ id, title }) => `<li>
-    ${link(root, `${id}/`, title, path)}<ul>
-    ${id === 'pay' ? `<li>${link(root, salaryCalculatorPath, '연봉 실수령액 계산기', path)}<ul>
-      ${(full ? salaries : [3_000, 4_000, 5_000]).map((salary) => `<li>${link(root, `salary/${salary}/`, `연봉 ${salaryName(salary)} 실수령액`, path)}</li>`).join('')}
-    </ul></li>` : ''}
-    ${groupedTools(id).map(([toolId, tool]) => {
-      const related = examples.filter((example) => example.id === toolId && (full || keyPaths.includes(example.path) || path === example.path));
-      return `<li>${link(root, toolPath(toolId), tool.name, path)}${related.length
-        ? `<ul>${related.map((example) => `<li>${link(root, example.path, example.title, path)}</li>`).join('')}</ul>` : ''}</li>`;
-    }).join('')}
-    </ul></li>`).join('')}
-    ${directory('news/', 'IT·AI 소식', newsSections)}${directory('info/', '생활 정보', informationSections)}
-    ${directory('tools/', '도구', utilitySections)}</ul>`;
+function groupLinks(root, { items }, path) {
+  return items.map(({ path: child, name }) => `<li>${link(root, child, name, path)}</li>`).join('');
+}
+
+export function siteTree(root, path) {
+  const example = [...examplePages, ...medianPages, ...housingExamples].find((item) => item.path === path);
+  const parent = example ? toolPath(example.id) : path.startsWith('salary/') ? salaryCalculatorPath : path;
+  const hub = path === 'tax/' ? 'pay/' : path === 'living/' ? 'info/' : path;
+  return `<ul class="site-tree">${navigationGroups.map((group) => {
+    const active = group.path === hub || group.items.some((item) => item.path === parent);
+    return `<li><details${active ? ' open' : ''}><summary>${group.name}</summary><ul>
+      <li>${link(root, group.path, `${group.name} 전체 보기`, path)}</li>${groupLinks(root, group, path)}</ul></details></li>`;
+  }).join('')}</ul>`;
+}
+
+export function sitemapDirectory(root) {
+  return `<div class="sitemap-grid">${navigationGroups.map((group) => `<section class="sitemap-card">
+    <h2>${link(root, group.path, group.name, '')}</h2><ul>${groupLinks(root, group, '')}</ul></section>`).join('')}</div>`;
 }

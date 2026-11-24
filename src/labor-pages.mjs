@@ -1,11 +1,11 @@
 import { rates, sources as payrollSources } from './rates.mjs';
 import { laborRates, verifiedOn } from './labor-rates.mjs';
 import { brand, categories, defaultsFor, toolPath, tools } from './tool-specs.mjs';
-import { ad, escape, faqHTML, layout, salaries, sourcesHTML } from './pages.mjs';
+import { ad, escape, faqHTML, layout, sourcesHTML } from './pages.mjs';
 import { formatNumber, salaryName, won } from './display.mjs';
 import { severancePay, wageConversion } from './labor.mjs';
 import { medianIncome } from './guides.mjs';
-import { examplePages, groupedTools, medianPages, siteTree } from './navigation.mjs';
+import { examplePages, groupedTools, medianPages, salaryCalculatorPath, sitemapDirectory } from './navigation.mjs';
 import { housingExamples } from './housing-examples.mjs';
 
 const examples = [...examplePages, ...medianPages, ...housingExamples];
@@ -13,11 +13,16 @@ const toolLink = (root, id) => `<a href="${root}${toolPath(id)}">${tools[id].nam
 const exampleLink = (root, example) => `<a href="${root}${example.path}">${example.title}</a>`;
 const review = `공식 자료 확인 <time datetime="${verifiedOn}">${verifiedOn}</time>`;
 
-function exampleLinks(root, toolIds) {
-  const matches = examples.filter(({ id }) => toolIds.includes(id));
+const featuredPaths = new Set(['hourly/10320/', 'hourly/10700/', 'hourly/12000/', 'severance/3000/', 'severance/4000/', 'severance/5000/',
+  'median-income/2026/1/', 'median-income/2027/1/', 'median-income/2027/4/']);
+
+function exampleLinks(root, id) {
+  const matches = examples.filter((example) => example.id === id);
   if (!matches.length) return '';
-  return `<section class="panel" aria-labelledby="examples"><h2 id="examples">금액별 계산 예시</h2><ul class="tag-list">
-    ${matches.map((example) => `<li>${exampleLink(root, example)}</li>`).join('')}</ul></section>`;
+  const list = (items) => `<ul class="tag-list">${items.map((example) => `<li>${exampleLink(root, example)}</li>`).join('')}</ul>`;
+  const featured = matches.length <= 3 ? matches : matches.filter(({ path }) => featuredPaths.has(path));
+  return `<section class="panel" aria-labelledby="examples"><h2 id="examples">${id === 'median-income' ? '가구원 수별 바로보기' : '금액별 바로보기'}</h2>
+    ${list(featured)}${matches.length > featured.length ? `<details class="example-index"><summary>전체 계산 예시 (${matches.length}개)</summary>${list(matches)}</details>` : ''}</section>`;
 }
 
 function categoryPage(config, category) {
@@ -30,9 +35,10 @@ function categoryPage(config, category) {
     main: `<p class="eyebrow">${rates.year}년 기준 · ${review}</p><h1>${category.title} 계산기</h1>
     <p class="intro">${category.description}</p>
     <section class="panel" aria-labelledby="category-tools"><h2 id="category-tools">계산기 고르기</h2>
-    ${category.id === 'pay' ? `<h3><a href="${root}#calculator">연봉 실수령액 계산기</a></h3><p>공제항목별 월평균·연간 실수령액과 <a href="${root}#salary-index">연봉별 예시</a>를 비교하세요.</p>` : ''}
-    ${members.map(([id, tool]) => `<h3>${toolLink(root, id)}</h3><p>${escape(tool.description)}</p>`).join('')}</section>
-    ${exampleLinks(root, members.map(([id]) => id))}${faqHTML(faq)}`,
+    ${category.id === 'pay' ? `<h3><a href="${root}${salaryCalculatorPath}">연봉 실수령액 계산기</a></h3><p>공제항목별 월평균·연간 실수령액과 <a href="${root}${salaryCalculatorPath}#salary-index">연봉별 예시</a>를 비교하세요.</p>` : ''}
+    ${members.map(([id, tool]) => `<h3>${toolLink(root, id)}</h3><p>${escape(tool.description)}</p>`).join('')}
+    ${category.id === 'pay' ? `<h3><a href="${root}tax/">프리랜서·세금 계산기</a></h3><p>원천징수, 종합소득세, 부가가치세와 증여재산공제를 확인하세요.</p>` : ''}</section>
+    ${faqHTML(faq)}`,
   });
 }
 
@@ -72,7 +78,7 @@ function toolPage(config, id, tool) {
         ${sourcesHTML(references)}
         <p><a href="${root}${category.id}/">${category.title} 계산기 모아보기</a></p>
       </section>
-      ${exampleLinks(root, [id])}${faqHTML(tool.faq)}`,
+      ${exampleLinks(root, id)}${faqHTML(tool.faq)}`,
   });
 }
 
@@ -166,7 +172,7 @@ function medianPage(config, { path, title, year, size }) {
       <p class="intro">같은 가구원 수로 <a href="${root}median-income/${otherYear}/${size}/">${otherYear}년 기준</a>을 보면 월 ${won(other.median)}입니다.</p>
       <section class="panel"><h2>급여별 소득인정액 선정 기준</h2>
         ${scenarioRows([['생계급여', '32%', data.livelihood], ['의료급여', '40%', data.medical], ['주거급여', '48%', data.housing], ['교육급여', '50%', data.education]], '가구 전체 월 소득인정액 기준')}
-        <p class="note">${tool.scope}</p><p>${toolLink(root, 'median-income')}에서 가구원 수와 비율을 바꿔 보세요.</p>
+        <p class="note">${tool.scope}</p><p><a href="${root}${toolPath('median-income')}#examples">다른 가구원 수의 예시 보기</a> · ${toolLink(root, 'median-income')}</p>
       </section>
       ${ad(config)}
       <section class="panel"><h2>공식 계산 기준</h2>${sourcesHTML(tool.sources.filter(({ effective }) => effective.startsWith(String(year))))}</section>
@@ -177,15 +183,16 @@ function medianPage(config, { path, title, year, size }) {
 function sitemapPage(config) {
   return layout({
     config, path: 'sitemap/', root: '../', title: `사이트맵 | ${brand}`,
-    description: `${brand}의 전체 계산기, 사진·생활 도구, 금액·가구별 예시와 IT·AI 소식을 한눈에 찾아보세요.`,
-    main: `<h1>사이트맵</h1><p class="intro">분야별 계산기, 전체 예시 페이지, 사진·생활 도구, IT·AI 소식과 생활 정보를 모았습니다.</p>
-      <nav class="panel" aria-label="전체 사이트맵">${siteTree('../', 'sitemap/', { full: true, salaries })}</nav>`,
+    description: `${brand}의 분야별 계산기, 사진·생활 도구, IT·AI 소식을 한눈에 찾아보세요.`,
+    main: `<h1>사이트맵</h1><p class="intro">계산기와 도구를 분야별로 모았습니다. 금액·가구원 수별 예시는 해당 계산기에서 볼 수 있습니다.</p>
+      <nav aria-label="분야별 사이트맵">${sitemapDirectory('../')}</nav>`,
   });
 }
 
 function housingExample(config, { id, path, title, description, rowKeys, cases }) {
   const root = '../../';
   const tool = tools[id];
+  const related = housingExamples.filter((example) => example.id === id && example.path !== path);
   const columns = tool.outputs.filter(({ key }) => rowKeys.includes(key));
   const rows = cases.map(([name, inputs]) => {
     const result = tool.calculate({ ...defaultsFor(tool), ...inputs });
@@ -203,7 +210,8 @@ function housingExample(config, { id, path, title, description, rowKeys, cases }
     <section class="panel"><h2>조건별 예상 금액</h2><table><thead><tr><th scope="col">조건</th>
     ${columns.map(({ label }) => `<th scope="col">${escape(label)}</th>`).join('')}</tr></thead><tbody>
     ${rows.map(({ name, values }) => `<tr><th scope="row">${name}</th>${values.map((value) => `<td>${escape(value)}</td>`).join('')}</tr>`).join('')}
-    </tbody></table><p class="note">${escape(tool.scope)}</p><p>${toolLink(root, id)}</p></section>
+    </tbody></table><p class="note">${escape(tool.scope)}</p><p>${toolLink(root, id)}</p>
+    ${related.map((example) => `<p>${exampleLink(root, example)}</p>`).join('')}</section>
     <section class="panel"><h2>공식 계산 기준</h2>${sourcesHTML(tool.sources)}</section>${faqHTML(faq)}`,
   });
 }
