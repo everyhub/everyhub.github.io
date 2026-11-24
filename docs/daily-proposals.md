@@ -41,5 +41,6 @@ git_auth clone https://github.com:443/everyhub/everyhub.github.io.git
 
 ## 4. 배포 및 운영 확인
 
-- 데이터만 바뀐 경우에도 테스트와 감사를 실행하고 커밋·푸시합니다. GitHub Actions의 실제 종료 상태, 추천 탭 응답과 `noindex,nofollow`, 카드 내용, 연결된 실제 이슈를 확인합니다. 공개 메뉴·HTML/XML 사이트맵·robots.txt에는 관리자 경로를 추가하지 않습니다.
+- 데이터만 바뀐 경우에도 [README의 배포 전 검수 체크리스트](../README.md#배포-전-검수-체크리스트)를 적용합니다. `npm test`와 `npm run audit`로 내부 링크·앵커, 콘솔, 동일 출처 요청, 정상·경계·오류 입력과 복사·초기화·최근 도구·검색을 검사합니다. 390·768·1024·1440px 캡처에서 페이지 구성·정렬·줄바꿈·글자 크기·여백·색상·아이콘·표·메뉴·푸터를 직접 확인하고, 고친 화면은 다시 캡처합니다. 반복 상세는 범위를 대표하는 값을 확인합니다.
+- 커밋·푸시 후 GitHub Actions의 실제 종료 상태, 추천 탭 응답과 `noindex,nofollow`, 카드 내용, 연결된 실제 이슈를 확인합니다. 각 세부 요구의 운영 확인과 HTTPS 근거가 없으면 완료로 표시하지 않습니다. 끝날 때 `npm run now -- done`으로 실행 기록을 지웁니다. 공개 메뉴·HTML/XML 사이트맵·robots.txt에는 관리자 경로를 추가하지 않습니다.
 - `gh api 'repos/everyhub/everyhub.github.io/actions/runs?event=schedule&per_page=5'`로 뉴스 예약 실행도 확인합니다. `schedule`의 시간·결론·배포 여부를 기록하고, 기록이 없으면 `미확인`으로 남깁니다. `workflow_dispatch` 실행은 예약 성공의 근거가 아닙니다.

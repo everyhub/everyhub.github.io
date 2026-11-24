@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { adminTimeline, sortAdminTimeline } from './src/admin-log.mjs';
 import activeWork from './src/admin-now.json' with { type: 'json' };
+import { newsFeeds } from './src/news-config.mjs';
 import { PDFDocument } from './src/utility-vendor/pdf-lib-1.17.1.mjs';
 import { jpegLocation } from './src/photo-location.mjs';
 import { jpegWithGPS } from './test/photo-location-fixture.mjs';
@@ -19,11 +20,12 @@ if (!live) {
   });
 }
 const publicRoutes = live ? await liveInventory(live) : [];
-const routes = (live ? [...publicRoutes, '/ops-7f3a9c2d/', '/ops-7f3a9c2d/recommendations/', '/assets/background-removal/']
+const inventory = live ? [...publicRoutes, '/ops-7f3a9c2d/', '/ops-7f3a9c2d/recommendations/', '/assets/background-removal/']
   : (await readdir(dist, { recursive: true })).filter((path) => /(^|\/)index\.html$/.test(path))
-    .map((path) => '/' + path.replace(/index\.html$/, '')))
-  .filter((path) => !/^\/(salary|hourly|severance|median-income)\/\d+\//.test(path)).sort();
-const detailTemplates = ['/salary/4000/', '/hourly/12000/', '/severance/4000/', '/median-income/2026/4/'];
+    .map((path) => '/' + path.replace(/index\.html$/, ''));
+const routes = inventory.filter((path) => !/^\/(salary|hourly|severance|median-income)\/\d+\//.test(path)).sort();
+const detailTemplates = ['/salary/2000/', '/salary/4000/', '/salary/20000/', '/hourly/10320/', '/hourly/12000/', '/hourly/30000/',
+  '/severance/2400/', '/severance/4000/', '/severance/15000/', '/median-income/2026/1/', '/median-income/2026/4/', '/median-income/2027/7/'];
 const screenshotDir = process.env.AUDIT_SCREENSHOTS;
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript',
   '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
@@ -66,11 +68,67 @@ async function liveInventory(site) {
   return locations.map(({ pathname }) => pathname);
 }
 
+async function checkLinks(page, origin) {
+  const pages = new Map();
+  for (let i = 0; i < inventory.length; i += 12) {
+    const batch = await Promise.all(inventory.slice(i, i + 12).map(async (path) => {
+      try {
+        if (!live) return [path, await readFile(resolve(dist, '.' + decodeURIComponent(path), 'index.html'), 'utf8')];
+        const response = await fetch(new URL(path, origin), { redirect: 'error', signal: AbortSignal.timeout(15000) });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return [path, await response.text()];
+      } catch (error) { issues.push({ route: path, width: 'HTML', message: 'Page inventory: ' + error.message }); }
+    }));
+    const parsed = await page.evaluate((batch) => batch.map(([path, html]) => {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const fragments = [...doc.querySelectorAll('[id], a[name]')].map((node) => node.id || node.name);
+      if (doc.querySelector('[data-calendar-today]') && doc.querySelector('#holiday-calendar time[datetime]')) fragments.push('today');
+      for (const button of doc.querySelectorAll('[data-news-filter]')) fragments.push('source-' + button.dataset.newsFilter);
+      return [path, {
+        fragments, canonical: doc.querySelector('link[rel="canonical"]')?.getAttribute('href'),
+        links: [...new Set([...doc.querySelectorAll('a[href]')].map((node) => node.getAttribute('href')))],
+      }];
+    }), batch.filter(Boolean));
+    for (const [path, data] of parsed) pages.set(path, { ...data, fragments: new Set(data.fragments) });
+  }
+  const canonical = pages.get('/')?.canonical && new URL(pages.get('/').canonical);
+  const checked = new Set();
+  for (const [path, { links }] of pages) for (const href of links) {
+    let url;
+    try { url = new URL(href, origin + path); } catch {
+      issues.push({ route: path, width: 'HTML', message: 'Invalid link: ' + href });
+      continue;
+    }
+    let target = url.pathname;
+    if (url.origin !== origin) {
+      if (live || url.origin !== canonical?.origin || !target.startsWith(canonical.pathname)) continue;
+      target = '/' + target.slice(canonical.pathname.length);
+    }
+    if (target.endsWith('/index.html')) target = target.slice(0, -'index.html'.length);
+    if (pages.has(target + '/')) target += '/';
+    let hash;
+    try { hash = decodeURIComponent(url.hash.slice(1)).split(':~:text=')[0]; } catch { hash = url.hash.slice(1); }
+    if (target === '/' && url.searchParams.has('salary')) { target = '/tools/salary-calculator/'; hash ||= 'calculator'; }
+    const key = target + '#' + hash;
+    if (checked.has(key)) continue;
+    checked.add(key);
+    const entry = pages.get(target);
+    const found = entry ? (!hash || hash.toLowerCase() === 'top' || entry.fragments.has(hash) ||
+      (!live && hash.startsWith('source-') && newsFeeds.some(({ id, section }) => '/' + section === target && hash === 'source-' + id)))
+      : !hash && !target.endsWith('/') && await (live
+        ? fetch(new URL(target, origin), { method: 'HEAD', redirect: 'error', signal: AbortSignal.timeout(15000) }).then((res) => res.ok)
+        : stat(resolve(dist, '.' + decodeURIComponent(target))).then((info) => info.isFile())).catch(() => false);
+    if (!found) issues.push({ route: path, width: 'HTML', message: 'Broken internal link: ' + href });
+  }
+  console.log(`Internal links: ${checked.size} targets from ${pages.size} HTML pages.`);
+}
+
 try {
   if (!live) await new Promise((ready) => server.listen(0, '127.0.0.1', ready));
   const origin = live ? live.origin : 'http://127.0.0.1:' + server.address().port;
   browser = await chromium.launch({ executablePath: process.env.AUDIT_CHROMIUM_PATH });
   const context = await browser.newContext({ serviceWorkers: 'block' });
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin });
   await context.addInitScript(() => {
     document.addEventListener('securitypolicyviolation', (event) => {
       console.error('CSP blocked ' + event.violatedDirective);
@@ -96,6 +154,7 @@ try {
     if (response.status() >= 400) issue(`HTTP ${response.status()}: ${new URL(response.url()).pathname}`);
   });
   const page = await context.newPage();
+  await checkLinks(page, origin);
   await page.clock.setFixedTime(new Date('2026-05-24T15:05:00Z'));
   page.on('pageerror', (error) => issue(error.message));
   page.on('console', (message) => {
@@ -127,6 +186,21 @@ try {
         if (!response?.ok()) issue('Page did not return 200');
         const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
         if (await overflow() > 1) issue('Page overflows horizontally');
+        const layoutIssues = await page.evaluate(() => {
+          const found = [];
+          const standalone = location.pathname === '/assets/background-removal/';
+          if (document.querySelectorAll('h1').length !== 1 || (!standalone && !document.querySelector('.site-foot a'))) found.push('Missing or duplicate heading/footer');
+          const controls = document.querySelectorAll(standalone ? '#refineNum, #bgColor' :
+            '.site-head :is(button, .home-link), main :is(button, .button, select, input:not([type=checkbox], [type=radio], [type=range]))');
+          for (const control of controls) {
+            const { width, height } = control.getBoundingClientRect();
+            if (width > 0 && height > 0 && height < 43.75) found.push('Control under 44px: ' + (control.id || control.name || control.textContent.trim()));
+          }
+          const images = [...document.querySelectorAll('img[src]')].filter((img) => img.complete && !img.naturalWidth);
+          if (images.length) found.push('Broken image: ' + images.map((img) => img.getAttribute('src')).join(', '));
+          return found;
+        });
+        caseFailures(layoutIssues);
         const aligned = route === '/assets/background-removal/' || await page.evaluate(() => {
           const edge = (selector) => document.querySelector(selector).getBoundingClientRect();
           const frame = edge('.page-grid');
@@ -510,10 +584,25 @@ try {
           cases += 2;
         }
         if (route === '/tools/json-formatter/') {
-          await form.locator('[name="text"]').fill('{invalid}');
-          await form.locator('[type="submit"]').click();
-          if (!/올바른 JSON을 입력하세요/.test(await form.locator('output').textContent())) issue('Invalid JSON lacks useful Korean guidance');
-          cases++;
+          const text = form.locator('[name="text"]');
+          const submit = form.locator('[type="submit"]');
+          const copy = page.locator('.convenience-copy');
+          const reset = form.getByRole('button', { name: '입력 초기화', exact: true });
+          const output = form.locator('output');
+          await text.fill('{invalid}');
+          await submit.click();
+          if (!/올바른 JSON을 입력하세요/.test(await output.textContent())) issue('Invalid JSON lacks useful Korean guidance');
+          await reset.click();
+          await page.waitForFunction(() => document.querySelector('.convenience-copy').disabled);
+          if (await text.inputValue() || await output.textContent()) issue('Reset did not clear input and output');
+          await text.fill('{"copy":1}');
+          await submit.click();
+          await copy.click();
+          if (await page.evaluate(() => navigator.clipboard.readText()) !== (await output.textContent()).trim()) issue('Copy did not write the actual result');
+          await page.goto(origin + '/');
+          const recent = page.locator('[data-recent-tools] li > a').first();
+          if (await recent.getAttribute('href') !== route) issue('Recently used tool did not appear first');
+          cases += 4;
         }
         if (route === '/tools/character-count/') {
           await form.locator('[name="preset"]').selectOption('bluesky');

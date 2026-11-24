@@ -80,8 +80,12 @@ function addCopyButton() {
   if (!result) return;
   const button = document.createElement('button');
   button.type = 'button'; button.className = 'convenience-copy'; button.textContent = '결과 복사';
+  const resultText = () => (result.value ?? result.innerText).trim();
+  const sync = () => { button.disabled = !resultText(); };
+  sync();
+  new MutationObserver(sync).observe(result, { childList: true, characterData: true, subtree: true });
   button.addEventListener('click', async () => {
-    const text = (result.value ?? result.innerText).trim();
+    const text = resultText();
     if (!text) return;
     try { await copyText(text); button.textContent = '복사 완료'; } catch { button.textContent = '복사할 수 없음'; }
     window.setTimeout(() => { button.textContent = '결과 복사'; }, 1800);

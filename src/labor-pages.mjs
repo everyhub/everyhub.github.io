@@ -192,6 +192,7 @@ function sitemapPage(config) {
 }
 
 function housingExample(config, { id, path, title, description, rowKeys, cases }) {
+  const keepWon = (value) => escape(value).replace(/(\d[\d,]*(?:억|만|천)?) 원/g, '$1&nbsp;원');
   const root = '../../';
   const tool = tools[id];
   const related = housingExamples.filter((example) => example.id === id && example.path !== path);
@@ -208,7 +209,7 @@ function housingExample(config, { id, path, title, description, rowKeys, cases }
   return layout({
     config, path, root, title: `${title} | ${brand}`, description, faq,
     main: `<p class="eyebrow"><a href="${root}housing/">주거·전월세</a> · ${review}</p>
-    <h1>${title}</h1><p class="intro">${description}</p>
+    <h1>${keepWon(title)}</h1><p class="intro">${keepWon(description)}</p>
     <section class="panel"><h2>조건별 예상 금액</h2><table class="example-amounts housing-example-amounts"><thead><tr><th scope="col">조건</th>
     ${columns.map(({ label }) => `<th scope="col">${escape(label)}</th>`).join('')}</tr></thead><tbody>
     ${rows.map(({ name, values }) => `<tr><th scope="row">${name}</th>${values.map((value, i) => `<td><span class="housing-mobile-label" aria-hidden="true">${escape(columns[i].label)}</span><span class="amount">${escape(value)}</span></td>`).join('')}</tr>`).join('')}

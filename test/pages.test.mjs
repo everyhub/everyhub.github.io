@@ -159,6 +159,15 @@ test('관리 추천은 승인된 두 건의 완료와 거절된 한 건의 종�
   assert.equal(statuses['continued-health-insurance'], '거절');
 });
 
+test('주거 사례 제목과 도입문은 금액과 원 단위를 함께 줄바꿈한다', () => {
+  const pages = extraPages(config);
+  const brokerage = pages.find(({ path }) => path === 'housing/jeonse-brokerage-3eok/').html;
+  const renewal = pages.find(({ path }) => path === 'housing/renewal-5-percent/').html;
+  assert.match(brokerage, /<h1>서울 전세 3억&nbsp;원과 월세 중개보수<\/h1>/);
+  assert.match(brokerage, /보증금 3,000만&nbsp;원·월세 100만&nbsp;원/);
+  assert.match(renewal, /60만&nbsp;원의 갱신 5% 계산/);
+});
+
 test('홈 레거시 연봉 링크와 연결되지 않은 작업 타임라인 페이지', async () => {
   const browser = await readFile(new URL('../src/navigation-browser.mjs', import.meta.url), 'utf8');
   const admin = adminTimelinePage(config);
