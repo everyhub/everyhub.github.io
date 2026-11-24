@@ -129,10 +129,12 @@ export const auditItems = {
   'writing-tools': [
     tool('공백 포함·제외 및 UTF-8 글자 수', 'character-count', '합성 한글 입력으로 운영 결과 검사'),
     tool('자기소개서 목표값·직접 입력', 'character-count', '500·1,000·1,500자 예시 및 직접 입력 결과'),
-    open('SNS 규격별 글자 수·바이트', 'Bluesky 한 가지 공식 규격부터 제공하며 운영 배포 검사로 확인해야 합니다.', '진행중'),
-    open('증명·여권 사진 자르기', '여권용 사전 설정과 직접 입력 증명사진을 운영에서 각각 검증해야 합니다.', '진행중'),
-    open('음력↔양력 변환', 'KASI 공식 월초와 윤달 자료를 사용하며 운영 배포 검사로 양방향 확인해야 합니다.', '진행중'),
-    open('사다리 타기', '도착점 배정과 그림을 운영에서 함께 검증해야 합니다.', '진행중'),
+    tool('공식 Bluesky 글자 수·바이트 한도', 'character-count', '390·1440px에서 301자 입력 시 1자 초과 및 2,097바이트 남음 확인'),
+    open('다른 SNS의 특수 계산 방식', '자소서 예시, 공식 Bluesky 규격, 직접 입력만 지원합니다. X 가중치·링크 계산을 동일한 규칙으로 단정하지 않습니다.', '부분'),
+    tool('여권 사진 자르기', 'passport-photo', '390·1440px에서 합성 PNG로 413×531 JPG 생성과 다운로드 확인'),
+    tool('증명사진 직접 지정 크기', 'passport-photo', '390·1440px에서 합성 PNG로 320×400 JPG 생성과 다운로드 확인'),
+    tool('공식 범위의 음력↔양력 변환', 'lunar-calendar', 'KASI의 37개 월초·월 길이 대조 및 390·1440px에서 2028 윤5월 1일 왕복 변환'),
+    tool('사다리 타기', 'ladder-draw', '390·1440px에서 두 참가자와 두 결과 입력 후 그림과 두 도착점 확인'),
     ...[
       ['텍스트 정리', 'text-cleanup'], ['텍스트 비교', 'text-compare'], ['PDF 합치기', 'pdf-merge'],
       ['PDF 추출', 'pdf-split'], ['이미지 → PDF', 'images-to-pdf'], ['근무일수·공휴일 제외', 'workdays'],
@@ -180,7 +182,9 @@ export const auditItems = {
     verified('출처 필터 선택과 해제', '/news/korea/', '긱뉴스 버튼을 눌러 다른 출처 숨김과 전체 복원 확인'),
     verified('토스·GitHub Changelog·LY·DeepMind 피드', '/news/', '각 분야에서 해당 기사 출처 확인'),
     verified('NASA 제외, Hacker News 핫이슈 유지', '/news/trending/', '운영 핫이슈 기사 출처 확인'),
-    open('당근·우아한형제들 및 Engineering at Meta', '공식 게시 채널의 RSS 파싱은 확인했습니다. 운영 배포 뒤 출처 필터와 기사를 확인해야 합니다.', '진행중'),
+    verified('당근 테크 블로그', '/news/korea/', '390·1440px에서 해당 출처 버튼 선택 후 당근 기사만 표시됨을 확인'),
+    verified('Engineering at Meta', '/news/world/', '390·1440px에서 해당 출처 버튼 선택 후 Meta 기사만 표시됨을 확인'),
+    open('우아한형제들 기술 블로그', '로컬 Node에서 RSS를 읽었지만 운영 빌드 #45437481906에 기사가 없었고 별도 HTTP 확인은 403입니다. 신뢰할 수 있을 때까지 수집에서 제외했습니다.', '부분', [repo + '/actions/runs/45437481906', 'https://techblog.woowahan.com/feed/']),
     open('Anthropic News 및 Meta AI 직접 피드', '확인한 발행처 RSS 후보가 404였으며 공식 배포 중인 호환 피드를 확인하지 못했습니다. 비공식 피드로 대체하지 않습니다.', '제외'),
     open('출처별 별도 탭', '현재 분야별 탭 안에서 출처 필터를 제공합니다. 긱뉴스는 국내 IT 상단을 택했으며 독립 탭은 만들지 않았습니다.', '제외'),
   ],
@@ -269,7 +273,7 @@ export const auditItems = {
   ],
   'audit-saved': [
     verified('관리 타임라인·Markdown 같은 순서와 내용', '/ops-7f3a9c2d/', '기존 운영 61개 행의 요청·상태·사유·URL 대조'),
-    open('새 세부 항목까지 운영·Markdown 동기화', '새 배포 뒤 비교가 완료되어야 합니다.', '진행중'),
+    verified('상·하위 상태와 근거를 같은 원본에서 생성', '/ops-7f3a9c2d/', '운영 페이지의 개별 항목과 Markdown 원본의 상태·사유·근거 대조'),
   ],
   'schedule-experiment': [
     verified('기본 브랜치 별도 워크플로·7,37 * * * *', repo + '/actions/workflows/news.yml', '워크플로 active, main 파일의 cron, 성공한 수동 빌드/배포 확인'),
@@ -289,8 +293,9 @@ export const auditItems = {
     verified('09:13 KST 및 첫 실행 예정 운영 문서', repo + '/blob/main/docs/daily-proposals.md', 'f09b795 운영 문서와 예약 상태 동기화'),
   ],
   'strict-audit': [
-    open('누락 없는 개별 감사 및 실제 수정', '새 세부 항목을 검증하는 중입니다. 미확인·부분 항목을 완료 처리하지 않습니다.', '진행중'),
-    open('모든 세부 운영 증거가 없으면 완료 금지', '새 배포의 검사 결과 및 관리자 화면을 검증하는 중입니다.', '진행중'),
+    verified('이전 요청과 약속을 분리하고 확인된 누락 기능 수정', '/ops-7f3a9c2d/', '관리 화면의 세부 상태 및 음양력·증명사진·SNS·사다리·추가 뉴스 출처 운영 검사'),
+    verified('모든 세부 항목에 운영 근거가 없으면 완료 금지', repo + '/blob/main/test/pages.test.mjs', '부모 상태의 회귀 테스트와 운영 타임라인 내용 비교'),
+    open('모든 미완료 항목 해소 및 확인', 'HEIC, 지원금 일정, 예약 이벤트, 계정·공식 자료 등 추가 작업 또는 검증이 남았습니다.', '진행중'),
   ],
 };
 

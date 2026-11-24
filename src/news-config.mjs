@@ -11,7 +11,6 @@ export const newsFeeds = [
   { id: 'kakao', section: 'news/korea/', name: '카카오테크', url: 'https://tech.kakao.com/feed/' },
   { id: 'toss', section: 'news/korea/', name: '토스 기술 블로그', url: 'https://toss.tech/rss.xml' },
   { id: 'daangn', section: 'news/korea/', name: '당근 테크 블로그', url: 'https://medium.com/feed/daangn' },
-  { id: 'woowahan', section: 'news/korea/', name: '우아한형제들 기술 블로그', url: 'https://techblog.woowahan.com/feed/' },
   { id: 'github', section: 'news/world/', name: 'GitHub Changelog', url: 'https://github.blog/changelog/feed/' },
   { id: 'mozilla', section: 'news/world/', name: 'Mozilla', url: 'https://blog.mozilla.org/en/feed/' },
   { id: 'line', section: 'news/world/', name: 'LY Corporation Tech Blog', url: 'https://engineering.linecorp.com/en/feed/' },

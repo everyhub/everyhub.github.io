@@ -261,9 +261,9 @@ try {
           const articles = page.locator('[data-news-source]');
           if (await articles.count()) {
             if (route === '/news/korea/' && await articles.first().getAttribute('data-news-source') !== 'geeknews') issue('GeekNews is not first');
-            for (const source of route === '/news/korea/' ? ['geeknews', 'daangn', 'woowahan'] : ['meta']) {
+            for (const source of route === '/news/korea/' ? ['geeknews', 'daangn'] : ['meta']) {
               const filter = page.locator(`[data-news-filter="${source}"]`);
-              await filter.click();
+              await filter.click({ timeout: 5000 });
               const filtered = await page.locator('[data-news-source]:visible').evaluateAll((nodes) => nodes.map(({ dataset }) => dataset.newsSource));
               if (!filtered.length || !filtered.every((id) => id === source)) issue('Incorrect source filter: ' + source);
               await page.locator('[data-news-filter=""]').click();
