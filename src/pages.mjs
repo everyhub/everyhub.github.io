@@ -220,7 +220,7 @@ export function homePage(config) {
     description: '급여·근로·주거 계산기, 사진·문서 도구, 생활 정보와 국내외 IT·AI 소식을 한곳에서 찾아보세요.',
     path: '', root: './',
     main: `<div class="home-hero"><div class="home-hero-copy"><h1>${brand}</h1>
-      <p class="intro">급여·근로 계산기부터 사진 편집, 생활 정보와 IT·AI 소식까지 원하는 기능을 바로 열어 보세요.</p></div>
+      <p class="intro">급여·근로 계산기부터 사진 편집, 생활 정보와 IT·AI 소식까지 원하는 기능을&nbsp;바로 열어 보세요.</p></div>
       <img class="home-hero-art" src="./${brandAssets}hero.svg" width="600" height="270" alt=""></div>
       <section aria-labelledby="shortcuts"><div class="dashboard-title"><h2 id="shortcuts">한눈에 바로가기</h2>
         <label class="dashboard-search" hidden>바로가기 검색<input type="search" data-dashboard-search aria-controls="shortcut-results" aria-describedby="shortcut-search-help" placeholder="예: 나이, 집, PDF, ㅇㅂ" autocomplete="off" maxlength="80">

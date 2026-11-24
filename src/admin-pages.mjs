@@ -1,6 +1,6 @@
 import { layout } from './pages.mjs';
 import { brand } from './tool-specs.mjs';
-import { adminPending, adminTimeline, sortAdminTimeline } from './admin-log.mjs';
+import { adminPending, adminTimeline, auditEvidenceLabel, initialDeployment, sortAdminTimeline } from './admin-log.mjs';
 import { adminProposals, sortAdminProposals } from './admin-proposals.mjs';
 
 export const adminPath = 'ops-7f3a9c2d/';
@@ -10,11 +10,6 @@ const escape = (value) => String(value).replace(/[&<>"']/g, (character) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 })[character]);
 
-function linkLabel(url) {
-  const run = url.match(/\/actions\/runs\/(\d+)$/);
-  return run ? `Actions #${run[1]}` : new URL(url).pathname;
-}
-
 function adminTabs(root, current) {
   return `<nav aria-label="관리 페이지 탭"><ul class="tag-list admin-tabs">${[
     [adminPath, '작업 타임라인'], [adminProposalsPath, '추천'],
@@ -22,11 +17,13 @@ function adminTabs(root, current) {
 }
 
 export function adminTimelinePage(config) {
-  const rows = sortAdminTimeline(adminTimeline).map(({ time, request, reflection, status, reason, links }) => `<tr role="row">
+  const rows = sortAdminTimeline(adminTimeline).map(({ id, time, request, reflection, status, reason, links }) => `<tr role="row" id="${escape(id)}">
     <th role="rowheader" scope="row"><time datetime="${escape(time.replace(' ', 'T') + '+09:00')}">${escape(time)}</time></th>
     <td role="cell"><span class="admin-cell-label" aria-hidden="true">요청</span>${escape(request)}</td>
-    <td role="cell"><span class="admin-cell-label" aria-hidden="true">반영 내용</span>${escape(reflection)}${reason ? `<p class="note">사유: ${escape(reason)}</p>` : ''}</td>
-    <td role="cell"><span class="admin-cell-label" aria-hidden="true">상태·기록</span><strong>${escape(status)}</strong>${links?.length ? `<ul class="foot-list">${links.map((link) => `<li>${/^https?:\/\//.test(link) ? `<a href="${escape(link)}">${escape(linkLabel(link))}</a>` : escape(link)}</li>`).join('')}</ul>` : ''}</td>
+    <td role="cell"><span class="admin-cell-label" aria-hidden="true">반영 내용</span>${escape(reflection)}</td>
+    <td role="cell"><span class="admin-cell-label" aria-hidden="true">상태</span><strong>${escape(status)}</strong></td>
+    <td role="cell"><span class="admin-cell-label" aria-hidden="true">사유</span>${escape(reason ?? '—')}</td>
+    <td role="cell"><span class="admin-cell-label" aria-hidden="true">근거 URL</span>${links.length ? `<ul class="foot-list">${links.map((link) => `<li><a href="${escape(link)}">${escape(auditEvidenceLabel(link))}</a></li>`).join('')}</ul>` : '—'}</td>
   </tr>`).join('');
   const pending = adminPending.map((item) => `<li>${escape(item)}</li>`).join('');
   const latestTime = adminTimeline.reduce((latest, { time }) => time > latest ? time : latest, '');
@@ -38,7 +35,8 @@ export function adminTimelinePage(config) {
       <h1>작업 요청 타임라인</h1>
       ${adminTabs('../', adminPath)}
       <p class="intro">진행 중인 작업을 먼저 표시하고, 각 그룹은 최신순으로 정렬합니다. 요청 시각이 없으면 관련 작업 시각을 한국시간으로 표시합니다. 이 페이지는 로그인으로 보호되지 않으며, 사이트맵과 메뉴에서 연결하지 않습니다. 새 요청은 <code>src/admin-log.mjs</code>에 기록합니다.</p>
-      <div class="admin-table-wrap"><table class="admin-timeline" role="table"><thead role="rowgroup"><tr role="row"><th role="columnheader" scope="col">시각(KST)</th><th role="columnheader" scope="col">요청</th><th role="columnheader" scope="col">반영 내용</th><th role="columnheader" scope="col">상태·기록</th></tr></thead><tbody role="rowgroup">${rows}</tbody></table></div>
+      <div class="admin-table-wrap"><table class="admin-timeline" role="table"><thead role="rowgroup"><tr role="row">${['시각(KST)', '요청', '반영 내용', '상태', '사유', '근거 URL'].map((label) => `<th role="columnheader" scope="col">${label}</th>`).join('')}</tr></thead><tbody role="rowgroup">${rows}</tbody></table></div>
+      <section class="panel"><h2>과거 운영 기록</h2><p>${escape(initialDeployment.request)} · <strong>${escape(initialDeployment.status)}</strong> — ${escape(initialDeployment.reason)} ${escape(initialDeployment.reflection)}</p></section>
       <section class="panel"><h2>보류·다음 확인</h2><ul>${pending}</ul></section>`,
   });
 }

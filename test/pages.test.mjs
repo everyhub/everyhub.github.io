@@ -11,7 +11,7 @@ import { newsSections } from '../src/news-config.mjs';
 import { utilityGroups } from '../src/utility-config.mjs';
 import { examplePages, medianPages, navigationGroups } from '../src/navigation.mjs';
 import { adminPath, adminTimelinePage, adminProposalsPath, adminProposalsPage } from '../src/admin-pages.mjs';
-import { sortAdminTimeline } from '../src/admin-log.mjs';
+import { adminTimeline, renderRequirementsAudit, sortAdminTimeline } from '../src/admin-log.mjs';
 import { sortAdminProposals } from '../src/admin-proposals.mjs';
 
 const config = { baseURL: 'https://example.com/salary-calc/' };
@@ -168,6 +168,22 @@ test('타임라인은 진행 중인 항목 먼저, 각 그룹에서는 최신순
   assert.deepEqual(sortAdminTimeline(items).map(({ id }) => id),
     ['new-active', 'older-active', 'same-minute-added-later', 'new-done', 'older-done']);
   assert.deepEqual(items, original);
+});
+
+test('관리 요청과 Markdown 감사 내보내기는 같은 순서·상태·근거를 보여 준다', () => {
+  const rows = sortAdminTimeline(adminTimeline);
+  const html = adminTimelinePage(config);
+  const markdown = renderRequirementsAudit();
+  const body = html.match(/class="admin-timeline"[^]*?<tbody[^>]*>([^]*?)<\/tbody>/)[1];
+  assert.deepEqual([...body.matchAll(/<tr role="row" id="([^"]+)">/g)].map(([, id]) => id),
+    rows.map(({ id }) => id));
+  assert.equal(new Set(rows.map(({ id }) => id)).size, rows.length);
+  assert.equal(markdown.match(/^\| \d{4}-/gm).length, rows.length);
+  for (const { id, time, request, status, links } of rows) {
+    assert.match(body.split(`id="${id}">`)[1].split('</tr>')[0], new RegExp(`<strong>${status}</strong>`));
+    assert.ok(markdown.includes(`| ${time} | ${request} |`));
+    for (const url of links) assert.ok(markdown.includes(`(<${url}>)`));
+  }
 });
 
 test('추천 탭은 검토할 제안을 먼저 보여 주고 승인은 해당 GitHub 이슈로 연결한다', () => {

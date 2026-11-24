@@ -8,13 +8,17 @@ import { chromium } from 'playwright';
 import { PDFDocument } from './src/utility-vendor/pdf-lib-1.17.1.mjs';
 
 const dist = fileURLToPath(new URL('./dist', import.meta.url));
-execFileSync(process.execPath, [fileURLToPath(new URL('./build.mjs', import.meta.url))], {
-  stdio: 'inherit', env: { ...process.env, GITHUB_OUTPUT: '', NEWS_SKIP_UNCHANGED: '0', ADSENSE_CLIENT_ID: '', ADSENSE_SLOT_ID: '' },
-});
-const routes = (await readdir(dist, { recursive: true }))
-  .filter((path) => /(^|\/)index\.html$/.test(path) && !/^(salary|hourly|severance|median-income)\/\d+\//.test(path))
-  .map((path) => '/' + path.replace(/index\.html$/, ''))
-  .sort();
+const live = process.env.AUDIT_LIVE_URL && new URL(process.env.AUDIT_LIVE_URL);
+if (!live) {
+  execFileSync(process.execPath, [fileURLToPath(new URL('./build.mjs', import.meta.url))], {
+    stdio: 'inherit', env: { ...process.env, GITHUB_OUTPUT: '', NEWS_SKIP_UNCHANGED: '0', ADSENSE_CLIENT_ID: '', ADSENSE_SLOT_ID: '' },
+  });
+}
+const publicRoutes = live ? await liveInventory(live) : [];
+const routes = (live ? [...publicRoutes, '/ops-7f3a9c2d/', '/ops-7f3a9c2d/recommendations/', '/assets/background-removal/']
+  : (await readdir(dist, { recursive: true })).filter((path) => /(^|\/)index\.html$/.test(path))
+    .map((path) => '/' + path.replace(/index\.html$/, '')))
+  .filter((path) => !/^\/(salary|hourly|severance|median-income)\/\d+\//.test(path)).sort();
 const detailTemplates = ['/salary/4000/', '/hourly/12000/', '/severance/4000/', '/median-income/2026/4/'];
 const screenshotDir = process.env.AUDIT_SCREENSHOTS;
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript',
@@ -47,9 +51,20 @@ let width;
 const issue = (message) => issues.push({ route, width, message });
 const caseFailures = (failures) => failures.forEach(issue);
 
+async function liveInventory(site) {
+  const response = await fetch(new URL('/sitemap.xml', site));
+  if (!response.ok) throw new Error('Live sitemap returned ' + response.status);
+  const locations = [...(await response.text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) => new URL(url));
+  if (!locations.length || locations.some((url) => url.origin !== site.origin || url.search || url.hash)
+    || new Set(locations.map(({ href }) => href)).size !== locations.length) {
+    throw new Error('Invalid or duplicate URL in live sitemap');
+  }
+  return locations.map(({ pathname }) => pathname);
+}
+
 try {
-  await new Promise((ready) => server.listen(0, '127.0.0.1', ready));
-  const origin = 'http://127.0.0.1:' + server.address().port;
+  if (!live) await new Promise((ready) => server.listen(0, '127.0.0.1', ready));
+  const origin = live ? live.origin : 'http://127.0.0.1:' + server.address().port;
   browser = await chromium.launch({ executablePath: process.env.AUDIT_CHROMIUM_PATH });
   const context = await browser.newContext({ serviceWorkers: 'block' });
   await context.addInitScript(() => {
@@ -111,6 +126,22 @@ try {
             && (sidebar.hidden ? near(main.left, frame.left) : near(edge('.sidebar').left, frame.left) && near(edge('.sidebar').top, main.top));
         });
         if (!aligned) issue('Header, sidebar and content edges do not align');
+        if (route === '/') {
+          const home = await page.evaluate(() => {
+            const heading = document.querySelector('#shortcuts').getBoundingClientRect();
+            const input = document.querySelector('[data-dashboard-search]').getBoundingClientRect();
+            const card = document.querySelector('.dashboard-card-head h2 a');
+            const intro = document.querySelector('.home-hero .intro');
+            return {
+              desktopAlignment: Math.abs(heading.top + heading.height / 2 - input.top - input.height / 2),
+              mobileStack: heading.bottom < input.top,
+              plainCategory: getComputedStyle(card).textDecorationLine === 'none',
+              heroWrap: getComputedStyle(intro).wordBreak === 'keep-all' && intro.textContent.includes('기능을\u00a0바로'),
+            };
+          });
+          if ((width === 1440 && home.desktopAlignment > 3) || (width === 390 && !home.mobileStack)) issue('Shortcut heading and search placement are misaligned');
+          if (!home.plainCategory || !home.heroWrap) issue('Home card title or hero wrapping styles are incorrect');
+        }
         if (screenshotDir) await page.screenshot({ path: join(screenshotDir, `${width}-${route.split('/').filter(Boolean).join('_') || 'home'}.png`) });
         layouts++;
         if (detailTemplates.includes(route) || width === 768 || width === 1024) continue;
@@ -277,7 +308,7 @@ try {
   }
 } finally {
   await browser?.close();
-  await new Promise((done) => server.close(done));
+  if (server.listening) await new Promise((done) => server.close(done));
   if (process.env.AUDIT_REPORT) await writeFile(process.env.AUDIT_REPORT, JSON.stringify({ requests, issues }, null, 2) + '\n');
 }
 
