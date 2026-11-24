@@ -3,6 +3,31 @@ export const informationSections = [
   { path: 'info/holidays/2027/', name: '2027년 공휴일·연휴', description: '설날, 추석, 노동절·제헌절 대체공휴일과 3일 이상 연휴' },
   { path: 'info/tax-calendar/', name: '주요 세금 신고·납부 일정', description: '종합소득세와 일반·간이과세자의 부가가치세 신고 기간' },
   { path: 'info/yearly-rates/', name: '2026·2027년 최저임금·보험료 비교표', description: '확정된 연도별 최저임금 및 직장인 보험료율 변경 사항' },
+  { path: 'info/support-calendar/', name: '정부 지원금·신청 일정', description: '복지로·국세청·고용24에서 확인한 주요 지원 제도의 신청 기간과 접수처' },
+];
+
+export const supportApplications = [
+  {
+    name: '2025년 귀속 근로·자녀장려금 기한 후 신청', deadline: '2026-12-01',
+    details: '정기 신청을 놓친 가구가 대상입니다. 소득·재산 요건을 확인한 뒤 홈택스에서 신청하세요.',
+    agency: '국세청 기한 후 신청 공고', notice: 'https://www.nts.go.kr/nts/na/ntt/selectNttInfo.do?nttSn=1355806', apply: 'https://www.hometax.go.kr/',
+  },
+  {
+    name: '2026년 에너지바우처', start: '2026-06-15', deadline: '2026-12-31',
+    details: '기초생활수급 자격과 세대원 특성 요건을 모두 충족해야 합니다. 온라인 접수나 주소지 행정복지센터 방문이 가능합니다.',
+    agency: '복지로 신청 공고', notice: 'https://www.bokjiro.go.kr/ssis-tbu/cms/pc/customer/notice/1309896_1141.html', apply: 'https://www.bokjiro.go.kr/',
+  },
+  {
+    name: '2026년 연탄전환 에너지바우처', start: '2026-08-07', deadline: '2026-12-31',
+    details: '연탄보일러를 교체한 세대 중 소득 요건을 충족하는 경우입니다. 교체 시기와 필요 서류는 공고를 확인하세요.',
+    agency: '복지로 신청 공고', notice: 'https://www.bokjiro.go.kr/ssis-tbu/cms/pc/customer/notice/1309896_1141.html', apply: 'https://www.bokjiro.go.kr/',
+  },
+  {
+    name: '국민취업지원제도',
+    details: '일반 신청은 연중 가능합니다. 지원 유형별 자격과 별도 모집의 접수 조건은 고용24에서 확인하세요.',
+    agency: '고용24 상시 신청 안내', notice: 'https://m.work24.go.kr/cm/c/a/0130/selectBbttInfo.do?bbsClCd=VJQMx%2Fa2p6AfqLQqwR8sSQ%3D%3D&ntceStno=39',
+    apply: 'https://www.work24.go.kr/cm/c/f/1100/selecSystInfo.do?systClId=SC00000274&systId=SI00000316',
+  },
 ];
 
 const source = (name, url, effective) => ({ name, url, effective });

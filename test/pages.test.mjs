@@ -272,6 +272,15 @@ test('HTML 사이트맵에는 도구만 표시하며 상세 예시는 계산기�
   assert.match(median, /"@type":"FAQPage"/);
 });
 
+test('정부 지원금 일정에 접수 날짜와 개별 공식 공고를 표시', () => {
+  const pages = informationPages(config);
+  const html = pages.find(({ path }) => path === 'info/support-calendar/').html;
+  assert.match(html, /datetime="2026-12-01"[\s\S]*https:\/\/www\.nts\.go\.kr\//);
+  assert.match(html, /datetime="2026-06-15"[\s\S]*datetime="2026-12-31"[\s\S]*https:\/\/www\.bokjiro\.go\.kr\//);
+  assert.match(html, /연중 상시 신청[\s\S]*https:\/\/www\.work24\.go\.kr\//);
+  assert.match(pages.find(({ path }) => path === 'info/').html, /href="\.\.\/info\/support-calendar\/"/);
+});
+
 test('월력요항 및 개정 법령에 따른 공휴일과 주 5일제 연휴를 생성', () => {
   const previous = holidayCalendar(2026);
   const next = holidayCalendar(2027);
@@ -281,7 +290,7 @@ test('월력요항 및 개정 법령에 따른 공휴일과 주 5일제 연휴�
   assert.ok(previous.holidays.some(({ date, name }) => date === '2026-07-17' && name === '제헌절'));
   assert.ok(next.holidays.some(({ date, name }) => date === '2027-07-19' && name === '대체공휴일(제헌절)'));
   const pages = informationPages(config);
-  assert.equal(pages.length, 5);
+  assert.equal(pages.length, 6);
   for (const { path, html } of pages) {
     assert.ok(html.includes(`href="${config.baseURL}${path}"`));
     assert.match(html, /"@type":"CollectionPage"/);

@@ -85,13 +85,15 @@ test('tool groups keep the sidebar compact and link to all utility URLs', () => 
   }
   const char = pages.get('tools/character-count/');
   assert.match(char, /<option>500<\/option><option>1000<\/option><option>1500<\/option>/);
-  assert.match(char, /Bluesky 게시글 · 300자 \/ 3,000바이트/);
+  assert.match(char, /Bluesky · 300자 \/ 3,000바이트/);
+  assert.match(char, /X 일반 게시글 · 가중 280자/);
 });
 
 test('글자 수 목표는 자소서 예시, 사용자 지정 및 SNS 바이트 제한을 구분한다', () => {
   assert.deepEqual(characterLimit('500'), { characters: 500 });
   assert.deepEqual(characterLimit('custom', 42), { characters: 42 });
   assert.deepEqual(characterLimit('bluesky'), { characters: 300, bytes: 3000 });
+  assert.deepEqual(characterLimit('x', undefined, '가 👨‍👩‍👧‍👦 https://example.com/very/long/path'), { characters: 280, weighted: 29 });
   assert.deepEqual(characterLimit('custom', -1), {});
 });
 

@@ -1,6 +1,6 @@
-import { holidayCalendar, informationSections, informationSources } from './information.mjs';
+import { holidayCalendar, informationSections, informationSources, supportApplications } from './information.mjs';
 import { laborRates, laborSources } from './labor-rates.mjs';
-import { layout, sourcesHTML } from './pages.mjs';
+import { escape, layout, sourcesHTML } from './pages.mjs';
 import { insurance2027, insurance2027Sources, rates, sources } from './rates.mjs';
 import { brand } from './tool-specs.mjs';
 
@@ -109,9 +109,19 @@ function ratesPage(config, section) {
     ${refs([prior.source, next.source, ...dateSources, ...insurance2027Sources, laborSources.employment, laborSources.accident])}`);
 }
 
+function supportPage(config, section) {
+  const fullDate = (iso) => `<time datetime="${iso}">${iso.slice(0, 4)}년 ${dateFormat.format(new Date(iso))}</time>`;
+  return detail(config, section, '../../', `<section class="panel"><h2>공식 신청 일정</h2>
+    <p class="note">2026년 11월 25일 기준입니다. 공고에서 확인한 주요 전국 제도만 모았으며 지역별·개인별 지원을 모두 포함하지 않습니다. 접수 중단·마감 시각과 자격 요건은 신청 전 공고에서 다시 확인하세요.</p>
+    <ol class="tax-timeline">${supportApplications.map(({ name, deadline, start, details, agency, notice, apply }) => `<li><h3>${name}</h3><p>
+      ${start ? `${fullDate(start)} ~ ${fullDate(deadline)}` : deadline ? `${fullDate(deadline)}까지` : '연중 상시 신청'}</p>
+      <p>${details}</p><p><a href="${escape(notice)}">${agency}</a> · <a href="${escape(apply)}">${name} 접수처</a></p></li>`).join('')}</ol>
+    <p>다른 지원 제도는 <a href="https://www.gov.kr/portal/rcvfvrSvc/main">정부24 혜택알리미·보조금 안내</a>에서 확인하세요.</p></section>`);
+}
+
 export function informationPages(config) {
   const root = '../';
-  const [holidays26, holidays27, tax, yearly] = informationSections;
+  const [holidays26, holidays27, tax, yearly, support] = informationSections;
   return [
     { path: 'info/', html: layout({
       config, root, path: 'info/', title: `생활 정보: 공휴일·세금 일정·임금 기준 | ${brand}`, description: infoIntro, localOnly: true,
@@ -123,5 +133,6 @@ export function informationPages(config) {
     holidayPage(config, holidays27, 2027),
     taxPage(config, tax),
     ratesPage(config, yearly),
+    supportPage(config, support),
   ];
 }

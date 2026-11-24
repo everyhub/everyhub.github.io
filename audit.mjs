@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { readdir, stat, writeFile } from 'node:fs/promises';
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, resolve } from 'node:path';
@@ -107,6 +107,7 @@ try {
     return canvas.toDataURL().split(',')[1];
   });
   const imageFixture = { name: 'audit.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') };
+  const heicFixture = { name: 'audit.heic', mimeType: 'image/heic', buffer: await readFile(new URL('./test/sample.heic', import.meta.url)) };
 
   for (width of [390, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 850 });
@@ -200,6 +201,17 @@ try {
             if (await toggle.getAttribute('aria-expanded') !== 'false') issue('Mobile navigation did not close on Escape');
           }
           cases += 3;
+        }
+        if (route === '/info/support-calendar/') {
+          const main = page.locator('main');
+          const schedules = await main.locator('time').evaluateAll((nodes) => nodes.map((time) => time.dateTime));
+          if (schedules.join() !== '2026-12-01,2026-06-15,2026-12-31,2026-08-07,2026-12-31' ||
+              await main.locator('.tax-timeline > li').count() !== 4 ||
+              !await main.getByRole('link', { name: '고용24 상시 신청 안내' }).isVisible()) issue('Missing official support application dates or notice');
+          cases++;
+        }
+        if (route === '/news/korea/' && !await page.getByRole('link', { name: '우아한형제들 기술블로그 원문' }).isVisible()) {
+          issue('Missing Woowahan official source link');
         }
         if (route.startsWith('/info/holidays/')) {
           const calendar = await page.locator('.calendar-grid').evaluate((grid) => {
@@ -366,6 +378,21 @@ try {
           await submit();
           await download.waitFor({ timeout: 10000 });
           cases++;
+          if (route === '/tools/image-resize/') {
+            await file.setInputFiles(heicFixture);
+            await submit();
+            await download.waitFor({ timeout: 10000 });
+            if (await download.getAttribute('download') !== 'image-12x8.jpg' ||
+                !(await download.evaluate(async (link) => {
+                  const image = new Image();
+                  image.src = link.href;
+                  await image.decode();
+                  return image.naturalWidth === 12 && image.naturalHeight === 8;
+                }))) {
+              issue('HEIC did not produce a 12×8 JPEG');
+            }
+            cases++;
+          }
           if (route === '/tools/passport-photo/') {
             await form.locator('[name="format"]').selectOption('custom');
             await form.locator('[name="width"]').fill('320');
@@ -390,7 +417,10 @@ try {
           await form.locator('[name="preset"]').selectOption('bluesky');
           await form.locator('[name="text"]').fill('가'.repeat(301));
           if (!/1자 초과[\s\S]*2,097바이트 남음/.test(await form.locator('output').textContent())) issue('Wrong Bluesky character and byte limits');
-          cases++;
+          await form.locator('[name="preset"]').selectOption('x');
+          await form.locator('[name="text"]').fill('가 👨‍👩‍👧‍👦 https://example.com/very/long/path');
+          if (!/X 가중 글자 수 29자\n목표 280자 · 251자 남음/.test(await form.locator('output').textContent())) issue('Wrong X weighted character limit');
+          cases += 2;
         }
         if (route === '/tools/ladder-draw/') {
           const result = await form.locator('output').textContent();

@@ -21,19 +21,22 @@ const forms = {
     faq: [['사진을 확대할 수 있나요?', '이 도구는 비율을 유지한 채 긴 변을 지정한 길이 이하로 줄입니다. 작은 사진은 확대하지 않습니다.'],
       ['투명 배경을 보존하나요?', 'PNG와 WebP는 투명 배경을 유지합니다. JPG로 저장하면 투명 부분은 흰색으로 바뀝니다.']],
     html: `<div class="form-grid">
-      <label>이미지 파일<input type="file" name="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,image/avif" required></label>
+      <label>이미지 파일<input type="file" name="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,image/avif,image/heic,image/heif,.heic,.heif" required></label>
       <label>긴 변의 최대 길이(px)<input name="bound" type="number" min="1" max="4096" value="1600" required></label>
       <label>저장 형식<select name="format"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select></label>
       <label>JPG·WebP 품질(%)<input name="quality" type="number" min="1" max="100" value="85" required></label>
-    </div><p class="note">브라우저가 읽을 수 있는 정지 이미지를 사용하세요. 애니메이션은 한 프레임만 저장하며, PNG에는 품질 설정이 적용되지 않습니다.</p>
+    </div><p class="note">50MB 이하의 정지 이미지를 사용하세요. HEIC·HEIF(HEVC) 파일을 JPG로 바꿀 수 있습니다. 애니메이션은 한 프레임만 저장하며, PNG에는 품질 설정이 적용되지 않습니다. <a href="${root}assets/utility-vendor/SOURCES.md">디코더 및 라이선스</a></p>
     <button type="submit">이미지 변환</button> <a class="button utility-download" hidden>이미지 저장</a>`,
   },
   'character-count': {
-    sources: [{ name: 'Bluesky · 게시글 공식 규격', url: 'https://github.com/bluesky-social/bsky/blob/main/lexicons/app/bsky/feed/post.json' }],
+    sources: [
+      { name: 'Bluesky · 게시글 공식 규격', url: 'https://github.com/bluesky-social/bsky/blob/main/lexicons/app/bsky/feed/post.json' },
+      { name: 'X · 일반 게시글 글자 수 계산 규칙', url: 'https://docs.x.com/fundamentals/counting-characters' },
+    ],
     faq: [['이모지는 어떻게 세나요?', '눈으로 읽는 글자 단위로 셉니다. 예를 들어 가족 이모지처럼 여러 코드 포인트가 합쳐진 문자도 한 글자로 셉니다.'],
       ['바이트는 무엇을 기준으로 세나요?', '입력 전체를 UTF-8로 인코딩한 크기입니다. 공백과 줄바꿈도 포함하며 다른 인코딩을 쓰는 서비스와는 다를 수 있습니다.'],
       ['글자 수 제한을 어떻게 확인하나요?', '자기소개서나 게시글에 적힌 제한을 선택하거나 직접 입력하세요. 공백 포함 글자 수를 기준으로 하며 서비스별 계산 방식은 다를 수 있습니다.']],
-    html: '<label>텍스트<textarea name="text" rows="7" placeholder="여기에 글을 입력하거나 붙여 넣으세요."></textarea></label><div class="form-grid"><label>목표 글자 수<select name="preset"><option value="">사용하지 않음</option><optgroup label="자기소개서 분량 예시"><option>500</option><option>1000</option><option>1500</option></optgroup><option value="bluesky">Bluesky 게시글 · 300자 / 3,000바이트</option><option value="custom">직접 입력</option></select></label><label>직접 입력 (자)<input type="number" name="target" min="1" max="1000000" disabled></label></div><p class="note">자기소개서 제한은 지원처마다 다릅니다. Bluesky는 글자 수와 UTF-8 바이트 제한을 모두 적용합니다. 다른 SNS는 직접 입력을 사용하세요.</p>',
+    html: '<label>텍스트<textarea name="text" rows="7" placeholder="여기에 글을 입력하거나 붙여 넣으세요."></textarea></label><div class="form-grid"><label>목표 글자 수<select name="preset"><option value="">사용하지 않음</option><optgroup label="자기소개서 분량 예시"><option>500</option><option>1000</option><option>1500</option></optgroup><optgroup label="SNS 게시글"><option value="bluesky">Bluesky · 300자 / 3,000바이트</option><option value="x">X 일반 게시글 · 가중 280자</option></optgroup><option value="custom">직접 입력</option></select></label><label>직접 입력 (자)<input type="number" name="target" min="1" max="1000000" disabled></label></div><p class="note">자기소개서 제한은 지원처마다 다릅니다. Bluesky는 글자 수와 바이트를 모두 제한합니다. X는 한글·이모지에 가중치 2, 링크에 길이와 관계없이 23을 적용합니다. 직접 입력은 공백 포함 글자 수를 기준으로 합니다.</p>',
   },
   age: {
     faq: [['만 나이는 언제 한 살 늘어나나요?', '출생일에 0세이며 생일마다 한 살 늘어납니다. 이 도구는 2월 29일생의 평년 기준에서는 3월 1일부터 한 살을 더합니다.'],

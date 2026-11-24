@@ -1,3 +1,5 @@
+import parseTweet from './utility-vendor/twitter-text-3.1.0.mjs';
+
 const DAY = 86_400_000;
 const AREA = 400 / 121;
 export const maxArea = 1_000_000_000_000;
@@ -13,8 +15,9 @@ export function countText(text) {
   return { total: count(text), noSpace: count(text.replace(/\s/gu, '')), bytes: new TextEncoder().encode(text).length };
 }
 
-export function characterLimit(preset, custom) {
+export function characterLimit(preset, custom, text = '') {
   if (preset === 'bluesky') return { characters: 300, bytes: 3000 };
+  if (preset === 'x') return { characters: 280, weighted: parseTweet(text).weightedLength };
   const characters = preset === 'custom' ? custom : Number(preset);
   return Number.isInteger(characters) && characters >= 1 && characters <= 1_000_000 ? { characters } : {};
 }

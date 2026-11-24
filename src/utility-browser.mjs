@@ -33,12 +33,14 @@ for (const field of dateFields) {
 const calculate = {
   'character-count'() {
     const { total, noSpace, bytes } = countText(fields.text.value);
-    const { characters: limit, bytes: byteLimit } = characterLimit(fields.preset.value, fields.target.valueAsNumber);
+    const { characters: limit, bytes: byteLimit, weighted } = characterLimit(fields.preset.value, fields.target.valueAsNumber, fields.text.value);
+    const used = weighted ?? total;
+    const weightedProgress = weighted === undefined ? '' : `\nX 가중 글자 수 ${number(weighted)}자`;
     const progress = limit
-      ? `\n목표 ${number(limit)}자 · ${total === limit ? '목표에 도달했습니다' : `${number(Math.abs(limit - total))}자 ${total < limit ? '남음' : '초과'}`}` : '';
+      ? `\n목표 ${number(limit)}자 · ${used === limit ? '목표에 도달했습니다' : `${number(Math.abs(limit - used))}자 ${used < limit ? '남음' : '초과'}`}` : '';
     const byteProgress = byteLimit
       ? `\n최대 ${number(byteLimit)}바이트 · ${number(Math.abs(byteLimit - bytes))}바이트 ${bytes > byteLimit ? '초과' : '남음'}` : '';
-    return `공백 포함 ${number(total)}자\n공백 제외 ${number(noSpace)}자\nUTF-8 ${number(bytes)}바이트${progress}${byteProgress}`;
+    return `공백 포함 ${number(total)}자\n공백 제외 ${number(noSpace)}자\nUTF-8 ${number(bytes)}바이트${weightedProgress}${progress}${byteProgress}`;
   },
   age: () => `만 ${ageAt(fields.birth.value, fields.reference.value)}세`,
   'date-difference'() {
@@ -148,17 +150,27 @@ async function resizeImage() {
   clearImage();
   const current = revision;
   const file = fields.file.files[0];
-  if (!file || !/^image\/(jpeg|png|webp|gif|bmp|avif)$/.test(file.type)) throw new Error('지원하는 이미지 파일을 선택해 주세요.');
+  const heic = file && (/^image\/hei[cf]$/i.test(file.type) || /\.hei[cf]$/i.test(file.name));
+  if (!file || (!heic && !/^image\/(jpeg|png|webp|gif|bmp|avif)$/.test(file.type))) throw new Error('지원하는 이미지 파일을 선택해 주세요.');
+  if (file.size > 50_000_000) throw new Error('50MB 이하의 이미지를 선택해 주세요.');
   const type = fields.format.value;
   const quality = fields.quality.valueAsNumber / 100;
   const bound = fields.bound.valueAsNumber;
   result.value = '이미지를 변환하는 중입니다.';
   try {
-    const bitmap = await createImageBitmap(file);
+    let bitmap;
+    try {
+      if (heic) {
+        const { default: decode } = await import('./utility-vendor/heic-decode-1.0.0.mjs');
+        bitmap = await createImageBitmap(await decode(await file.arrayBuffer()));
+      } else bitmap = await createImageBitmap(file);
+    } catch {
+      throw new Error('이미지를 열 수 없습니다. 파일이 손상되었거나 지원하지 않는 형식입니다.');
+    }
     const canvas = document.createElement('canvas');
-    const { width, height } = fitImage(bitmap.width, bitmap.height, bound);
     try {
       if (revision !== current) return;
+      const { width, height } = fitImage(bitmap.width, bitmap.height, bound);
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext('2d');
@@ -170,6 +182,7 @@ async function resizeImage() {
     } finally {
       bitmap.close();
     }
+    const { width, height } = canvas;
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, type, quality));
     if (revision !== current) return;
     if (blob?.type !== type) throw new Error('이 브라우저는 선택한 저장 형식을 지원하지 않습니다.');

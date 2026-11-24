@@ -33,7 +33,8 @@ function topicPage(config, section, news) {
     <p class="intro">${section.description}</p>${cards(root, section.path)}
     <p class="note">원본 피드는 30분마다 확인하는 것을 목표로 합니다. 예약 실행이 지연되거나 누락될 수 있으며, 수집에 실패하면 마지막으로 확보한 목록을 유지합니다.</p>
     ${filters}${list || '<p class="panel">아직 수집한 글이 없습니다. 아래 출처에서 최신 소식을 직접 확인할 수 있습니다.</p>'}
-    <section class="panel"><h2>출처</h2><ul>${sources.map(({ name, url }) => `<li><a href="${escape(url)}">${escape(name)} 공식 피드</a></li>`).join('')}</ul></section>`,
+    <section class="panel"><h2>출처</h2><ul>${sources.map(({ name, url }) => `<li><a href="${escape(url)}">${escape(name)} 공식 피드</a></li>`).join('')}</ul>
+    ${section.path === 'news/korea/' ? '<p><a href="https://techblog.woowahan.com/">우아한형제들 기술블로그 원문</a> · 공식 피드가 수집 서버의 요청을 받지 않아 블로그에서 최신 글을 직접 확인할 수 있습니다.</p>' : ''}</section>`,
   });
 }
 
