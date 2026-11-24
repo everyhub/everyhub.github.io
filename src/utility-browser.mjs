@@ -217,6 +217,21 @@ form.addEventListener('submit', async (event) => {
   }
 });
 
+form.addEventListener('reset', () => {
+  if (download) {
+    clearImage();
+    photoRevision++;
+    bitmap?.close();
+    bitmap = undefined;
+    if (preview) preview.hidden = true;
+    form.querySelector('.utility-file-list')?.replaceChildren();
+  }
+  setTimeout(() => {
+    if (tool === 'character-count') fields.preset.dispatchEvent(new Event('input', { bubbles: true }));
+    else result.value = tool === 'area-converter' ? calculate[tool]() : '';
+  });
+});
+
 if (tool === 'character-count') {
   form.addEventListener('input', () => {
     fields.target.disabled = fields.preset.value !== 'custom';

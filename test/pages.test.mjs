@@ -105,9 +105,9 @@ test('브라우저 편의 기능 자산과 홈 카드 검색·전체보기', asy
   assert.match(convenience, /입력 초기화/);
   assert.match(convenience, /everyhub:recent-tools/);
   assert.match(convenience, /data-dashboard-search/);
-  assert.match(convenience, /moneyInput/);
-  assert.match(convenience, /numericValue/);
-  assert.match(await readFile(new URL('../src/browser.mjs', import.meta.url), 'utf8'), /value\.replaceAll\(',', ''\)/);
+  assert.match(convenience, /field\.valueAsNumber/);
+  assert.match(home, /data-dashboard-results hidden>[\s\S]*href="\.\/tools\/pdf-merge\/"/);
+  assert.match(salaryCalculatorPage(config), /id="annualSalary" type="number"/);
 });
 
 test('홈 레거시 연봉 링크와 연결되지 않은 작업 타임라인 페이지', async () => {

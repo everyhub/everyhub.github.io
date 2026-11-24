@@ -45,7 +45,7 @@ await mkdir(join(dist, 'assets'), { recursive: true });
 await Promise.all(['style.css', 'browser.mjs', 'calculator.mjs', 'display.mjs', 'rates.mjs', 'withholding-table.mjs',
   'labor-browser.mjs', 'labor.mjs', 'labor-rates.mjs', 'tool-specs.mjs',
   'guide-specs.mjs', 'guides.mjs', 'guide-rates.mjs', 'housing-specs.mjs', 'housing.mjs', 'housing-rates.mjs',
-  'navigation-browser.mjs', 'convenience-browser.mjs', 'information.mjs', 'utility.mjs', 'utility-extra.mjs', 'utility-browser.mjs', 'utility-files.mjs']
+  'navigation-browser.mjs', 'convenience-browser.mjs', 'news-browser.mjs', 'information.mjs', 'utility.mjs', 'utility-extra.mjs', 'utility-browser.mjs', 'utility-files.mjs']
   .map((name) => copyFile(join(source, name), join(dist, 'assets', name))));
 await cp(join(source, 'background-removal'), join(dist, 'assets', 'background-removal'), { recursive: true });
 await cp(join(source, 'utility-vendor'), join(dist, 'assets', 'utility-vendor'), { recursive: true });

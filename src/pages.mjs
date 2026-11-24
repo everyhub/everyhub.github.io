@@ -4,6 +4,7 @@ import { rates, sources } from './rates.mjs';
 import { verifiedOn } from './labor-rates.mjs';
 import { brand } from './tool-specs.mjs';
 import { navigationGroups, salaryCalculatorPath, siteTree } from './navigation.mjs';
+import { utilitySections } from './utility-config.mjs';
 
 const { year } = rates;
 const taxFree = won(defaults.monthlyTaxFree);
@@ -126,11 +127,11 @@ export function layout({ config, title, description, path, root, main, faq, calc
   <link rel="stylesheet" href="${root}assets/style.css">
   <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>
   <script type="module" src="${root}assets/navigation-browser.mjs"></script>
-  <script type="module" src="${root}assets/convenience-browser.mjs"></script>
   ${script || calculator ? `<script type="module" src="${root}assets/${script ?? 'browser.mjs'}"></script>` : ''}
+  ${!robots ? `<script type="module" src="${root}assets/convenience-browser.mjs"></script>` : ''}
   ${!localOnly && config.adsenseClient ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(config.adsenseClient)}" crossorigin="anonymous"></script>` : ''}
 </head>
-<body data-page-path="${path}">
+<body data-page-path="${path}"${(application || calculator) && path.startsWith('tools/') ? ' data-recent-tool' : ''}>
   <header class="site-head"><div class="wrap"><a class="brand" href="${root}">${brand}</a>
     <button type="button" class="nav-toggle" hidden aria-controls="site-navigation" aria-expanded="false">전체 메뉴</button>
     <a class="home-link" href="${root}">홈</a></div></header>
@@ -183,14 +184,18 @@ function dashboard() {
 }
 
 export function homePage(config) {
+  const shortcuts = new Map(navigationGroups.flatMap(({ name, path, items }) => [{ name, path }, ...items])
+    .concat(utilitySections).map(({ path, name }) => [path, name]));
+  const results = [...shortcuts].map(([path, name]) => `<li><a href="./${path}">${escape(name)}</a></li>`).join('');
   return layout({
     config, title: `${brand} | 계산기·생활 도구·IT 소식`,
     description: '연봉 실수령액과 퇴직금 계산기, 사진 배경 제거, 공휴일 달력, 국내외 IT·AI 소식을 한곳에서 찾아보세요.',
     path: '', root: './',
     main: `<h1>${brand}</h1><p class="intro">급여·근로 계산기부터 사진 편집, 생활 정보와 IT·AI 소식까지 원하는 기능을 바로 열어 보세요.</p>
       <section aria-labelledby="shortcuts"><div class="dashboard-title"><h2 id="shortcuts">한눈에 바로가기</h2>
-        <label class="dashboard-search">바로가기 검색<input type="search" data-dashboard-search placeholder="예: 연차, PDF, 주거" autocomplete="off"></label></div>
-        <p class="dashboard-empty" data-dashboard-empty hidden>검색 결과가 없습니다.</p>${dashboard()}</section>
+        <label class="dashboard-search" hidden>바로가기 검색<input type="search" data-dashboard-search placeholder="예: 연차, PDF, 주거" autocomplete="off"></label></div>
+        <p class="dashboard-empty" data-dashboard-empty role="status" hidden>검색 결과가 없습니다.</p>
+        <ul class="dashboard-links dashboard-results" data-dashboard-results hidden>${results}</ul>${dashboard()}</section>
       <section class="panel recent-tools" data-recent-tools hidden><h2>최근 본 도구</h2><ul class="tag-list"></ul></section>
       <p><a href="./${salaryCalculatorPath}">연봉 실수령액 계산기와 공식 계산 기준 보기</a></p>`,
   });

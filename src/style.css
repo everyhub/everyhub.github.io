@@ -12,7 +12,7 @@
 body { margin: 0; color: var(--ink); background: var(--paper); }
 a { color: var(--accent); text-underline-offset: .2em; }
 a:hover { text-decoration-thickness: .13em; }
-a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 3px solid #0b73b3; outline-offset: 3px; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid #0b73b3; outline-offset: 3px; }
 .wrap { width: min(100% - 2rem, 78rem); margin-inline: auto; }
 .site-head { background: #fff; border-bottom: 1px solid var(--line); }
 .site-head .wrap { display: flex; gap: .5rem 1rem; flex-wrap: wrap; align-items: center; padding-block: .65rem; }
@@ -70,21 +70,29 @@ input, select { display: block; width: 100%; margin-top: .3rem; padding: .5rem .
 .dashboard-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: .65rem; list-style: none; margin: 0; padding: 0; }
 .dashboard-links a { display: flex; align-items: center; height: 100%; min-height: 3.3rem; padding: .65rem .85rem; border: 1px solid var(--line); border-radius: .55rem; background: var(--paper); font-weight: 700; text-decoration: none; }
 .dashboard-links a:hover { background: #e8f6ef; text-decoration: underline; }
+.dashboard-results { margin-block: 1rem; }
+.dashboard-results[hidden] { display: none; }
 .dashboard-card-head, .dashboard-title { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.dashboard-card-head { margin-bottom: .65rem; }
 .dashboard-card-head h2, .dashboard-title h2 { margin: 0; }
-.dashboard-more { flex: 0 0 auto; padding: .25rem .55rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: .8rem; font-weight: 750; text-decoration: none; }
+.dashboard-more { display: inline-flex; align-items: center; min-height: 2.75rem; flex: 0 0 auto; padding: .25rem .7rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: .8rem; font-weight: 750; text-decoration: none; }
 .dashboard-more:hover { border-color: var(--accent); color: var(--accent); background: #e8f6ef; }
 .dashboard-search { flex: 0 1 20rem; color: var(--muted); font-size: .85rem; font-weight: 700; }
 .dashboard-search input { margin-top: .15rem; min-height: 2.5rem; }
 .dashboard-empty { color: var(--muted); }
-.convenience-reset, .convenience-copy { margin: .75rem .5rem 0 0; color: var(--accent); background: #e8f6ef; border: 1px solid var(--line); }
+.news-filters:not([hidden]) { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: 1rem; }
+.news-filters button { padding-inline: .85rem; border: 1px solid var(--accent); border-radius: 999px; background: white; color: var(--accent); font-size: .9rem; }
+.news-filters button:hover { background: #e8f6ef; }
+.news-filters button[aria-pressed="true"] { background: var(--accent); color: white; }
+.convenience-reset, .convenience-copy { margin: .75rem .4rem 0 .4rem; color: var(--accent); background: #e8f6ef; border: 1px solid var(--line); }
 .convenience-reset:hover, .convenience-copy:hover { background: #d9f0e6; }
 .back-to-top { position: fixed; right: 1rem; bottom: 1rem; z-index: 5; box-shadow: 0 2px 8px #15293b33; }
+.back-to-top[hidden] { display: none; }
+.money-display:not(:empty) { display: block; color: var(--muted); font-size: .85rem; }
 .recent-tools ul { margin: 0; }
 @media (max-width: 52rem) {
-  .dashboard-title, .dashboard-card-head { align-items: flex-start; flex-direction: column; }
-  .dashboard-search { width: 100%; }
-  .dashboard-more { align-self: flex-end; margin-top: -2.4rem; }
+  .dashboard-title { align-items: stretch; flex-direction: column; }
+  .dashboard-search { flex: auto; }
 }
 .tool-output { margin-block: .75rem; }
 .tool-output div { display: flex; justify-content: space-between; gap: .65rem; border-bottom: 1px solid var(--line); padding-block: .4rem; }
@@ -126,6 +134,6 @@ summary { cursor: pointer; padding: .5rem 0; font-weight: 700; }
 .footer-nav { margin-top: 0; font-weight: 750; }
 .admin-table-wrap { overflow-x: auto; margin-block: 1rem; background: #fff; border: 1px solid var(--line); border-radius: .75rem; }
 .admin-timeline { min-width: 58rem; margin: 0; }
-.admin-timeline th, .admin-timeline td { vertical-align: top; padding: .75rem; }
+.admin-timeline th, .admin-timeline td { text-align: left; vertical-align: top; padding: .75rem; }
 .admin-timeline tbody th { white-space: nowrap; }
 .foot-list { padding-left: 1.3rem; }

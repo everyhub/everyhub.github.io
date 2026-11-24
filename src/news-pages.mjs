@@ -13,19 +13,26 @@ function cards(root, active) {
 function topicPage(config, section, news) {
   const root = '../../';
   const sources = newsFeeds.filter(({ section: path }) => path === section.path);
-  const items = sources.flatMap(({ id, name }) => (news[id] ?? []).map((item) => ({ ...item, name })));
+  const items = sources.flatMap(({ id, name, featured }) => (news[id] ?? []).map((item) => ({ ...item, id, name, featured })));
   if (section.path !== 'news/trending/') items.sort((first, second) => second.date.localeCompare(first.date));
-  const list = items.map(({ title, url, name, date, summary }) => `<article class="panel">
+  const featuredIndex = items.findIndex(({ featured }) => featured);
+  if (featuredIndex > 0) items.unshift(...items.splice(featuredIndex, 1));
+  const available = sources.filter(({ id }) => items.some((item) => item.id === id));
+  const filters = available.length > 1 ? `<div class="news-filters" role="group" aria-label="출처 필터" hidden>
+    <button type="button" data-news-filter="" aria-pressed="true">전체 출처</button>${available.map(({ id, name }) =>
+      `<button type="button" data-news-filter="${escape(id)}" aria-pressed="false">${escape(name)}</button>`).join('')}</div>` : '';
+  const list = items.map(({ id, title, url, name, date, summary }) => `<article class="panel" data-news-source="${escape(id)}">
     <span class="eyebrow">${escape(name)} · <time datetime="${escape(date)}">${escape(stamp.format(new Date(date)))}</time> (한국시간)</span>
     <h2><a href="${escape(url)}">${escape(title)}</a></h2>
     ${summary ? `<p>${escape(summary)}</p>` : ''}
   </article>`).join('');
   return layout({
     config, root, path: section.path, title: `${section.name} 소식 | ${brand}`, description: section.description,
+    script: filters ? 'news-browser.mjs' : undefined,
     main: `<p class="eyebrow"><a href="${root}news/">IT·AI 소식</a></p><h1>${section.name} 소식</h1>
     <p class="intro">${section.description}</p>${cards(root, section.path)}
     <p class="note">30분 간격으로 원본 피드를 확인합니다. 예약 실행이 지연될 수 있으며, 수집에 실패하면 마지막으로 확보한 목록을 유지합니다.</p>
-    ${list || '<p class="panel">아직 수집한 글이 없습니다. 아래 출처에서 최신 소식을 직접 확인할 수 있습니다.</p>'}
+    ${filters}${list || '<p class="panel">아직 수집한 글이 없습니다. 아래 출처에서 최신 소식을 직접 확인할 수 있습니다.</p>'}
     <section class="panel"><h2>출처</h2><ul>${sources.map(({ name, url }) => `<li><a href="${escape(url)}">${escape(name)} 공식 피드</a></li>`).join('')}</ul></section>`,
   });
 }

@@ -71,3 +71,16 @@ test('소식 페이지는 출처와 한국시간을 표시하고 제목을 이�
   assert.match(html, /한국시간/);
   assert.match(html, /rel="canonical" href="https:\/\/example.com\/subpath\/news\/korea\/"/);
 });
+
+test('국내 IT는 긱뉴스를 먼저 표시하고 게시물이 있는 출처만 필터링할 수 있다', () => {
+  const { html } = newsPages({ baseURL: 'https://example.com/' }, {
+    geeknews: [{ ...item, title: '긱뉴스 추천 글', date: '2026-11-23T01:00:00.000Z' }],
+    naver: [item],
+  }).find(({ path }) => path === 'news/korea/');
+  assert.match(html, /news-browser\.mjs/);
+  assert.match(html, /data-news-filter="" aria-pressed="true"/);
+  assert.match(html, /data-news-filter="geeknews"/);
+  assert.match(html, /data-news-filter="naver"/);
+  assert.doesNotMatch(html, /data-news-filter="toss"/);
+  assert.deepEqual([...html.matchAll(/data-news-source="([^"]+)"/g)].map(([, id]) => id), ['geeknews', 'naver']);
+});
