@@ -1,7 +1,8 @@
 import { faqHTML, layout, sourcesHTML } from './pages.mjs';
 import { brand } from './tool-specs.mjs';
 import { utilityGroups, utilitySections } from './utility-config.mjs';
-import { extraUtilityForms } from './utility-forms.mjs';
+import { dateInput, extraUtilityForms } from './utility-forms.mjs';
+import { maxArea } from './utility.mjs';
 
 const root = '../../';
 const toolIntro = '글쓰기, 이미지·PDF, 날짜·시간, 생활 계산과 개발 도구를 브라우저에서 바로 사용하세요. 파일과 입력값은 서버로 보내지 않습니다.';
@@ -41,18 +42,18 @@ const forms = {
       { name: '국가법령정보센터 · 민법 제160조 (역에 의한 계산)', url: 'https://www.law.go.kr/법령/민법/제160조' },
       { name: '국가법령정보센터 · 행정기본법 제7조의2', url: 'https://www.law.go.kr/법령/행정기본법/제7조의2', effective: '2023-06-28' },
     ],
-    html: '<div class="form-grid"><label>생년월일<input name="birth" type="date" required></label><label>기준일<input name="reference" type="date" required></label></div><button type="submit">만 나이 계산</button>',
+    html: `<div class="form-grid">${dateInput('birth', '생년월일')}${dateInput('reference', '기준일')}</div><button type="submit">만 나이 계산</button>`,
   },
   'date-difference': {
     faq: [['디데이는 어떻게 표시하나요?', '기준일과 목표일이 같으면 D-day, 목표일이 남았으면 D-숫자, 지났으면 D+숫자로 표시합니다.'],
       ['시차나 영업일도 반영하나요?', '시간대·시각을 제외한 달력 날짜 차이입니다. 주말과 공휴일도 날짜 차이에 포함합니다.']],
-    html: '<div class="form-grid"><label>기준일<input name="reference" type="date" required></label><label>목표일<input name="target" type="date" required></label></div><button type="submit">날짜 차이 계산</button>',
+    html: `<div class="form-grid">${dateInput('reference', '기준일')}${dateInput('target', '목표일')}</div><button type="submit">날짜 차이 계산</button>`,
   },
   'area-converter': {
     faq: [['1평은 몇 제곱미터인가요?', '1평은 400/121㎡, 약 3.3058㎡입니다. 계산에는 반올림하지 않은 비율을 사용합니다.'],
       ['전용면적과 공급면적을 바꾸나요?', '아니요. 같은 면적의 단위만 바꾸므로 공용면적을 더하거나 빼지 않습니다. 법정계량단위는 제곱미터입니다.']],
     sources: [{ name: '대한민국 정책브리핑 · 평의 환산과 법정계량단위', url: 'https://www.korea.kr/briefing/policyBriefingView.do?newsId=148628433' }],
-    html: '<div class="form-grid"><label>면적<input name="area" type="number" min="0" step="any" value="84" required></label><label>입력 단위<select name="unit"><option value="m2">제곱미터(㎡)</option><option value="pyeong">평</option></select></label></div><button type="submit">면적 환산</button>',
+    html: `<div class="form-grid"><label>면적<input name="area" type="number" min="0" max="${maxArea}" step="any" value="84" required></label><label>입력 단위<select name="unit"><option value="m2">제곱미터(㎡)</option><option value="pyeong">평</option></select></label></div><button type="submit">면적 환산</button>`,
   },
 };
 

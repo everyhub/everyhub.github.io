@@ -28,12 +28,19 @@ test('날짜 차이는 윤일과 역방향을 반영하며 존재하지 않는 �
   assert.equal(difference('2026-03-09', '2026-03-07'), -2);
   assert.equal(difference('2026-03-09', '2026-03-09'), 0);
   assert.throws(() => difference('2026-02-29', '2026-03-01'), /존재하지 않는/);
+  assert.equal(difference('1900-01-01', '1900-01-02'), 1);
+  assert.equal(difference('2100-12-30', '2100-12-31'), 1);
+  for (const date of ['', '123456-01-01', '1899-12-31', '2101-01-01']) {
+    assert.throws(() => ageAt(date, '2026-03-01'), /네 자리 연도/);
+    assert.throws(() => worldTime(date, '12:00'), /네 자리 연도/);
+  }
 });
 
 test('면적 환산과 이미지 크기 조절', () => {
   assert.equal(convertArea(121, 'pyeong'), 400);
   assert.equal(convertArea(400, 'm2'), 121);
   assert.throws(() => convertArea(-1, 'm2'));
+  assert.throws(() => convertArea(1e308, 'pyeong'), /면적/);
   assert.deepEqual(fitImage(480, 640, 320), { width: 240, height: 320 });
   assert.deepEqual(fitImage(10, 20, 100), { width: 10, height: 20 });
   assert.deepEqual(fitImage(10_000, 1, 100), { width: 100, height: 1 });
@@ -91,6 +98,8 @@ test('workdays count both ends; time zone conversion observes summer time', () =
   const city = (date) => worldTime(date, '12:00').find(([name]) => name === '런던')[1];
   assert.match(city('2026-01-01'), /03:00/);
   assert.match(city('2026-07-01'), /04:00/);
+  assert.throws(() => worldTime('1988-07-01', '12:00'), /1989년 이후/);
+  assert.match(worldTime('1989-01-01', '12:00')[0][1], /12:00/);
 });
 
 test('everyday calculators handle exact thresholds and remainders', () => {

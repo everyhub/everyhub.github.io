@@ -17,7 +17,16 @@ let photoRevision = 0;
 if (fields.reference) {
   const today = new Date();
   const pad = (value) => String(value).padStart(2, '0');
-  fields.reference.value = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+  fields.reference.defaultValue = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+}
+
+const dateFields = [...form.querySelectorAll('input[type="date"]')];
+for (const field of dateFields) {
+  field.addEventListener('invalid', () => {
+    field.setCustomValidity(`${field.min.slice(0, 4)}~${field.max.slice(0, 4)}년 사이의 올바른 날짜를 네 자리 연도로 입력해 주세요.`);
+    result.value = field.validationMessage;
+  });
+  field.addEventListener('input', () => { field.setCustomValidity(''); result.value = ''; });
 }
 
 const calculate = {
@@ -218,6 +227,7 @@ form.addEventListener('submit', async (event) => {
 });
 
 form.addEventListener('reset', () => {
+  for (const field of dateFields) field.setCustomValidity('');
   if (download) {
     clearImage();
     photoRevision++;

@@ -89,6 +89,7 @@ export function ad(config) {
 }
 
 export function layout({ config, title, description, path, root, main, faq, calculator = false, application, script, payroll = false, localOnly = false, robots = '' }) {
+  const privatePage = localOnly || path.startsWith('tools/');
   const canonical = new URL(path, config.baseURL).href;
   const graph = [];
   if (calculator || application) graph.push({
@@ -111,7 +112,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  ${localOnly ? `<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; img-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'">` : ''}
+  ${privatePage ? `<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; img-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'">` : ''}
   <meta name="viewport" content="width=device-width, initial-scale=1">
   ${robots ? `<meta name="robots" content="${escape(robots)}">` : ''}
   <title>${escape(title)}</title>
@@ -129,7 +130,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
   <script type="module" src="${root}assets/navigation-browser.mjs"></script>
   ${script || calculator ? `<script type="module" src="${root}assets/${script ?? 'browser.mjs'}"></script>` : ''}
   ${!robots ? `<script type="module" src="${root}assets/convenience-browser.mjs"></script>` : ''}
-  ${!localOnly && config.adsenseClient ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(config.adsenseClient)}" crossorigin="anonymous"></script>` : ''}
+  ${!privatePage && config.adsenseClient ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(config.adsenseClient)}" crossorigin="anonymous"></script>` : ''}
 </head>
 <body data-page-path="${path}"${(application || calculator) && path.startsWith('tools/') ? ' data-recent-tool' : ''}>
   <header class="site-head"><div class="wrap"><a class="brand" href="${root}">${brand}</a>
@@ -139,7 +140,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
     <nav class="sidebar" id="site-navigation" aria-label="사이트 탐색"><p class="sidebar-title">분야별 찾아보기</p>${siteTree(root, path)}</nav>
     <main>${main}</main>
   </div>
-  ${footer(localOnly ? { ...config, adsenseClient: '' } : config, payroll, root)}
+  ${footer(privatePage ? { ...config, adsenseClient: '' } : config, payroll, root)}
 </body>
 </html>`;
 }
@@ -150,7 +151,7 @@ function salaryForm() {
         <form id="salary-form">
           <div class="form-grid">
             <label>세전 연봉 (만 원)<input id="annualSalary" type="number" inputmode="numeric" required min="1000" max="${limits.annualSalary / 10_000}" value="${defaults.annualSalary / 10_000}"></label>
-            <label>월 비과세액 (만 원)<input id="monthlyTaxFree" type="number" inputmode="numeric" required min="0" value="${defaults.monthlyTaxFree / 10_000}"><small>연봉에 포함된 비과세 식대 등</small></label>
+            <label>월 비과세액 (만 원)<input id="monthlyTaxFree" type="number" inputmode="numeric" required min="0" max="${Math.floor(limits.annualSalary / 120_000)}" value="${defaults.monthlyTaxFree / 10_000}"><small>연봉에 포함된 비과세 식대 등</small></label>
             <label>부양가족 수 (명, 본인 제외)<input id="dependents" type="number" inputmode="numeric" required min="0" max="${limits.dependents}" value="0"></label>
             <label>만 8~20세 공제 대상 자녀 수 (명)<input id="children" type="number" inputmode="numeric" required min="0" max="${limits.dependents}" value="0"><small>부양가족 수에 포함한 자녀만 입력</small></label>
           </div>
@@ -215,7 +216,7 @@ export function salaryCalculatorPage(config) {
     main: `<p class="eyebrow">${year}년 기준 · 공식 자료 확인 <time datetime="${verifiedOn}">${verifiedOn}</time></p><h1>연봉 실수령액 계산기</h1>
       <p class="intro">세전 연봉과 비과세액을 입력하면 보험료와 세금을 뺀 월평균 실수령액을 확인할 수 있습니다.</p>
       <p class="note">실수령액은 ${year}년 기준입니다. 2027년 보험 상·하한 등의 추가 고시를 확인한 뒤 연간 계산을 업데이트합니다. 먼저 발표된 요율은 <a href="${root}tools/insurance-rates/">직장인 보험료 비교</a>에서 확인하세요.</p>
-      ${salaryForm()}${ad(config)}${salaryIndex(root)}
+      ${salaryForm()}${salaryIndex(root)}
       ${faqHTML(faq)}`,
   });
 }

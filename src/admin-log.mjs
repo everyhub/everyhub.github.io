@@ -16,7 +16,8 @@ export const adminTimeline = [
   { time: '2026-11-24 23:37', request: '지금까지의 요청·반영·상태를 타임라인으로 볼 수 있는 연결되지 않은 관리 페이지를 남겨 달라.', reflection: '이 페이지입니다. 임의 경로의 noindex,nofollow 문서로 만들고 HTML/XML 사이트맵과 메뉴에는 넣지 않습니다.', status: '완료', links: ['6791470', 'https://github.com/everyhub/everyhub.github.io/actions/runs/45416820091'] },
   { time: '2026-11-24 23:45', request: '홈 바로가기 카드의 전체보기와 사이트 편의성을 개선해 달라.', reflection: '카드 오른쪽 위 전체보기, 도구 이름 검색, 최근 본 도구, 결과 복사·초기화와 비민감 설정 기억을 추가했습니다.', status: '완료', links: ['023fc4e', 'https://github.com/everyhub/everyhub.github.io/actions/runs/45417940444'] },
   { time: '2026-11-24 23:45', request: '방문자 수를 관리 페이지에서 확인할 수 있는지 알려 달라.', reflection: '현재 정적 관리 페이지에는 방문자 집계가 연결되어 있지 않습니다.', status: '제외', reason: '방문자 분석 도입 여부와 개인정보·동의 방식을 결정한 뒤 진행합니다.', links: [] },
-  { time: '2026-11-24 23:48', request: '긱뉴스처럼 개발자가 선별한 뉴스 출처를 검토해 반영해 달라.', reflection: '국내 IT에 긱뉴스를 먼저 표시하고 토스, 해외 IT에 GitHub Changelog·LY Corporation, AI에 Google DeepMind를 추가했습니다. 분야별 출처 필터를 적용했습니다.', status: '완료', links: ['https://everyhub.github.io/news/korea/'] },
+  { time: '2026-11-24 23:48', request: '긱뉴스처럼 개발자가 선별한 뉴스 출처를 검토해 반영해 달라.', reflection: '국내 IT에 긱뉴스를 먼저 표시하고 토스, 해외 IT에 GitHub Changelog·LY Corporation, AI에 Google DeepMind를 추가했습니다. 분야별 출처 필터를 적용했습니다.', status: '완료', links: ['https://everyhub.github.io/news/korea/', '8083dae', 'https://github.com/everyhub/everyhub.github.io/actions/runs/45418992749'] },
+  { time: '2026-11-24 23:53', request: '만 나이의 연도 입력을 네 자리로 제한하고 기존 도구의 오류와 외부 정보 전송을 점검해 달라.', reflection: '날짜 입력 범위를 제한하고 오류 안내를 추가했습니다. 계산기·도구의 외부 연결과 폼 전송을 CSP로 차단하고, 모바일·데스크톱 입력 및 네트워크 감사를 푸시 전 점검에 추가했습니다.', status: '완료', links: ['https://everyhub.github.io/tools/age/'] },
 ];
 
 export const adminPending = [

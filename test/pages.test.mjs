@@ -40,14 +40,20 @@ test('연봉 상세의 공제 내역, 인접 연봉 링크, canonical과 FAQ', (
 });
 
 test('설정한 검색 소유권 태그와 광고 슬롯을 렌더링', () => {
-  const page = salaryCalculatorPage({
+  const configured = {
     ...config, googleVerification: 'google-code', naverVerification: 'naver-code',
     adsenseClient: 'ca-pub-12345', adsenseSlot: '6789',
-  });
+  };
+  const page = salaryPage(configured, 4000, 20);
   assert.match(page, /name="google-site-verification" content="google-code"/);
   assert.match(page, /name="naver-site-verification" content="naver-code"/);
   assert.match(page, /adsbygoogle\.js\?client=ca-pub-12345/);
   assert.match(page, /data-ad-slot="6789"/);
+  for (const tool of [salaryCalculatorPage(configured),
+    ...extraPages(configured).filter(({ path }) => path.startsWith('tools/')).map(({ html }) => html)]) {
+    assert.match(tool, /connect-src 'self'/);
+    assert.doesNotMatch(tool, /adsbygoogle|data-ad-slot/);
+  }
 });
 
 test('개인 이름 없는 브랜드와 분류 탐색 패널', () => {

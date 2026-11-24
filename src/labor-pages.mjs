@@ -73,7 +73,6 @@ function toolPage(config, id, tool) {
         </div>
         <p class="note">${escape(tool.scope)}</p>
       </section>
-      ${ad(config)}
       <section class="panel" aria-labelledby="sources"><h2 id="sources">공식 계산 기준</h2>
         ${sourcesHTML(references)}
         <p><a href="${root}${category.id}/">${category.title} 계산기 모아보기</a></p>

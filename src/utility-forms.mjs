@@ -1,4 +1,6 @@
 import { informationSources as calendar } from './information.mjs';
+import { dateRange } from './utility.mjs';
+import { worldTimeRange } from './utility-extra.mjs';
 
 const source = (name, url) => ({ name, url });
 const area = (name, label, attributes = '') => `<label>${label}<textarea name="${name}" rows="5" ${attributes}></textarea></label>`;
@@ -10,7 +12,8 @@ const button = (name) => `<button type="submit">${name}</button>`;
 const download = '<a class="button utility-download" hidden>결과 파일 저장</a>';
 const form = (html, question, answer, sources) => ({ html, faq: [[question, answer]], sources });
 const text = () => area('text', '입력 텍스트', 'maxlength="100000"');
-const date = (name, label) => input(name, label, 'type="date" required');
+export const dateInput = (name, label, [min, max] = dateRange, value = '') =>
+  input(name, label, `type="date" min="${min}" max="${max}" value="${value}" required`);
 const num = (name, label, value, min = '0', step = 'any', max = '1000000000000') =>
   input(name, label, `type="number" value="${value}" min="${min}" max="${max}" step="${step}" required`);
 const pdf = (multiple = '') => input('file', 'PDF 파일', `type="file" accept="application/pdf,.pdf" required ${multiple}`);
@@ -46,12 +49,12 @@ export const extraUtilityForms = {
       source('외교부 여권안내 · 온라인 사진 파일 기준', 'https://www.passport.go.kr/home/kor/onlinePhotoVerify/index.do?menuPos=33')]),
   workdays: form(
     grid(...[['start', '시작일'], ['end', '종료일']].map(([key, name]) =>
-      input(key, name, `type="date" min="2026-01-01" max="2027-12-31" value="${key === 'start' ? '2026-01-01' : '2026-01-31'}" required`))) + button('근무일수 계산'),
+      dateInput(key, name, ['2026-01-01', '2027-12-31'], key === 'start' ? '2026-01-01' : '2026-01-31'))) + button('근무일수 계산'),
     '어떤 날을 빼나요?', '시작일과 종료일을 포함하며 토·일요일과 한국 공휴일 달력의 평일 휴일을 뺍니다. 토·일요일과 공휴일이 겹치면 한 번만 뺍니다. 사업장별 휴일과 근무 일정은 다를 수 있습니다.',
     [calendar.calendar2026, calendar.calendar2027, calendar.holidayLaw]),
   'world-time': form(
-    grid(date('reference', '서울 날짜'), input('time', '서울 시각', 'type="time" value="12:00" required')) + button('현지 시각 보기'),
-    '서머타임을 반영하나요?', '브라우저가 제공하는 IANA 시간대 데이터의 날짜별 시차와 서머타임을 반영합니다. 서울 시각은 현재 기준인 UTC+9를 사용합니다.',
+    grid(dateInput('reference', '서울 날짜', worldTimeRange), input('time', '서울 시각', 'type="time" value="12:00" required')) + button('현지 시각 보기'),
+    '서머타임을 반영하나요?', '브라우저가 제공하는 IANA 시간대 데이터의 날짜별 시차와 서머타임을 반영합니다. 출발 시각인 서울은 UTC+9를 적용하는 1989년 이후 날짜를 지원합니다.',
     [source('IANA · Time Zone Database', 'https://www.iana.org/time-zones')]),
   bmi: form(
     grid(num('height', '키 (cm)', 170, 50, 'any', 300), num('weight', '체중 (kg)', 65, 1, 'any', 600)) + button('BMI 계산'),

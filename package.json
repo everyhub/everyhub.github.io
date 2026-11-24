@@ -2,9 +2,15 @@
   "name": "salary-calc",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
+    "audit": "node audit.mjs",
     "build": "node build.mjs",
     "test": "node --test"
+  },
+  "devDependencies": {
+    "playwright": "1.65.1"
   }
 }

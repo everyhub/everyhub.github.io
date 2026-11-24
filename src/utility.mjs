@@ -1,5 +1,7 @@
 const DAY = 86_400_000;
 const AREA = 400 / 121;
+export const maxArea = 1_000_000_000_000;
+export const dateRange = ['1900-01-01', '2100-12-31'];
 const graphemes = new Intl.Segmenter('ko', { granularity: 'grapheme' });
 const count = (text) => {
   let total = 0;
@@ -12,7 +14,9 @@ export function countText(text) {
 }
 
 function parseDate(value) {
-  if (!/^(?!0000)\d{4}-\d{2}-\d{2}$/.test(value)) throw new Error('날짜를 정확히 입력해 주세요.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || value < dateRange[0] || value > dateRange[1]) {
+    throw new Error('1900~2100년 사이의 날짜를 네 자리 연도로 입력해 주세요.');
+  }
   const date = new Date(`${value}T00:00:00Z`);
   if (!Number.isFinite(+date) || date.toISOString().slice(0, 10) !== value) throw new Error('존재하지 않는 날짜입니다.');
   return date;
@@ -28,7 +32,9 @@ export function ageAt(birth, date) {
 }
 
 export function convertArea(value, unit) {
-  if (!Number.isFinite(value) || value < 0 || !['m2', 'pyeong'].includes(unit)) throw new Error('0 이상의 면적을 입력해 주세요.');
+  if (!Number.isFinite(value) || value < 0 || value > maxArea || !['m2', 'pyeong'].includes(unit)) {
+    throw new Error('0~1조 사이의 면적을 입력해 주세요.');
+  }
   return unit === 'm2' ? value / AREA : value * AREA;
 }
 

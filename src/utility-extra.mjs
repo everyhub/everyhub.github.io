@@ -1,5 +1,5 @@
 import { holidayCalendar } from './information.mjs';
-import { difference } from './utility.mjs';
+import { dateRange, difference } from './utility.mjs';
 
 const lines = (text) => text.split(/\r\n?|\n/);
 
@@ -40,8 +40,11 @@ export const worldCities = [
   ['파리', 'Europe/Paris'], ['뉴욕', 'America/New_York'], ['로스앤젤레스', 'America/Los_Angeles'], ['시드니', 'Australia/Sydney'],
 ];
 
+export const worldTimeRange = ['1989-01-01', dateRange[1]];
+
 export function worldTime(date, time) {
   difference(date, date);
+  if (date < worldTimeRange[0]) throw new Error('서울 시각에 UTC+9를 적용하는 1989년 이후 날짜만 계산합니다.');
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) throw new Error('시각을 정확히 입력해 주세요.');
   const instant = new Date(date + 'T' + time + ':00+09:00');
   return worldCities.map(([city, timeZone]) => [city, new Intl.DateTimeFormat('ko-KR', {
