@@ -3,6 +3,7 @@ import { breakdown, salaryName, won } from './display.mjs';
 import { rates, sources } from './rates.mjs';
 import { verifiedOn } from './labor-rates.mjs';
 import { brand, categories, toolPath, tools } from './tool-specs.mjs';
+import { siteTree } from './navigation.mjs';
 
 const { year } = rates;
 const taxFree = won(defaults.monthlyTaxFree);
@@ -16,8 +17,8 @@ const label = (salary) => `연봉 ${salaryName(salary)}`;
 const pageLink = (salary, root = './') => `<a href="${root}${salaryPath(salary)}">${salaryName(salary)}</a>`;
 const estimate = (salary, inputs) => calculate({ annualSalary: salary * 10_000, ...inputs });
 const modeled = new Map(salaries.map((salary) => [salary, estimate(salary)]));
-const assumptions = `퇴직금·별도 상여금 제외, 월 비과세 ${taxFree}(식대), 본인만 공제대상으로 가정했습니다.`;
-const disclaimer = '국내 정규 급여를 12개월에 나눠 받는 직장가입자 기준 추정치입니다. 회사에 신고된 기준소득월액·보수월액, 공제·감면, 상여 및 연말정산에 따라 실제 급여명세서와 다를 수 있습니다.';
+const assumptions = `퇴직금과 별도 상여금은 제외했습니다. 월 비과세 식대는 ${taxFree}, 공제 대상은 본인만으로 가정했습니다.`;
+const disclaimer = '매달 급여를 받는 국내 직장가입자를 기준으로 한 추정치입니다. 회사가 신고한 기준소득월액·보수월액, 공제·감면, 상여금 및 연말정산에 따라 실제 금액은 달라질 수 있습니다.';
 
 export function escape(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
@@ -85,7 +86,7 @@ export function ad(config) {
   <script>(window.adsbygoogle = window.adsbygoogle || []).push({});</script></aside>`;
 }
 
-export function layout({ config, title, description, path, root, main, faq, calculator = false, application, script, category = 'pay', payroll = false }) {
+export function layout({ config, title, description, path, root, main, faq, calculator = false, application, script, payroll = false }) {
   const canonical = new URL(path, config.baseURL).href;
   const graph = [];
   if (calculator || application) graph.push({
@@ -93,12 +94,13 @@ export function layout({ config, title, description, path, root, main, faq, calc
     description, applicationCategory: 'FinanceApplication', operatingSystem: 'Any', inLanguage: 'ko-KR',
     offers: { '@type': 'Offer', price: 0, priceCurrency: 'KRW' },
   });
-  graph.push({
+  if (faq?.length) graph.push({
     '@type': 'FAQPage',
     mainEntity: faq.map(([question, answer]) => ({
       '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer },
     })),
   });
+  if (!graph.length) graph.push({ '@type': 'CollectionPage', name: title, description, url: canonical, inLanguage: 'ko-KR' });
   const verification = [
     ['google-site-verification', config.googleVerification], ['naver-site-verification', config.naverVerification],
   ].filter(([, value]) => value).map(([name, value]) => `<meta name="${name}" content="${escape(value)}">`).join('\n');
@@ -119,14 +121,18 @@ export function layout({ config, title, description, path, root, main, faq, calc
   ${verification}
   <link rel="stylesheet" href="${root}assets/style.css">
   <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>
+  <script type="module" src="${root}assets/navigation-browser.mjs"></script>
   ${script || calculator ? `<script type="module" src="${root}assets/${script ?? 'browser.mjs'}"></script>` : ''}
   ${config.adsenseClient ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(config.adsenseClient)}" crossorigin="anonymous"></script>` : ''}
 </head>
 <body>
-  <header class="site-head"><div class="wrap"><a class="brand" href="${root}">${brand}</a><nav class="tabs" aria-label="계산기 분류">
-    ${categories.map(({ id, title: name }) => `<a href="${root}${id}/"${id === category ? ` aria-current="${path === `${id}/` ? 'page' : 'location'}"` : ''}>${name}</a>`).join('')}
-  </nav></div></header>
-  <main class="wrap">${main}</main>
+  <header class="site-head"><div class="wrap"><a class="brand" href="${root}">${brand}</a>
+    <button type="button" class="nav-toggle" hidden aria-controls="site-navigation" aria-expanded="false">계산기 메뉴</button>
+    <a class="sitemap-link" href="${root}sitemap/">사이트맵</a></div></header>
+  <div class="page-grid wrap">
+    <nav class="sidebar" id="site-navigation" aria-label="계산기와 금액별 예시"><p class="sidebar-title">계산기 찾아보기</p>${siteTree(root, path)}</nav>
+    <main>${main}</main>
+  </div>
   ${footer(config, payroll)}
 </body>
 </html>`;
@@ -137,7 +143,7 @@ export function homePage(config) {
   const faq = [
     [`${year}년 연봉 실수령액은 어떻게 계산하나요?`, '세전 연봉에서 국민연금, 건강보험·장기요양보험, 고용보험, 근로소득세와 지방소득세를 뺍니다. 월평균은 연간 예상 실수령액을 12개월로 나눈 값입니다.'],
     ['식대를 연봉에 더해야 하나요?', `입력한 연봉에 이미 포함된 비과세 식대만 월 비과세액에 적으세요. 기본값은 월 ${taxFree}이며, 비과세 식대가 없다면 0을 입력하세요.`],
-    ['부양가족과 자녀 수는 어떻게 입력하나요?', '본인은 자동으로 1명 포함됩니다. 부양가족 수에는 기본공제대상인 배우자·가족만 입력하세요. 그중 만 8세 이상 20세 이하 공제대상 자녀만 자녀 수에 다시 입력하세요.'],
+    ['부양가족과 자녀 수는 어떻게 입력하나요?', '본인은 자동으로 포함됩니다. 부양가족 수에는 기본공제 대상인 배우자와 가족만 입력하세요. 그중 만 8~20세 공제 대상 자녀의 수를 별도로 입력하세요.'],
   ];
   const groups = [
     [2_000, 4_000], [4_000, 6_000], [6_000, 8_000], [8_000, 10_000], [10_000, 20_001],
@@ -149,17 +155,18 @@ export function homePage(config) {
   }).join('');
   return layout({
     config, title: `${year} 연봉 실수령액 계산기 · 노동 계산기 | ${brand}`,
-    description: `${year}년 직장인 연봉 실수령액과 4대보험, 최저임금, 주휴수당, 퇴직금, 실업급여, 육아휴직급여, 연차를 공식 기준으로 계산하세요.`,
+    description: `${year}년 연봉 실수령액과 최저임금, 퇴직금, 육아휴직급여를 계산하고 2027년 보험료와 기준 중위소득을 확인하세요.`,
     path: '', root: './', calculator: true, payroll: true, faq,
     main: `<p class="eyebrow">${year}년 기준 · 공식 자료 확인 <time datetime="${verifiedOn}">${verifiedOn}</time></p><h1>연봉 실수령액 계산기</h1>
-      <p class="intro">세전 연봉과 비과세액을 입력하면, 보험료와 세금을 뺀 월평균 실수령액을 확인할 수 있습니다.</p>
+      <p class="intro">세전 연봉과 비과세액을 입력하면 보험료와 세금을 뺀 월평균 실수령액을 확인할 수 있습니다.</p>
+      <p class="note">실수령액은 2026년 기준입니다. 2027년 보험 상·하한 등의 추가 고시를 확인한 뒤 연간 계산을 업데이트합니다. 먼저 발표된 요율은 <a href="./tools/insurance-rates/">직장인 보험료 비교</a>에서 확인하세요.</p>
       <section class="panel" aria-labelledby="calculator"><h2 id="calculator">내 연봉 계산하기</h2>
         <form id="salary-form">
           <div class="form-grid">
             <label>세전 연봉 (만 원)<input id="annualSalary" type="number" inputmode="numeric" required min="1000" max="${limits.annualSalary / 10_000}" value="${defaults.annualSalary / 10_000}"></label>
             <label>월 비과세액 (만 원)<input id="monthlyTaxFree" type="number" inputmode="numeric" required min="0" value="${defaults.monthlyTaxFree / 10_000}"><small>연봉에 포함된 비과세 식대 등</small></label>
             <label>부양가족 수 (명, 본인 제외)<input id="dependents" type="number" inputmode="numeric" required min="0" max="${limits.dependents}" value="0"></label>
-            <label>만 8~20세 공제대상 자녀 수 (명)<input id="children" type="number" inputmode="numeric" required min="0" max="${limits.dependents}" value="0"><small>부양가족 수에 포함한 자녀만 입력</small></label>
+            <label>만 8~20세 공제 대상 자녀 수 (명)<input id="children" type="number" inputmode="numeric" required min="0" max="${limits.dependents}" value="0"><small>부양가족 수에 포함한 자녀만 입력</small></label>
           </div>
           <p><button type="submit">실수령액 계산</button></p><p id="calc-error" class="error" role="alert"></p>
           <noscript><p>기본 예시만 표시됩니다. 입력에 따른 계산은 자바스크립트가 필요합니다.</p></noscript>
@@ -168,7 +175,7 @@ export function homePage(config) {
         ${deductionTable(amounts, true)}
       </section>
       ${ad(config)}
-      <section class="panel" aria-labelledby="other-tools"><h2 id="other-tools">다른 급여·노동 계산기</h2>
+      <section class="panel" aria-labelledby="other-tools"><h2 id="other-tools">분야별 계산기</h2>
         <div class="tool-directory">${categories.map(({ id, title: name }) => `<div><h3><a href="./${id}/">${name}</a></h3>
         <ul>${Object.entries(tools).filter(([, tool]) => tool.category === id).map(([toolId, tool]) => `<li><a href="./${toolPath(toolId)}">${tool.name}</a></li>`).join('')}</ul></div>`).join('')}</div>
       </section>
@@ -193,12 +200,12 @@ export function salaryPage(config, salary, index) {
   const faq = [
     [`${name}이면 한 달에 얼마를 받나요?`, `${year}년 기준 월평균 ${won(monthly.net)}, 연간 ${won(annual.net)}으로 예상됩니다. ${assumptions}`],
     [`${name}에 비과세 식대가 없다면 월급이 얼마나 달라지나요?`, `같은 세전 연봉에서 비과세액을 0원으로 두면 월평균 ${won(noMeal.monthly.net)}으로, 기본 조건보다 ${won(monthly.net - noMeal.monthly.net)} 적습니다.`],
-    [`${label(other)}과 비교하면 월 실수령액 차이는 얼마인가요?`, `같은 비과세·부양가족 조건에서 ${label(other)}의 월평균은 ${won(modeled.get(other).monthly.net)}이며, ${name}과 ${won(difference)} 차이가 납니다.`],
+    [`인접 연봉인 ${salaryName(other)}의 월 실수령액은 얼마나 다른가요?`, `같은 비과세·부양가족 조건에서 ${label(other)}의 월평균 실수령액은 ${won(modeled.get(other).monthly.net)}입니다. 월 차이는 ${won(difference)}입니다.`],
   ];
   const title = `${year} ${name} 실수령액 | 월 ${won(monthly.net)} 예상`;
   return layout({
     config, title,
-    description: `${year}년 ${name}의 예상 실수령액은 월평균 ${won(monthly.net)}, 연간 ${won(annual.net)}입니다. 4대보험과 세금 공제 내역 및 ${label(other)}과의 차이를 확인하세요.`,
+    description: `${year}년 ${name}의 예상 실수령액은 월평균 ${won(monthly.net)}, 연간 ${won(annual.net)}입니다. 보험료·세금 공제 내역과 인접 연봉의 월 실수령액을 비교하세요.`,
     path: salaryPath(salary), root, faq, payroll: true,
     main: `<p class="eyebrow">${year}년 연봉별 급여</p><h1>${name} 실수령액</h1>
       <p class="intro">세전 월평균 ${won(monthly.gross)}에서 월평균 ${won(monthly.deductions)}이 공제됩니다. 세전 연봉의 약 ${takeHomeRate}%가 통장에 들어오는 셈입니다.</p>
@@ -218,7 +225,7 @@ export function salaryPage(config, salary, index) {
         </table>
       </section>
       <section class="panel" aria-labelledby="scenario"><h2 id="scenario">부양가족이 있다면?</h2>
-        <p>공제대상 배우자와 만 8~20세 자녀 1명을 추가하면 월평균 실수령액은 ${won(family.monthly.net)}입니다. 본인만 공제받는 경우와 비교해 한 달 실수령액이 ${won(family.monthly.net - monthly.net)} 달라집니다.</p>
+        <p>공제 대상 배우자와 만 8~20세 자녀 1명을 추가하면 월평균 실수령액은 ${won(family.monthly.net)}입니다. 본인만 공제받는 경우와 월평균 ${won(family.monthly.net - monthly.net)} 차이가 납니다.</p>
       </section>
       ${faqHTML(faq)}`,
   });

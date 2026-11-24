@@ -41,18 +41,20 @@ test('설정한 검색 소유권 태그와 광고 슬롯을 렌더링', () => {
   assert.match(home, /data-ad-slot="6789"/);
 });
 
-test('개인 이름 없는 브랜드와 네 분류의 하위 경로 링크', () => {
+test('개인 이름 없는 브랜드와 분류 탐색 패널', () => {
   const home = homePage(config);
   assert.ok(home.includes(`<meta property="og:site_name" content="${brand}">`));
   for (const { id } of categories) assert.ok(home.includes(`href="./${id}/"`));
   const group = extraPages(config).find(({ path }) => path === 'leave/');
   assert.match(group.html, /href="\.\.\/leave\/" aria-current="page"/);
   assert.match(group.html, /href="\.\.\/tools\/annual-leave\/"/);
+  assert.match(group.html, /aria-controls="site-navigation" aria-expanded="false"/);
+  assert.match(group.html, /href="\.\.\/sitemap\/"/);
 });
 
 test('각 도구의 공식 출처, 캐노니컬·FAQ·계산기 구조화 데이터', () => {
   const pages = extraPages(config);
-  assert.equal(pages.length, 39);
+  assert.equal(pages.length, 68);
   assert.equal(new Set(pages.map(({ path }) => path)).size, pages.length);
   for (const [id, tool] of Object.entries(tools)) {
     const path = toolPath(id);
@@ -63,9 +65,20 @@ test('각 도구의 공식 출처, 캐노니컬·FAQ·계산기 구조화 데이
     assert.match(html, /2026-11-24/);
     for (const { name, url } of tool.sources) {
       assert.ok(html.includes(name));
-      assert.match(new URL(url).hostname, /(?:^|\.)(?:law|moel|work24|minimumwage)\.go\.kr$/);
+      assert.match(new URL(url).hostname, /(?:^|\.)(?:(?:law|moel|work24|minimumwage|mohw|lawmaking|korea|nts)\.go\.kr|(?:nhis|nps|bok)\.or\.kr|korea\.kr)$/);
     }
   }
+});
+
+test('HTML 사이트맵은 이전 연봉 URL과 2027년 가구별 예시를 연결', () => {
+  const pages = extraPages(config);
+  const sitemap = pages.find(({ path }) => path === 'sitemap/').html;
+  for (const salary of salaries) assert.ok(sitemap.includes(`href="../salary/${salary}/"`));
+  assert.match(sitemap, /href="\.\.\/median-income\/2027\/7\/"/);
+  const median = pages.find(({ path }) => path === 'median-income/2027/4/').html;
+  assert.match(median, /6,929,885원/);
+  assert.match(median, /href="\.\.\/\.\.\/\.\.\/median-income\/2026\/4\/"/);
+  assert.match(median, /"@type":"FAQPage"/);
 });
 
 test('예시 페이지는 2026년 시급 12,000원과 연봉 4,000만원 표를 제공', () => {

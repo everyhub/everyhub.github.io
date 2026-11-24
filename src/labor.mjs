@@ -43,13 +43,14 @@ export function severancePay({ wageTotal, periodDays, annualBonus, annualLeavePa
   return { dailyAverage, dailyBasis, severance };
 }
 
-export function unemploymentPay({ dailyWage, hours, insuranceMonths, age, disability }) {
+export function unemploymentPay({ dailyWage, hours, insuranceMonths, age, disability, year = 2026 }) {
   const rule = r.unemployment;
-  const cap = int(rule.baseMaximum * rule.share);
-  const floor = int(Math.min(cap, minimumWage({ year: 2026 }).hourly * rule.minimumShare * hours));
-  const daily = within(int(dailyWage * rule.share), floor, cap);
+  const floor = int(minimumWage({ year }).hourly * rule.minimumShare * hours);
   const row = rule.days.findLast(([months]) => insuranceMonths >= months);
   const days = row[age >= rule.seniorAge || disability === 'yes' ? 2 : 1];
+  if (year !== 2026) return { floor, days };
+  const cap = int(rule.baseMaximum * rule.share);
+  const daily = within(int(dailyWage * rule.share), floor, cap);
   return { floor, cap, daily, days, expected: daily * days };
 }
 

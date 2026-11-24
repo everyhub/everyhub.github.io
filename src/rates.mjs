@@ -37,6 +37,19 @@ export const rates = {
   localTax: { numerator: 1, denominator: 10 },
 };
 
+export const insurance2027 = {
+  year: 2027,
+  pension: { numerator: 5, denominator: 100, throughMonth: 6, min: 410_000, max: 6_590_000 },
+  health: { numerator: 3595, denominator: 100_000 },
+  care: { numerator: 1390, denominator: 10_000 },
+};
+
+export const insurance2027Sources = [
+  { name: '국민연금공단 · 연도별 보험료율 (2026년 가입자 가이드북)', url: 'https://www.nps.or.kr/html/download/memberGuide2026.pdf', effective: '2027-01-01' },
+  { name: '보건복지부 · 2027년도 건강보험료율 결정', url: 'https://www.mohw.go.kr/gallery.es?act=view&bid=0003&list_no=380402&mid=a10607030000', effective: '2027-01-01' },
+  { name: '보건복지부 · 2027년도 장기요양보험료율 결정', url: 'https://www.mohw.go.kr/gallery.es?act=view&bid=0003&list_no=380579&mid=a10505000000', effective: '2027-01-01' },
+];
+
 export const sources = [
   ['국민연금공단 · 국민연금 가입대상 및 보험료', 'https://nps.or.kr/pnsinfo/ntpsklg/getOHAF0095M0.do', '2026-01-01'],
   ['보건복지부 · 2026년 상반기 국민연금 기준소득월액', 'https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000254486', '2025-07-01'],

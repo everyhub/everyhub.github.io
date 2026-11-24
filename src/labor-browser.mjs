@@ -15,7 +15,7 @@ form.addEventListener('submit', (event) => {
   }));
   const result = tool.calculate(values);
   for (const { key, format } of tool.outputs) {
-    rows.get(key).textContent = result[key] === undefined ? '해당 없음' : format(result[key]);
+    rows.get(key).textContent = result[key] === undefined ? (tool.unavailable?.[values.year] ?? '표시 대상 아님') : format(result[key]);
   }
   if (periods) periods.replaceChildren(...result[tool.iterate].map((amount, i) => {
     const item = document.createElement('li');

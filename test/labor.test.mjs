@@ -50,6 +50,7 @@ test('2026 구직급여: 8시간 하한·상한·피보험기간·장애인 적�
   assert.equal(calc.unemploymentPay({ ...base, dailyWage: 200_000, disability: 'yes' }).expected, 14_301_000);
   assert.equal(calc.unemploymentPay({ ...base, hours: 2, dailyWage: 20_000, insuranceMonths: 11 }).daily, 16_512);
   assert.equal(calc.unemploymentPay({ ...base, age: 50, insuranceMonths: 120 }).days, 270);
+  assert.deepEqual(calc.unemploymentPay({ ...base, year: 2027 }), { floor: 68_480, days: 180 });
 });
 
 test('육아휴직급여: 일반 12개월·6+6 특례·한부모·하한', () => {

@@ -1,6 +1,7 @@
 import * as calc from './labor.mjs';
 import { laborRates as r, laborSources as s } from './labor-rates.mjs';
 import { formatNumber, won } from './display.mjs';
+import { guideTools } from './guide-specs.mjs';
 
 export const brand = '일과 급여';
 export const categories = [
@@ -8,6 +9,8 @@ export const categories = [
   { id: 'hours', title: '시급·근로시간', description: '최저임금과 주휴수당을 확인하고 근로시간에 따른 급여를 계산하세요.' },
   { id: 'separation', title: '퇴직·실업', description: '퇴직금과 퇴사 후 받을 수 있는 구직급여를 비교하세요.' },
   { id: 'leave', title: '육아·휴가', description: '육아휴직·출산전후휴가의 급여와 근속에 따른 연차 일수를 확인하세요.' },
+  { id: 'tax', title: '프리랜서·세금', description: '프리랜서 원천징수, 종합소득세 기본세율, 부가가치세와 증여재산공제 기준을 확인하세요.' },
+  { id: 'living', title: '복지·주거', description: '가구원 수별 기준 중위소득과 기초생활보장 선정 기준, 전세 보증금의 월세 전환 한도를 확인하세요.' },
 ];
 
 const number = (key, label, value, min = 0, max = 100_000_000, step = 1) => ({ key, label, value, min, max, step });
@@ -68,7 +71,7 @@ export const tools = {
     outputs: [output('extraBase', '연장·휴일에 실제 일한 시간의 기본임금'), output('extendedPremium', '연장 가산분'), output('holidayPremium', '휴일 가산분'), output('nightPremium', '야간 가산분'), output('extraPay', '기본임금 포함 추가 지급액')],
     calculate: calc.overtimePay, sources: [s.overtime, s.overtimeExample],
     faq: [
-      ['휴일에 10시간 근무하면 가산률은 어떻게 되나요?', '처음 8시간은 통상임금의 50%, 초과한 2시간은 100%를 추가합니다. 이 중 야간에 일한 시간에는 야간 가산 50%를 더합니다.'],
+      ['휴일에 10시간 근무하면 가산율은 어떻게 되나요?', '처음 8시간은 통상임금의 50%, 초과한 2시간은 100%를 가산합니다. 야간에 일한 시간에는 야간 가산 50%를 더합니다.'],
       ['야간근로 시간의 기본임금도 결과에 들어가나요?', '정규 근무시간의 기본임금은 포함하지 않습니다. 평일 연장·휴일에 실제 일한 시간만 기본임금으로 더하고 모든 야간근로에 대해 가산분만 더합니다.'],
     ],
   },
@@ -94,20 +97,21 @@ export const tools = {
   },
   'unemployment-pay': {
     category: 'separation', name: '실업급여·구직급여 계산기',
-    description: '2026년 이직 상용근로자의 구직급여 1일 상·하한, 소정급여일수와 예상 총액을 계산하세요.',
-    scope: '2026년 이직한 상용근로자로 수급자격을 충족한 경우만 가정합니다. 고용24의 수급자격 확인, 피보험 단위기간과 이직 사유 판단을 대신하지 않습니다. 실제 지급은 실업 인정일에 따릅니다.',
-    fields: [number('dailyWage', '급여기초 임금일액 (원)', 100_000, 1), number('hours', '이직확인서의 1일 소정근로시간 (시간)', 8, 1, 8), number('insuranceMonths', '소정급여일수 산정용 피보험기간 (완료 개월)', 36, 0, 720), number('age', '이직 당시 만 나이 (세)', 35, 15, 100), select('disability', '법정 장애인 구분', 'no', yesNo)],
+    description: '2026년 구직급여 일일 상·하한액, 소정급여일수와 예상 총액을 계산하고 2027년 최저임금 기준 하한액을 확인하세요.',
+    scope: '수급 자격을 충족한 상용근로자를 가정합니다. 2027년 하한액은 확정 최저임금으로 계산합니다. 상한 산정 방식 개정안은 입법예고 단계여서 2027년 상한액과 예상 지급액은 표시하지 않습니다.',
+    fields: [select('year', '이직 연도', 2026, [[2026, '2026년'], [2027, '2027년']]), number('dailyWage', '급여기초 임금일액 (원)', 100_000, 1), number('hours', '이직확인서의 1일 소정근로시간 (시간)', 8, 1, 8), number('insuranceMonths', '피보험기간 (개월)', 36, 0, 720), number('age', '이직 당시 만 나이 (세)', 35, 15, 100), select('disability', '법에서 정한 장애인에 해당하나요?', 'no', yesNo)],
     outputs: [output('floor', '일 하한액'), output('cap', '일 상한액'), output('daily', '예상 일 지급액'), output('days', '소정급여일수', days), output('expected', '예상 총 구직급여')],
-    calculate: calc.unemploymentPay, sources: [s.unemployment, s.unemploymentLimit, s.unemploymentDays, s.unemploymentExample],
+    calculate: calc.unemploymentPay, sources: [s.unemployment, s.unemploymentLimit, s.unemploymentDays, s.unemploymentExample, s.minimum27, s.unemploymentProposal],
+    unavailable: { 2027: '상한 개정 미확정' },
     faq: [
       ['2026년 구직급여 상한과 하한은 얼마인가요?', '2026년 이직 기준 하루 상한액은 68,100원입니다. 하루 소정근로 8시간의 하한액은 66,048원이고, 소정근로시간이 짧으면 달라집니다.'],
-      ['구직급여를 몇 일 동안 받을 수 있나요?', '이직일의 만 나이, 법정 장애인 여부와 피보험기간에 따라 120~270일입니다. 개월 수만으로 수급자격이 결정되지는 않습니다.'],
+      ['구직급여는 며칠 동안 받을 수 있나요?', '이직 당시 만 나이, 장애인 여부 및 피보험기간에 따라 120~270일입니다. 피보험기간만으로 수급 자격이 결정되지는 않습니다.'],
     ],
   },
   'parental-leave-pay': {
     category: 'leave', name: '육아휴직급여 계산기',
     description: '육아휴직 월 통상임금과 사용 개월 수로 1~3개월, 4~6개월, 7개월 이후 수당을 계산하세요. 6+6과 한부모 특례도 비교합니다.',
-    scope: '법정 휴직과 고용보험 수급 요건을 충족하고 월 전체를 휴직한 경우입니다. 13~18개월은 법정 연장 요건을 충족할 때만 입력하세요. 부분월 일할 계산과 신청 요건은 고용24에서 확인하세요.',
+    scope: '법정 휴직과 고용보험 수급 요건을 충족하고 한 달 전체를 휴직한 경우입니다. 13~18개월은 법정 연장 요건을 충족할 때만 입력하세요. 한 달을 채우지 않은 기간의 계산과 신청 요건은 고용24에서 확인하세요.',
     fields: [number('monthlyWage', '휴직 개시일 월 통상임금 (원)', 3_000_000, 1), number('months', '육아휴직 사용 개월 (개월)', r.parental.months, 1, r.parental.extendedMonths), select('type', '육아휴직 적용 구분', 'general', [['general', '일반'], ['shared', '부모 함께 6+6 특례'], ['single', '한부모 특례']]), number('sharedMonths', '부모 모두 사용한 특례 적용 공통 개월 (6+6 선택 시)', 6, 1, 6)],
     outputs: [output('first', '1개월째 지급액'), output('second', '4개월째 지급액'), output('third', '7개월째 지급액'), output('expected', '휴직 기간 예상 총액')],
     iterate: 'amounts', calculate: calc.parentalPay, sources: [s.parental, s.parentalSpecial, s.parentalGuide],
@@ -119,10 +123,10 @@ export const tools = {
   'maternity-leave-pay': {
     category: 'leave', name: '출산전후휴가급여 계산기',
     description: '출산 전후 법정 휴가일수와 2026년 고용보험 지원액을 계산하세요. 단태아, 미숙아와 다태아, 기업 구분을 반영합니다.',
-    scope: '2026년 주 40시간·월 209시간 근로자, 고용보험 자격 충족, 전체 휴가 사용을 가정합니다. 단시간·계약만료·유산·사산·예술인 및 노무제공자 급여는 계산하지 않습니다.',
+    scope: '2026년 주 40시간·월 209시간 근로자가 고용보험 수급 요건을 충족하고 휴가 전부를 사용한다고 가정합니다. 2027년 상한액 개정안은 행정예고 단계여서 적용하지 않았습니다. 단시간 근로, 계약 만료, 유산·사산, 예술인·노무제공자는 계산하지 않습니다.',
     fields: [number('monthlyWage', '휴가 개시일 월 통상임금 (원)', 3_000_000, 1), select('type', '출산 유형', 'single', Object.entries(r.maternity.types).map(([key, { label }]) => [key, label])), select('company', '기업 지원 구분', 'preferred', [['preferred', '우선지원대상기업'], ['large', '대규모기업']])],
     outputs: [output('leaveDays', '총 휴가기간', days), output('postBirth', '출산 후 최소 확보 기간', days), output('supported', '고용보험 지원 일수', days), output('benefit', '고용보험 예상 지급액'), output('employer', '사업주 예상 부담액'), output('expected', '합산 예상 지급액')],
-    calculate: calc.maternityPay, sources: [s.maternity, s.maternityDays, s.maternityGuide, s.minimum26],
+    calculate: calc.maternityPay, sources: [s.maternity, s.maternityLatest, s.maternityDays, s.maternityGuide, s.minimum26, s.maternityProposal],
     faq: [
       ['출산전후휴가는 며칠인가요?', '단태아 90일, 법정 요건을 충족한 미숙아 100일, 다태아 120일입니다. 출산 후에는 최소 45일(다태아 60일)을 확보해야 합니다.'],
       ['출산휴가 급여는 회사와 고용보험 중 누가 지급하나요?', '최초 60일(다태아 75일)은 법정 유급입니다. 우선지원대상기업의 고용보험 지급분은 회사 부담액에서 차감하고, 대규모기업의 고용보험은 그 이후 기간을 지원합니다.'],
@@ -135,7 +139,7 @@ export const tools = {
     fields: [number('years', '이미 채운 근속연수 (년)', 3, 0, 60), number('attendance', '직전 1년 출근율 (%, 1년 미만이면 무관)', 100, 0, 100, 0.01), number('fullMonths', '1년 미만 또는 출근율 80% 미만일 때 개근한 개월', 0, 0, 12), select('eligible', '주 15시간 이상·상시 5인 이상 사업장', 'yes', yesNo)],
     outputs: [output('days', '예상 발생 연차', days)], calculate: calc.annualLeave, sources: [s.annualLeave, s.partTime],
     faq: [
-      ['입사 첫해 연차는 최대 몇 일인가요?', '1년 미만 근로 중에는 1개월 개근할 때마다 1일씩 최대 11일 발생합니다. 첫 1년을 채운 뒤 새로 발생하는 15일과 구별하세요.'],
+      ['입사 첫해에는 연차가 최대 며칠 생기나요?', '1년 미만 근로 중에는 1개월 개근할 때마다 1일씩 최대 11일이 발생합니다. 1년을 채운 뒤 요건을 충족하면 새로 발생하는 15일과는 구분됩니다.'],
       ['근속연수가 길면 연차가 얼마나 늘어나나요?', '직전 1년 출근율 80% 이상인 경우 첫 1년을 빼고 근속 2년마다 1일이 늘어납니다. 3년 근속 시 16일이고 최대 25일입니다.'],
     ],
   },
@@ -151,6 +155,7 @@ export const tools = {
       ['사업주 산재보험료는 왜 업종마다 다른가요?', '고용노동부의 사업종류별 요율이 다르고, 여기에 2026년 전체 업종 공통 출퇴근재해 요율 0.06%를 더합니다. 실제 적용 업종과 감면은 사업장별로 확인해야 합니다.'],
     ],
   },
+  ...guideTools,
 };
 
 export const toolPath = (id) => `tools/${id}/`;

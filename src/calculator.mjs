@@ -1,4 +1,4 @@
-import { rates } from './rates.mjs';
+import { insurance2027, rates } from './rates.mjs';
 import { withholdingTable } from './withholding-table.mjs';
 
 export const limits = { annualSalary: 1_000_000_000, dependents: 99 };
@@ -54,6 +54,22 @@ export function monthlyContributions(taxable, month) {
   return { pension, health, care, employment };
 }
 
+export function compareInsurance({ taxable, month, year }) {
+  if (year === rates.year) {
+    const { pension, health, care, employment } = monthlyContributions(taxable, month);
+    return { pension, health, care, employment };
+  }
+  const { pension, health, care } = insurance2027;
+  const base = Math.floor(taxable / 1_000) * 1_000;
+  const healthBeforeLimits = floorTen(percentage(taxable, health));
+  return {
+    pension: month <= pension.throughMonth ? floorTen(percentage(clamp(base, pension), pension)) : undefined,
+    healthBeforeLimits,
+    careBeforeLimits: floorTen(percentage(healthBeforeLimits, care)),
+    employment: floorTen(percentage(taxable, rates.employment)),
+  };
+}
+
 function monthDeductions(taxable, dependents, children, month) {
   const contributions = monthlyContributions(taxable, month);
   const incomeTax = monthlyIncomeTax(taxable, dependents + 1, children, month);
@@ -73,7 +89,7 @@ export function calculate({ annualSalary, monthlyTaxFree = defaults.monthlyTaxFr
   const baseGross = Math.floor(annualSalary / 12);
   validate(monthlyTaxFree, 0, baseGross, '월 비과세액');
   validate(dependents, 0, limits.dependents, '부양가족 수');
-  validate(children, 0, dependents, '만 8~20세 공제대상 자녀 수');
+  validate(children, 0, dependents, '만 8~20세 공제 대상 자녀 수');
   const annual = Object.fromEntries(deductionKeys.map((key) => [key, 0]));
   for (let month = 1; month <= 12; month++) {
     const gross = baseGross + Number(month <= annualSalary % 12);

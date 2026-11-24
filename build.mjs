@@ -19,7 +19,8 @@ const xmlEscape = (value) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').
 await rm(dist, { recursive: true, force: true });
 await mkdir(join(dist, 'assets'), { recursive: true });
 await Promise.all(['style.css', 'browser.mjs', 'calculator.mjs', 'display.mjs', 'rates.mjs', 'withholding-table.mjs',
-  'labor-browser.mjs', 'labor.mjs', 'labor-rates.mjs', 'tool-specs.mjs']
+  'labor-browser.mjs', 'labor.mjs', 'labor-rates.mjs', 'tool-specs.mjs',
+  'guide-specs.mjs', 'guides.mjs', 'guide-rates.mjs', 'navigation-browser.mjs']
   .map((name) => copyFile(join(source, name), join(dist, 'assets', name))));
 await writeFile(join(dist, 'index.html'), homePage(config));
 await Promise.all(salaries.map(async (salary, index) => {

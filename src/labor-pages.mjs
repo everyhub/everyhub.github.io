@@ -1,17 +1,13 @@
 import { rates, sources as payrollSources } from './rates.mjs';
 import { laborRates, verifiedOn } from './labor-rates.mjs';
 import { brand, categories, defaultsFor, toolPath, tools } from './tool-specs.mjs';
-import { ad, escape, faqHTML, layout, sourcesHTML } from './pages.mjs';
+import { ad, escape, faqHTML, layout, salaries, sourcesHTML } from './pages.mjs';
 import { formatNumber, salaryName, won } from './display.mjs';
 import { severancePay, wageConversion } from './labor.mjs';
+import { medianIncome } from './guides.mjs';
+import { examplePages, groupedTools, medianPages, siteTree } from './navigation.mjs';
 
-const examples = [
-  ...[10_000, ...laborRates.minimum.map(({ hourly }) => hourly), 11_000, 12_000, 13_000, 14_000, 15_000, 16_000, 18_000, 20_000, 25_000, 30_000]
-    .map((amount) => ({ id: 'wage-converter', path: `hourly/${amount}/`, amount, title: `시급 ${won(amount)} 월급·연봉` })),
-  ...[2_400, 3_000, 3_500, 4_000, 4_500, 5_000, 6_000, 7_000, 8_000, 9_000, 10_000, 15_000]
-    .map((amount) => ({ id: 'severance-pay', path: `severance/${amount}/`, amount, title: `연봉 ${salaryName(amount)} 퇴직금` })),
-];
-const byCategory = (id) => Object.entries(tools).filter(([, tool]) => tool.category === id);
+const examples = [...examplePages, ...medianPages];
 const toolLink = (root, id) => `<a href="${root}${toolPath(id)}">${tools[id].name}</a>`;
 const exampleLink = (root, example) => `<a href="${root}${example.path}">${example.title}</a>`;
 const review = `공식 자료 확인 <time datetime="${verifiedOn}">${verifiedOn}</time>`;
@@ -25,11 +21,11 @@ function exampleLinks(root, toolIds) {
 
 function categoryPage(config, category) {
   const root = '../';
-  const members = byCategory(category.id);
+  const members = groupedTools(category.id);
   const faq = members.flatMap(([, tool]) => tool.faq.slice(0, 1));
   return layout({
     config, title: `${category.title} 계산기 | ${brand}`, description: category.description,
-    path: `${category.id}/`, root, category: category.id, faq,
+    path: `${category.id}/`, root, faq,
     main: `<p class="eyebrow">${rates.year}년 기준 · ${review}</p><h1>${category.title} 계산기</h1>
     <p class="intro">${category.description}</p>
     <section class="panel" aria-labelledby="category-tools"><h2 id="category-tools">계산기 고르기</h2>
@@ -54,8 +50,8 @@ function toolPage(config, id, tool) {
   if (tool.payrollSources) references.push(...payrollSources.filter(([name]) => /연금|건강보험|장기요양/.test(name))
     .map(([name, url, effective]) => ({ name, url, effective })));
   return layout({
-    config, title: `${rates.year} ${tool.name} | ${brand}`, description: tool.description,
-    path: toolPath(id), root, category: category.id, faq: tool.faq, application: tool.name, script: 'labor-browser.mjs',
+    config, title: `${tool.name.includes('2026') ? tool.name : `${rates.year}년 ${tool.name}`} | ${brand}`, description: tool.description,
+    path: toolPath(id), root, faq: tool.faq, application: tool.name, script: 'labor-browser.mjs',
     main: `<p class="eyebrow"><a href="${root}${category.id}/">${category.title}</a> · ${review}</p>
       <h1>${tool.name}</h1><p class="intro">${escape(tool.description)}</p>
       <section class="panel" aria-labelledby="tool-calculate"><h2 id="tool-calculate">조건 입력</h2>
@@ -64,7 +60,7 @@ function toolPage(config, id, tool) {
           <noscript><p>입력에 따른 계산은 자바스크립트가 필요합니다. 현재 기본 예시를 표시합니다.</p></noscript>
         </form>
         <div class="tool-result"><h3>계산 결과</h3><p id="tool-status" role="status"></p>
-          <dl class="tool-output">${tool.outputs.map(({ key, label, format }) => `<div><dt>${escape(label)}</dt><dd data-result="${key}">${result[key] === undefined ? '해당 없음' : escape(format(result[key]))}</dd></div>`).join('')}</dl>
+          <dl class="tool-output">${tool.outputs.map(({ key, label, format }) => `<div><dt>${escape(label)}</dt><dd data-result="${key}">${result[key] === undefined ? '표시 대상 아님' : escape(format(result[key]))}</dd></div>`).join('')}</dl>
           ${tool.iterate ? `<ol id="tool-periods" aria-label="개월별 예상 지급액">${result[tool.iterate].map((amount, i) => `<li>${i + 1}개월째 ${won(amount)}</li>`).join('')}</ol>` : ''}
         </div>
         <p class="note">${escape(tool.scope)}</p>
@@ -134,7 +130,7 @@ function examplePage(config, example) {
   return layout({
     config, title: `${rates.year} ${title} · ${won(data.metric)} | ${brand}`,
     description: `${title} 계산 예시: ${data.label} ${won(data.metric)}. ${data.heading}를 비교하고 공식 계산 기준을 확인하세요.`,
-    root, path, category: tool.category, faq: data.faq,
+    root, path, faq: data.faq,
     main: `<p class="eyebrow"><a href="${root}${tool.category}/">${categories.find(({ id }) => id === tool.category).title}</a> · ${review}</p>
       <h1>${title}</h1><p class="intro">${data.intro}</p>
       <div class="net"><div>${data.label}<strong>${won(data.metric)}</strong></div></div>
@@ -149,10 +145,48 @@ function examplePage(config, example) {
   });
 }
 
+function medianPage(config, { path, title, year, size }) {
+  const root = '../../../';
+  const tool = tools['median-income'];
+  const data = medianIncome({ year, size, ratio: 100 });
+  const otherYear = year === 2026 ? 2027 : 2026;
+  const other = medianIncome({ year: otherYear, size, ratio: 100 });
+  const faq = [
+    [`${title}은 얼마인가요?`, `월 ${won(data.median)}입니다. ${year}년 ${size}인 가구의 기초생활보장 급여별 선정 기준은 아래 표에서 확인할 수 있습니다.`],
+    [`${year}년 ${size}인 가구 생계급여 소득 기준은 얼마인가요?`, `월 소득인정액 ${won(data.livelihood)} 이하가 기준입니다. 실제 수급 여부는 다른 자격 요건도 충족해야 합니다.`],
+  ];
+  return layout({
+    config, path, root, title: `${title} ${won(data.median)} | ${brand}`,
+    description: `${title}은 월 ${won(data.median)}입니다. 생계급여 ${won(data.livelihood)} 등 급여별 가구 소득 기준을 확인하세요.`, faq,
+    main: `<p class="eyebrow"><a href="${root}living/">복지·주거</a> · ${year}년 1월 1일 기준</p>
+      <h1>${title}</h1>
+      <div class="net"><div>월 기준 중위소득<strong>${won(data.median)}</strong></div></div>
+      <p class="intro">같은 가구원 수로 <a href="${root}median-income/${otherYear}/${size}/">${otherYear}년 기준</a>을 보면 월 ${won(other.median)}입니다.</p>
+      <section class="panel"><h2>급여별 소득인정액 선정 기준</h2>
+        ${scenarioRows([['생계급여', '32%', data.livelihood], ['의료급여', '40%', data.medical], ['주거급여', '48%', data.housing], ['교육급여', '50%', data.education]], '가구 전체 월 소득인정액 기준')}
+        <p class="note">${tool.scope}</p><p>${toolLink(root, 'median-income')}에서 가구원 수와 비율을 바꿔 보세요.</p>
+      </section>
+      ${ad(config)}
+      <section class="panel"><h2>공식 계산 기준</h2>${sourcesHTML(tool.sources.filter(({ effective }) => effective.startsWith(String(year))))}</section>
+      ${faqHTML(faq)}`,
+  });
+}
+
+function sitemapPage(config) {
+  return layout({
+    config, path: 'sitemap/', root: '../', title: `사이트맵 | ${brand}`,
+    description: '일과 급여의 전체 계산기와 연봉·시급·퇴직금·가구원 수별 계산 예시를 한눈에 찾아보세요.',
+    main: `<h1>사이트맵</h1><p class="intro">분야별 계산기와 전체 예시 페이지를 모았습니다.</p>
+      <nav class="panel" aria-label="전체 사이트맵">${siteTree('../', 'sitemap/', { full: true, salaries })}</nav>`,
+  });
+}
+
 export function extraPages(config) {
   return [
     ...categories.map((category) => ({ path: `${category.id}/`, html: categoryPage(config, category) })),
     ...Object.entries(tools).map(([id, tool]) => ({ path: toolPath(id), html: toolPage(config, id, tool) })),
-    ...examples.map((example) => ({ path: example.path, html: examplePage(config, example) })),
+    ...examplePages.map((example) => ({ path: example.path, html: examplePage(config, example) })),
+    ...medianPages.map((example) => ({ path: example.path, html: medianPage(config, example) })),
+    { path: 'sitemap/', html: sitemapPage(config) },
   ];
 }
