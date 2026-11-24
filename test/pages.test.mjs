@@ -109,7 +109,7 @@ test('새 브랜드와 한눈에 바로가기, 별도 연봉 계산기 및 기�
   assert.match(home, /class="dashboard-more"[^>]*>전체 →/);
   assert.match(home, /data-dashboard-search/);
   assert.match(home, /data-recent-tools/);
-  assert.match(home, /href="\.\/tools\/salary-calculator\/">연봉 실수령액 계산기와 공식 계산 기준 보기<\/a>/);
+  assert.doesNotMatch(home, /연봉 실수령액 계산기와 공식 계산 기준 보기/);
   assert.doesNotMatch(home, /id="salary-form"/);
   assert.doesNotMatch(home, /id="calculator"/);
   assert.match(home, /data-page-path=""/);

@@ -21,6 +21,7 @@ export const adminTimeline = [
   { time: '2026-11-24 23:59', request: '공휴일·연휴에 달력을 추가하고 다른 생활 정보도 읽기 쉽게 개선해 달라.', reflection: '2026·2027년의 12개월 달력과 연도 전환, 한국시간 오늘·휴일 표시를 추가했습니다. 기존 휴일 목록은 보존하고 신고 기간을 월별로, 요율 비교표를 모바일에 맞게 정리했습니다.', status: '완료', links: ['https://everyhub.github.io/info/holidays/2026/', 'https://everyhub.github.io/info/holidays/2027/'] },
   { time: '2026-11-25 00:02', request: '에브리허브에 어울리는 저작권 걱정 없는 이미지를 만들어 반영해 달라.', reflection: '직접 그린 SVG 마크와 홈 일러스트, 앱 아이콘·링크 공유 이미지와 분야 아이콘을 적용했습니다. 브랜드 일러스트는 외부 이미지·글꼴 파일 없이 만들고 CC0로 공개합니다.', status: '완료', links: ['https://everyhub.github.io/'] },
   { time: '2026-11-25 00:07', request: '바로가기 검색에서 이름이 정확히 기억나지 않아도 ‘나이’, ‘집’ 같은 단어로 관련 도구를 찾고 싶다.', reflection: '홈에 관련어·초성·한 글자 오타 검색, 분야 표시와 추천 검색어, 키보드 이동을 적용했습니다. 검색어는 전송하거나 저장하지 않습니다.', status: '완료', links: ['https://everyhub.github.io/#shortcuts'] },
+  { time: '2026-11-25 00:13', request: '반영 내역을 모아 보는 관리 페이지 주소를 다시 알려 주고, 홈에 남은 연봉 계산기 안내 링크를 정리해 달라.', reflection: '홈 하단에 별도로 남아 있던 연봉 계산 기준 링크를 제거했습니다. 급여·세금 카드와 바로가기 검색에서는 기존 계산기를 계속 열 수 있습니다. 이 페이지가 반영 내역을 보는 관리 페이지입니다.', status: '완료', links: ['https://everyhub.github.io/'] },
 ];
 
 export const adminPending = [

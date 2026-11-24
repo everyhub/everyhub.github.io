@@ -217,7 +217,7 @@ export function homePage(config) {
     `<li data-search-keywords="${escape(JSON.stringify(keywords))}"><a href="./${path}"><span class="shortcut-badge">${escape(category)}</span><span data-search-title>${escape(title)}</span><span class="shortcut-keyword" hidden></span></a></li>`).join('');
   return layout({
     config, title: `${brand} | 계산기·생활 도구·IT 소식`,
-    description: '연봉 실수령액과 퇴직금 계산기, 사진 배경 제거, 공휴일 달력, 국내외 IT·AI 소식을 한곳에서 찾아보세요.',
+    description: '급여·근로·주거 계산기, 사진·문서 도구, 생활 정보와 국내외 IT·AI 소식을 한곳에서 찾아보세요.',
     path: '', root: './',
     main: `<div class="home-hero"><div class="home-hero-copy"><h1>${brand}</h1>
       <p class="intro">급여·근로 계산기부터 사진 편집, 생활 정보와 IT·AI 소식까지 원하는 기능을 바로 열어 보세요.</p></div>
@@ -232,8 +232,7 @@ export function homePage(config) {
           <button type="button" data-shortcut-query="월급">월급</button>
           <button type="button" data-shortcut-query="PDF">PDF</button></div>
         <ul id="shortcut-results" class="dashboard-links dashboard-results" data-dashboard-results hidden>${results}</ul>${dashboard()}</section>
-      <section class="panel recent-tools" data-recent-tools hidden><h2>최근 본 도구</h2><ul class="tag-list"></ul></section>
-      <p><a href="./${salaryCalculatorPath}">연봉 실수령액 계산기와 공식 계산 기준 보기</a></p>`,
+      <section class="panel recent-tools" data-recent-tools hidden><h2>최근 본 도구</h2><ul class="tag-list"></ul></section>`,
   });
 }
 
