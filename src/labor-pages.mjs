@@ -175,8 +175,8 @@ function medianPage(config, { path, title, year, size }) {
 function sitemapPage(config) {
   return layout({
     config, path: 'sitemap/', root: '../', title: `사이트맵 | ${brand}`,
-    description: '일과 급여의 전체 계산기와 연봉·시급·퇴직금·가구원 수별 계산 예시를 한눈에 찾아보세요.',
-    main: `<h1>사이트맵</h1><p class="intro">분야별 계산기와 전체 예시 페이지를 모았습니다.</p>
+    description: '일과 급여의 전체 계산기, 금액·가구별 예시, IT·AI 소식과 생활 정보를 한눈에 찾아보세요.',
+    main: `<h1>사이트맵</h1><p class="intro">분야별 계산기, 전체 예시 페이지, IT·AI 소식과 생활 정보를 모았습니다.</p>
       <nav class="panel" aria-label="전체 사이트맵">${siteTree('../', 'sitemap/', { full: true, salaries })}</nav>`,
   });
 }

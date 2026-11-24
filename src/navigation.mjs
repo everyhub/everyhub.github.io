@@ -1,6 +1,8 @@
 import { salaryName, won } from './display.mjs';
 import { laborRates } from './labor-rates.mjs';
 import { categories, toolPath, tools } from './tool-specs.mjs';
+import { informationSections } from './information.mjs';
+import { newsSections } from './news-config.mjs';
 
 export const examplePages = [
   ...[10_000, ...laborRates.minimum.map(({ hourly }) => hourly), 11_000, 12_000, 13_000, 14_000, 15_000, 16_000, 18_000, 20_000, 25_000, 30_000]
@@ -26,6 +28,8 @@ function link(root, path, title, current) {
 
 export function siteTree(root, path, { full = false, salaries = [] } = {}) {
   const examples = [...examplePages, ...medianPages];
+  const directory = (group, name, pages) => `<li>${link(root, group, name, path)}<ul>
+    ${pages.map(({ path: childPath, name: childName }) => `<li>${link(root, childPath, childName, path)}</li>`).join('')}</ul></li>`;
   return `<ul class="site-tree">${categories.map(({ id, title }) => `<li>
     ${link(root, `${id}/`, title, path)}<ul>
     ${id === 'pay' ? `<li>${link(root, '', '연봉 실수령액 계산기', path)}<ul>
@@ -36,5 +40,6 @@ export function siteTree(root, path, { full = false, salaries = [] } = {}) {
       return `<li>${link(root, toolPath(toolId), tool.name, path)}${related.length
         ? `<ul>${related.map((example) => `<li>${link(root, example.path, example.title, path)}</li>`).join('')}</ul>` : ''}</li>`;
     }).join('')}
-    </ul></li>`).join('')}</ul>`;
+    </ul></li>`).join('')}
+    ${directory('news/', 'IT·AI 소식', newsSections)}${directory('info/', '생활 정보', informationSections)}</ul>`;
 }

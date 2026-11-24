@@ -1,0 +1,87 @@
+import { holidayCalendar, informationSections, informationSources } from './information.mjs';
+import { laborRates, laborSources } from './labor-rates.mjs';
+import { layout, sourcesHTML } from './pages.mjs';
+import { insurance2027, insurance2027Sources, rates, sources } from './rates.mjs';
+import { brand } from './tool-specs.mjs';
+
+const infoIntro = '계산하지 않아도 바로 확인할 수 있는 공휴일, 세금 신고 기간과 연도별 임금·보험료 기준입니다. 각 페이지에서 공식 원문을 함께 확인할 수 있습니다.';
+const refs = (items) => `<section class="panel"><h2>공식 자료</h2>${sourcesHTML(items)}</section>`;
+const number = (value) => value.toLocaleString('ko-KR');
+const percent = ({ numerator, denominator }) => `${number(100 * numerator / denominator)}%`;
+const won = (value) => `${number(value)}원`;
+const dateFormat = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', weekday: 'short', timeZone: 'UTC' });
+const date = (value) => `<time datetime="${value}">${dateFormat.format(new Date(value))}</time>`;
+
+function detail(config, section, root, content) {
+  return { path: section.path, html: layout({
+    config, root, path: section.path, title: `${section.name} | ${brand}`, description: section.description,
+    main: `<p class="eyebrow"><a href="${root}info/">생활 정보</a></p>
+    <h1>${section.name}</h1><p class="intro">${section.description}</p>${content}`,
+  }) };
+}
+
+function holidayPage(config, section, year) {
+  const root = '../../../';
+  const { holidays, blocks, daysOff } = holidayCalendar(year);
+  const other = year === 2026 ? 2027 : 2026;
+  const calendarSources = year === 2026
+    ? [informationSources.calendar2026, informationSources.holidayLaw, informationSources.calendar2027]
+    : [informationSources.calendar2027, informationSources.holidayLaw];
+  return detail(config, section, root, `<p class="note">토·일요일에 쉬는 주 5일제를 기준으로, 토·일요일과 공휴일의 중복을 빼면 총 <strong>${daysOff}일</strong>입니다. 근무 일정은 사업장에 따라 다를 수 있습니다.</p>
+    ${year === 2026 ? '<p>최초 발표된 2026년 월력요항 이후 공휴일로 지정된 노동절(5월 1일)과 제헌절(7월 17일)을 반영했습니다.</p>' : ''}
+    <section class="panel"><h2>3일 이상 연휴 ${blocks.length}번</h2>
+    <ul>${blocks.map(({ first, last, days }) => `<li>${date(first)} ~ ${date(last)} (${days}일)</li>`).join('')}</ul></section>
+    <section class="panel"><h2>날짜별 공휴일·대체공휴일</h2><p>매주 일요일은 아래 표에 따로 나열하지 않았습니다.</p>
+    <table><thead><tr><th scope="col">날짜</th><th scope="col">공휴일</th></tr></thead><tbody>
+    ${holidays.map(({ date: day, name }) => `<tr><td>${date(day)}</td><td>${name}</td></tr>`).join('')}</tbody></table></section>
+    <p><a href="${root}info/holidays/${other}/">${other}년 공휴일·연휴 보기</a></p>${refs(calendarSources)}`);
+}
+
+function taxPage(config, section) {
+  return detail(config, section, '../../', `<section class="panel"><h2>정기 신고·납부 기간</h2>
+    <table><thead><tr><th scope="col">구분</th><th scope="col">일반적인 기간</th></tr></thead><tbody>
+    <tr><td>종합소득세</td><td>소득이 발생한 해의 다음 해 5월 1일~31일</td></tr>
+    <tr><td>종합소득세 (성실신고확인서 제출 대상)</td><td>다음 해 5월 1일~6월 30일</td></tr>
+    <tr><td>부가가치세 (일반과세자 1기 확정)</td><td>7월 1일~25일</td></tr>
+    <tr><td>부가가치세 (일반과세자 2기 확정)</td><td>다음 해 1월 1일~25일</td></tr>
+    <tr><td>부가가치세 (간이과세자 정기 신고)</td><td>다음 해 1월 1일~25일</td></tr>
+    </tbody></table>
+    <p>휴일이나 별도 연장 공고로 실제 기한이 달라질 수 있습니다. 예정신고, 과세 유형 전환 등 예외와 실제 기한은 아래 국세청 안내에서 확인하세요.</p></section>
+    ${refs([informationSources.tax2026, informationSources.tax2027, informationSources.incomeTax, informationSources.vat])}`);
+}
+
+function ratesPage(config, section) {
+  const root = '../../';
+  const dateSources = sources.filter(([, , date]) => date).slice(0, 8).map(([name, url, effective]) => ({ name, url, effective }));
+  const [prior, next] = laborRates.minimum;
+  const monthly = laborRates.hours.monthlyFullTime;
+  return detail(config, section, root, `<section class="panel"><h2>최저임금과 근로자 부담 보험료율</h2>
+    <table><thead><tr><th scope="col">구분</th><th scope="col">2026년</th><th scope="col">2027년</th></tr></thead><tbody>
+    <tr><td>시간당 최저임금</td><td>${won(prior.hourly)}</td><td>${won(next.hourly)}</td></tr>
+    <tr><td>최저 월 환산액 (${monthly}시간)</td><td>${won(prior.hourly * monthly)}</td><td>${won(next.hourly * monthly)}</td></tr>
+    <tr><td>국민연금 (근로자 부담)</td><td>${percent(rates.pension)}</td><td>${percent(insurance2027.pension)}</td></tr>
+    <tr><td>건강보험 (근로자 부담)</td><td>${percent(rates.health)}</td><td>${percent(insurance2027.health)}</td></tr>
+    <tr><td>장기요양 (건강보험료 대비)</td><td>약 ${percent(rates.care)}</td><td>${(100 * insurance2027.care.numerator / insurance2027.care.denominator).toFixed(2)}%</td></tr>
+    <tr><td>고용보험 (일반 근로자 실업급여 부담)</td><td>${percent(rates.employment)}</td><td>${percent(rates.employment)} (현행 시행령 기준)</td></tr>
+    <tr><td>산재보험 (사업주 부담)</td><td>사업 종류별 고시</td><td>공식 고시 확인 전</td></tr>
+    </tbody></table>
+    <p>2027년 국민연금 하반기와 건강보험의 보험료 상·하한은 확인한 공식 자료에 포함되지 않아 이 표에 싣지 않았습니다.</p>
+    <p><a href="${root}tools/insurance-rates/">보험료율 비교 계산기</a> · <a href="${root}tools/minimum-wage/">최저임금 계산기</a></p></section>
+    ${refs([prior.source, next.source, ...dateSources, ...insurance2027Sources, laborSources.employment, laborSources.accident])}`);
+}
+
+export function informationPages(config) {
+  const root = '../';
+  const [holidays26, holidays27, tax, yearly] = informationSections;
+  return [
+    { path: 'info/', html: layout({
+      config, root, path: 'info/', title: `생활 정보: 공휴일·세금 일정·임금 기준 | ${brand}`, description: infoIntro,
+      main: `<h1>생활 정보</h1><p class="intro">${infoIntro}</p><section class="panel"><h2>분야별 안내</h2>
+      ${informationSections.map(({ path, name, description }) => `<h3><a href="${root}${path}">${name}</a></h3><p>${description}</p>`).join('')}</section>`,
+    }) },
+    holidayPage(config, holidays26, 2026),
+    holidayPage(config, holidays27, 2027),
+    taxPage(config, tax),
+    ratesPage(config, yearly),
+  ];
+}

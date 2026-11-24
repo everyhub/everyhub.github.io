@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { homePage, salaries, salaryPage } from '../src/pages.mjs';
 import { extraPages } from '../src/labor-pages.mjs';
+import { informationPages } from '../src/information-pages.mjs';
+import { holidayCalendar } from '../src/information.mjs';
 import { brand, categories, toolPath, tools } from '../src/tool-specs.mjs';
 
 const config = { baseURL: 'https://example.com/salary-calc/' };
@@ -75,10 +77,33 @@ test('HTML 사이트맵은 이전 연봉 URL과 2027년 가구별 예시를 연�
   const sitemap = pages.find(({ path }) => path === 'sitemap/').html;
   for (const salary of salaries) assert.ok(sitemap.includes(`href="../salary/${salary}/"`));
   assert.match(sitemap, /href="\.\.\/median-income\/2027\/7\/"/);
+  assert.match(sitemap, /href="\.\.\/news\/ai\/"/);
+  assert.match(sitemap, /href="\.\.\/info\/holidays\/2027\/"/);
   const median = pages.find(({ path }) => path === 'median-income/2027/4/').html;
   assert.match(median, /6,929,885원/);
   assert.match(median, /href="\.\.\/\.\.\/\.\.\/median-income\/2026\/4\/"/);
   assert.match(median, /"@type":"FAQPage"/);
+});
+
+test('월력요항 및 개정 법령에 따른 공휴일과 주 5일제 연휴를 생성', () => {
+  const previous = holidayCalendar(2026);
+  const next = holidayCalendar(2027);
+  assert.equal(previous.daysOff, 120);
+  assert.equal(next.daysOff, 119);
+  assert.equal(next.blocks.length, 10);
+  assert.ok(previous.holidays.some(({ date, name }) => date === '2026-07-17' && name === '제헌절'));
+  assert.ok(next.holidays.some(({ date, name }) => date === '2027-07-19' && name === '대체공휴일(제헌절)'));
+  const pages = informationPages(config);
+  assert.equal(pages.length, 5);
+  for (const { path, html } of pages) {
+    assert.ok(html.includes(`href="${config.baseURL}${path}"`));
+    assert.match(html, /"@type":"CollectionPage"/);
+  }
+  const tax = pages.find(({ path }) => path === 'info/tax-calendar/').html;
+  assert.match(tax, /국세청 · 2027년 세무일정/);
+  const yearly = pages.find(({ path }) => path === 'info/yearly-rates/').html;
+  assert.match(yearly, /2,236,300원/);
+  assert.match(yearly, /13\.90%/);
 });
 
 test('예시 페이지는 2026년 시급 12,000원과 연봉 4,000만원 표를 제공', () => {

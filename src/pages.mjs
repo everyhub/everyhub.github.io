@@ -127,10 +127,10 @@ export function layout({ config, title, description, path, root, main, faq, calc
 </head>
 <body>
   <header class="site-head"><div class="wrap"><a class="brand" href="${root}">${brand}</a>
-    <button type="button" class="nav-toggle" hidden aria-controls="site-navigation" aria-expanded="false">계산기 메뉴</button>
+    <button type="button" class="nav-toggle" hidden aria-controls="site-navigation" aria-expanded="false">전체 메뉴</button>
     <a class="sitemap-link" href="${root}sitemap/">사이트맵</a></div></header>
   <div class="page-grid wrap">
-    <nav class="sidebar" id="site-navigation" aria-label="계산기와 금액별 예시"><p class="sidebar-title">계산기 찾아보기</p>${siteTree(root, path)}</nav>
+    <nav class="sidebar" id="site-navigation" aria-label="사이트 탐색"><p class="sidebar-title">분야별 찾아보기</p>${siteTree(root, path)}</nav>
     <main>${main}</main>
   </div>
   ${footer(config, payroll)}
