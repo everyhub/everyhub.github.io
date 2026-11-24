@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { homePage, salaries, salaryPage } from '../src/pages.mjs';
+import { extraPages } from '../src/labor-pages.mjs';
+import { brand, categories, toolPath, tools } from '../src/tool-specs.mjs';
 
 const config = { baseURL: 'https://example.com/salary-calc/' };
 
@@ -37,4 +39,41 @@ test('설정한 검색 소유권 태그와 광고 슬롯을 렌더링', () => {
   assert.match(home, /name="naver-site-verification" content="naver-code"/);
   assert.match(home, /adsbygoogle\.js\?client=ca-pub-12345/);
   assert.match(home, /data-ad-slot="6789"/);
+});
+
+test('개인 이름 없는 브랜드와 네 분류의 하위 경로 링크', () => {
+  const home = homePage(config);
+  assert.ok(home.includes(`<meta property="og:site_name" content="${brand}">`));
+  for (const { id } of categories) assert.ok(home.includes(`href="./${id}/"`));
+  const group = extraPages(config).find(({ path }) => path === 'leave/');
+  assert.match(group.html, /href="\.\.\/leave\/" aria-current="page"/);
+  assert.match(group.html, /href="\.\.\/tools\/annual-leave\/"/);
+});
+
+test('각 도구의 공식 출처, 캐노니컬·FAQ·계산기 구조화 데이터', () => {
+  const pages = extraPages(config);
+  assert.equal(pages.length, 39);
+  assert.equal(new Set(pages.map(({ path }) => path)).size, pages.length);
+  for (const [id, tool] of Object.entries(tools)) {
+    const path = toolPath(id);
+    const { html } = pages.find((page) => page.path === path);
+    assert.ok(html.includes(`href="${config.baseURL}${path}"`));
+    assert.match(html, /"@type":"FAQPage"/);
+    assert.match(html, /"@type":"WebApplication"/);
+    assert.match(html, /2026-11-24/);
+    for (const { name, url } of tool.sources) {
+      assert.ok(html.includes(name));
+      assert.match(new URL(url).hostname, /(?:^|\.)(?:law|moel|work24|minimumwage)\.go\.kr$/);
+    }
+  }
+});
+
+test('예시 페이지는 2026년 시급 12,000원과 연봉 4,000만원 표를 제공', () => {
+  const pages = extraPages(config);
+  const hourly = pages.find(({ path }) => path === 'hourly/12000/').html;
+  const severance = pages.find(({ path }) => path === 'severance/4000/').html;
+  assert.match(hourly, /2,508,000원/);
+  assert.match(hourly, /주 20시간·주휴 포함/);
+  assert.match(severance, /href="\.\.\/\.\.\/salary\/4000\/"/);
+  assert.match(severance, /5년 재직/);
 });

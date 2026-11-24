@@ -45,15 +45,20 @@ function monthlyIncomeTax(taxable, family, children, month) {
   return withheld >= config.minimumWithholding ? withheld : 0;
 }
 
-function monthDeductions(taxable, dependents, children, month) {
+export function monthlyContributions(taxable, month) {
   const pensionBase = clamp(Math.floor(taxable / 1_000) * 1_000, periodFor(rates.pension.periods, month));
   const pension = floorTen(percentage(pensionBase, rates.pension));
   const health = floorTen(clamp(percentage(taxable, rates.health), rates.health));
-  const care = floorTen(percentage(health, rates.care));
+  const care = floorTen(percentage(health, periodFor(rates.care.periods, month)));
   const employment = floorTen(percentage(taxable, rates.employment));
+  return { pension, health, care, employment };
+}
+
+function monthDeductions(taxable, dependents, children, month) {
+  const contributions = monthlyContributions(taxable, month);
   const incomeTax = monthlyIncomeTax(taxable, dependents + 1, children, month);
   const localTax = floorTen(percentage(incomeTax, rates.localTax));
-  return { pension, health, care, employment, incomeTax, localTax };
+  return { ...contributions, incomeTax, localTax };
 }
 
 function validate(value, min, max, description) {

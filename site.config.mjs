@@ -1,5 +1,5 @@
 export const site = {
-  baseURL: process.env.SITE_URL || 'https://gunwoo-jung.github.io/salary-calc/',
+  baseURL: process.env.SITE_URL || 'https://everyhub.github.io/',
   googleVerification: process.env.GOOGLE_SITE_VERIFICATION || '',
   naverVerification: process.env.NAVER_SITE_VERIFICATION || '',
   adsenseClient: process.env.ADSENSE_CLIENT_ID || '',
