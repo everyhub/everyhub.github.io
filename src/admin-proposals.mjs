@@ -29,7 +29,7 @@ export const adminProposals = [
     ],
     scope: "주거 허브에 안내 1페이지와 기존 임대차 신고 계산기에서 이어지는 링크를 추가합니다.",
     risks: "보증금 보호를 보장하거나 신청을 대신하지 않습니다. 계약·지역·담당기관별 예외를 공식 안내로 연결합니다.",
-    status: "진행중",
+    status: "완료",
     issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/2"
   },
   {
@@ -87,7 +87,7 @@ export const adminProposals = [
     ],
     scope: "이미지·PDF 하위에 JPEG용 도구 1페이지와 합성 JPEG 개인정보 테스트를 추가합니다.",
     risks: "HEIC·동영상과 화면에 찍힌 장소는 제외합니다. 원본은 수정하지 않으며 사본의 GPS 제거와 방향이 바뀌지 않는지 확인합니다.",
-    status: "진행중",
+    status: "완료",
     issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/1"
   }
 ];

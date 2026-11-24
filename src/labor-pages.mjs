@@ -209,9 +209,9 @@ function housingExample(config, { id, path, title, description, rowKeys, cases }
     config, path, root, title: `${title} | ${brand}`, description, faq,
     main: `<p class="eyebrow"><a href="${root}housing/">주거·전월세</a> · ${review}</p>
     <h1>${title}</h1><p class="intro">${description}</p>
-    <section class="panel"><h2>조건별 예상 금액</h2><table class="example-amounts"><thead><tr><th scope="col">조건</th>
+    <section class="panel"><h2>조건별 예상 금액</h2><table class="example-amounts housing-example-amounts"><thead><tr><th scope="col">조건</th>
     ${columns.map(({ label }) => `<th scope="col">${escape(label)}</th>`).join('')}</tr></thead><tbody>
-    ${rows.map(({ name, values }) => `<tr><th scope="row">${name}</th>${values.map((value) => `<td${/^\d[\d,.]*(?:원|%)$/.test(value) ? ' class="amount"' : ''}>${escape(value)}</td>`).join('')}</tr>`).join('')}
+    ${rows.map(({ name, values }) => `<tr><th scope="row">${name}</th>${values.map((value, i) => `<td><span class="housing-mobile-label" aria-hidden="true">${escape(columns[i].label)}</span><span class="amount">${escape(value)}</span></td>`).join('')}</tr>`).join('')}
     </tbody></table><p class="note">${escape(tool.scope)}</p><p>${toolLink(root, id)}</p>
     ${related.map((example) => `<p>${exampleLink(root, example)}</p>`).join('')}</section>
     <section class="panel"><h2>공식 계산 기준</h2>${sourcesHTML(tool.sources)}</section>${faqHTML(faq)}`,

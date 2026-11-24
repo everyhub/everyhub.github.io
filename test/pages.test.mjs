@@ -12,7 +12,7 @@ import { utilityGroups } from '../src/utility-config.mjs';
 import { examplePages, medianPages, navigationGroups } from '../src/navigation.mjs';
 import { adminPath, adminTimelinePage, adminProposalsPath, adminProposalsPage } from '../src/admin-pages.mjs';
 import { adminTimeline, auditRequest, hasCompletionEvidence, renderRequirementsAudit, sortAdminTimeline } from '../src/admin-log.mjs';
-import { sortAdminProposals } from '../src/admin-proposals.mjs';
+import { adminProposals, sortAdminProposals } from '../src/admin-proposals.mjs';
 
 const config = { baseURL: 'https://example.com/salary-calc/' };
 
@@ -150,6 +150,13 @@ test('전입신고 안내는 신고·확정일자·전입 절차를 구분하고
   for (const path of ['housing/', 'sitemap/', toolPath('tenancy-renewal-report')]) {
     assert.match(pages.find((page) => page.path === path).html, /href="[^"]*housing\/move-in-checklist\/"/);
   }
+});
+
+test('관리 추천은 승인된 두 건의 완료와 거절된 한 건의 종료를 구분한다', () => {
+  const statuses = Object.fromEntries(adminProposals.map(({ id, status }) => [id, status]));
+  assert.equal(statuses['photo-location-metadata'], '완료');
+  assert.equal(statuses['move-in-checklist'], '완료');
+  assert.equal(statuses['continued-health-insurance'], '거절');
 });
 
 test('홈 레거시 연봉 링크와 연결되지 않은 작업 타임라인 페이지', async () => {

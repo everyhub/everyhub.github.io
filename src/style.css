@@ -163,7 +163,15 @@ td, thead th:not(:first-child) { text-align: right; }
 thead th, tfoot th, tfoot td { font-weight: 760; }
 tfoot { color: var(--accent); }
 .example-amounts .amount { white-space: nowrap; }
-@media (max-width: 34rem) { .example-amounts { font-size: var(--text-small); } }
+.housing-mobile-label { display: none; }
+@media (max-width: 34rem) {
+  .example-amounts { font-size: var(--text-small); }
+  .housing-example-amounts thead { position: absolute; clip-path: inset(50%); }
+  .housing-example-amounts tbody tr { display: grid; margin-block: .6rem; }
+  .housing-example-amounts tbody th { background: var(--paper); }
+  .housing-example-amounts tbody td { display: flex; justify-content: space-between; gap: .5rem; text-align: left; }
+  .housing-mobile-label { display: inline; }
+}
 .calendar-section, #holiday-list { margin-block: 1.5rem; scroll-margin-top: 1rem; }
 .calendar-years, .calendar-legend, .calendar-jumps { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
 .calendar-years a { display: block; padding: .5rem .9rem; border: 1px solid var(--line); border-radius: 999px; background: white; font-weight: 750; text-decoration: none; }
