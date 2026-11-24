@@ -3,6 +3,9 @@ import { laborRates } from './labor-rates.mjs';
 import { categories, toolPath, tools } from './tool-specs.mjs';
 import { informationSections } from './information.mjs';
 import { newsSections } from './news-config.mjs';
+import { utilitySections } from './utility-config.mjs';
+
+export const salaryCalculatorPath = 'tools/salary-calculator/';
 
 export const examplePages = [
   ...[10_000, ...laborRates.minimum.map(({ hourly }) => hourly), 11_000, 12_000, 13_000, 14_000, 15_000, 16_000, 18_000, 20_000, 25_000, 30_000]
@@ -32,7 +35,7 @@ export function siteTree(root, path, { full = false, salaries = [] } = {}) {
     ${pages.map(({ path: childPath, name: childName }) => `<li>${link(root, childPath, childName, path)}</li>`).join('')}</ul></li>`;
   return `<ul class="site-tree">${categories.map(({ id, title }) => `<li>
     ${link(root, `${id}/`, title, path)}<ul>
-    ${id === 'pay' ? `<li>${link(root, '', '연봉 실수령액 계산기', path)}<ul>
+    ${id === 'pay' ? `<li>${link(root, salaryCalculatorPath, '연봉 실수령액 계산기', path)}<ul>
       ${(full ? salaries : [3_000, 4_000, 5_000]).map((salary) => `<li>${link(root, `salary/${salary}/`, `연봉 ${salaryName(salary)} 실수령액`, path)}</li>`).join('')}
     </ul></li>` : ''}
     ${groupedTools(id).map(([toolId, tool]) => {
@@ -41,5 +44,6 @@ export function siteTree(root, path, { full = false, salaries = [] } = {}) {
         ? `<ul>${related.map((example) => `<li>${link(root, example.path, example.title, path)}</li>`).join('')}</ul>` : ''}</li>`;
     }).join('')}
     </ul></li>`).join('')}
-    ${directory('news/', 'IT·AI 소식', newsSections)}${directory('info/', '생활 정보', informationSections)}</ul>`;
+    ${directory('news/', 'IT·AI 소식', newsSections)}${directory('info/', '생활 정보', informationSections)}
+    ${directory('tools/', '도구', utilitySections)}</ul>`;
 }

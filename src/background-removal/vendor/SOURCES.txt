@@ -1,0 +1,11 @@
+Background remover derived from the existing 누끼 project, revision
+462df8b1da41b26f5173673930fc77f1b01985bf. The model files and runtime binaries
+are unchanged from that revision.
+
+ormbg (schirrmacher), ONNX: https://huggingface.co/onnx-community/ormbg-ONNX
+MODNet (ZHKKKe), ONNX: https://huggingface.co/Xenova/modnet
+ViTMatte (HUST Vision Lab): https://huggingface.co/hustvl/vitmatte-small-composition-1k
+All three model distributions identify their license as Apache-2.0.
+
+ONNX Runtime Web 1.31.1 (Microsoft): https://github.com/microsoft/onnxruntime
+Upstream dependency notices: https://github.com/microsoft/onnxruntime/blob/main/ThirdPartyNotices.txt

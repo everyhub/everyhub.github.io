@@ -3,7 +3,10 @@ import { breakdown, salaryName, won } from './display.mjs';
 import { rates, sources } from './rates.mjs';
 import { verifiedOn } from './labor-rates.mjs';
 import { brand, categories, toolPath, tools } from './tool-specs.mjs';
-import { siteTree } from './navigation.mjs';
+import { salaryCalculatorPath, siteTree } from './navigation.mjs';
+import { informationSections } from './information.mjs';
+import { newsSections } from './news-config.mjs';
+import { utilitySections } from './utility-config.mjs';
 
 const { year } = rates;
 const taxFree = won(defaults.monthlyTaxFree);
@@ -86,12 +89,12 @@ export function ad(config) {
   <script>(window.adsbygoogle = window.adsbygoogle || []).push({});</script></aside>`;
 }
 
-export function layout({ config, title, description, path, root, main, faq, calculator = false, application, script, payroll = false }) {
+export function layout({ config, title, description, path, root, main, faq, calculator = false, application, script, payroll = false, localOnly = false }) {
   const canonical = new URL(path, config.baseURL).href;
   const graph = [];
   if (calculator || application) graph.push({
     '@type': 'WebApplication', name: application ?? '연봉 실수령액 계산기', url: canonical,
-    description, applicationCategory: 'FinanceApplication', operatingSystem: 'Any', inLanguage: 'ko-KR',
+    description, applicationCategory: localOnly ? 'UtilitiesApplication' : 'FinanceApplication', operatingSystem: 'Any', inLanguage: 'ko-KR',
     offers: { '@type': 'Offer', price: 0, priceCurrency: 'KRW' },
   });
   if (faq?.length) graph.push({
@@ -100,6 +103,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
       '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer },
     })),
   });
+  if (path === '') graph.push({ '@type': 'WebSite', name: brand, alternateName: ['에브리허브', 'EveryHub'], url: canonical, inLanguage: 'ko-KR' });
   if (!graph.length) graph.push({ '@type': 'CollectionPage', name: title, description, url: canonical, inLanguage: 'ko-KR' });
   const verification = [
     ['google-site-verification', config.googleVerification], ['naver-site-verification', config.naverVerification],
@@ -108,6 +112,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
 <html lang="ko">
 <head>
   <meta charset="utf-8">
+  ${localOnly ? `<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; img-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'">` : ''}
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escape(title)}</title>
   <meta name="description" content="${escape(description)}">
@@ -123,7 +128,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
   <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>
   <script type="module" src="${root}assets/navigation-browser.mjs"></script>
   ${script || calculator ? `<script type="module" src="${root}assets/${script ?? 'browser.mjs'}"></script>` : ''}
-  ${config.adsenseClient ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(config.adsenseClient)}" crossorigin="anonymous"></script>` : ''}
+  ${!localOnly && config.adsenseClient ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(config.adsenseClient)}" crossorigin="anonymous"></script>` : ''}
 </head>
 <body>
   <header class="site-head"><div class="wrap"><a class="brand" href="${root}">${brand}</a>
@@ -133,34 +138,14 @@ export function layout({ config, title, description, path, root, main, faq, calc
     <nav class="sidebar" id="site-navigation" aria-label="사이트 탐색"><p class="sidebar-title">분야별 찾아보기</p>${siteTree(root, path)}</nav>
     <main>${main}</main>
   </div>
-  ${footer(config, payroll)}
+  ${footer(localOnly ? { ...config, adsenseClient: '' } : config, payroll)}
 </body>
 </html>`;
 }
 
-export function homePage(config) {
+function salaryForm() {
   const amounts = calculate(defaults);
-  const faq = [
-    [`${year}년 연봉 실수령액은 어떻게 계산하나요?`, '세전 연봉에서 국민연금, 건강보험·장기요양보험, 고용보험, 근로소득세와 지방소득세를 뺍니다. 월평균은 연간 예상 실수령액을 12개월로 나눈 값입니다.'],
-    ['식대를 연봉에 더해야 하나요?', `입력한 연봉에 이미 포함된 비과세 식대만 월 비과세액에 적으세요. 기본값은 월 ${taxFree}이며, 비과세 식대가 없다면 0을 입력하세요.`],
-    ['부양가족과 자녀 수는 어떻게 입력하나요?', '본인은 자동으로 포함됩니다. 부양가족 수에는 기본공제 대상인 배우자와 가족만 입력하세요. 그중 만 8~20세 공제 대상 자녀의 수를 별도로 입력하세요.'],
-  ];
-  const groups = [
-    [2_000, 4_000], [4_000, 6_000], [6_000, 8_000], [8_000, 10_000], [10_000, 20_001],
-  ];
-  const index = groups.map(([start, end]) => {
-    const entries = salaries.filter((salary) => salary >= start && salary < end);
-    return `<h3>${salaryName(entries[0])} ~ ${salaryName(entries.at(-1))}</h3>
-      <ul class="tag-list">${entries.map((salary) => `<li>${pageLink(salary)}</li>`).join('')}</ul>`;
-  }).join('');
-  return layout({
-    config, title: `${year} 연봉 실수령액 계산기 · 노동 계산기 | ${brand}`,
-    description: `${year}년 연봉 실수령액과 최저임금, 퇴직금, 육아휴직급여를 계산하고 2027년 보험료와 기준 중위소득을 확인하세요.`,
-    path: '', root: './', calculator: true, payroll: true, faq,
-    main: `<p class="eyebrow">${year}년 기준 · 공식 자료 확인 <time datetime="${verifiedOn}">${verifiedOn}</time></p><h1>연봉 실수령액 계산기</h1>
-      <p class="intro">세전 연봉과 비과세액을 입력하면 보험료와 세금을 뺀 월평균 실수령액을 확인할 수 있습니다.</p>
-      <p class="note">실수령액은 2026년 기준입니다. 2027년 보험 상·하한 등의 추가 고시를 확인한 뒤 연간 계산을 업데이트합니다. 먼저 발표된 요율은 <a href="./tools/insurance-rates/">직장인 보험료 비교</a>에서 확인하세요.</p>
-      <section class="panel" aria-labelledby="calculator"><h2 id="calculator">내 연봉 계산하기</h2>
+  return `<section class="panel" aria-labelledby="calculator"><h2 id="calculator">내 연봉 계산하기</h2>
         <form id="salary-form">
           <div class="form-grid">
             <label>세전 연봉 (만 원)<input id="annualSalary" type="number" inputmode="numeric" required min="1000" max="${limits.annualSalary / 10_000}" value="${defaults.annualSalary / 10_000}"></label>
@@ -173,15 +158,62 @@ export function homePage(config) {
         </form>
         ${highlight(amounts, true)}
         ${deductionTable(amounts, true)}
-      </section>
-      ${ad(config)}
-      <section class="panel" aria-labelledby="other-tools"><h2 id="other-tools">분야별 계산기</h2>
-        <div class="tool-directory">${categories.map(({ id, title: name }) => `<div><h3><a href="./${id}/">${name}</a></h3>
-        <ul>${Object.entries(tools).filter(([, tool]) => tool.category === id).map(([toolId, tool]) => `<li><a href="./${toolPath(toolId)}">${tool.name}</a></li>`).join('')}</ul></div>`).join('')}</div>
-      </section>
-      <section class="panel" aria-labelledby="salary-index"><h2 id="salary-index">연봉별 실수령액</h2>
-        <p>같은 조건에서 연봉이 달라지면 실제 월급이 얼마나 달라지는지 확인해 보세요.</p>${index}
-      </section>
+      </section>`;
+}
+
+function salaryIndex(root) {
+  const groups = [[2_000, 4_000], [4_000, 6_000], [6_000, 8_000], [8_000, 10_000], [10_000, 20_001]];
+  const index = groups.map(([start, end]) => {
+    const entries = salaries.filter((salary) => salary >= start && salary < end);
+    return `<h3>${salaryName(entries[0])} ~ ${salaryName(entries.at(-1))}</h3>
+      <ul class="tag-list">${entries.map((salary) => `<li>${pageLink(salary, root)}</li>`).join('')}</ul>`;
+  }).join('');
+  return `<section class="panel" aria-labelledby="salary-index"><h2 id="salary-index">연봉별 실수령액</h2>
+      <p>같은 조건에서 연봉이 달라지면 실제 월급이 얼마나 달라지는지 확인해 보세요.</p>${index}</section>`;
+}
+
+function dashboard() {
+  const section = (title, hub, links, hubName = `${title} 전체 보기`) => `
+    <section class="panel"><h2><a href="./${hub}">${title}</a></h2>
+      <ul class="dashboard-links">${[...links, { path: hub, name: hubName }].map(({ path, name }) =>
+        `<li><a href="./${path}">${name}</a></li>`).join('')}</ul></section>`;
+  const payroll = categories.map(({ id, title }) => {
+    const links = Object.entries(tools).filter(([, tool]) => tool.category === id)
+      .map(([toolId, tool]) => ({ path: toolPath(toolId), name: tool.name }));
+    if (id === 'pay') links.unshift({ path: salaryCalculatorPath, name: '연봉 실수령액 계산기' });
+    return section(title, `${id}/`, links);
+  });
+  return [...payroll, section('도구', 'tools/', utilitySections), section('IT·AI 소식', 'news/', newsSections),
+    section('생활 정보', 'info/', informationSections)].join('');
+}
+
+export function homePage(config) {
+  return layout({
+    config, title: `${brand} | 계산기·생활 도구·IT 소식`,
+    description: '연봉 실수령액과 퇴직금 계산기, 사진 배경 제거, 공휴일 달력, 국내외 IT·AI 소식을 한곳에서 찾아보세요.',
+    path: '', root: './', calculator: true, payroll: true,
+    main: `<h1>${brand}</h1><p class="intro">급여·근로 계산기부터 사진 편집, 생활 정보와 IT·AI 소식까지 원하는 기능을 바로 열어 보세요.</p>
+      <section aria-labelledby="shortcuts"><h2 id="shortcuts">한눈에 바로가기</h2>${dashboard()}</section>
+      <p><a href="./${salaryCalculatorPath}">연봉 실수령액 계산 기준과 자주 묻는 질문 보기</a></p>
+      ${salaryForm()}${ad(config)}${salaryIndex('./')}`,
+  });
+}
+
+export function salaryCalculatorPage(config) {
+  const root = '../../';
+  const faq = [
+    [`${year}년 연봉 실수령액은 어떻게 계산하나요?`, '세전 연봉에서 국민연금, 건강보험·장기요양보험, 고용보험, 근로소득세와 지방소득세를 뺍니다. 월평균은 연간 예상 실수령액을 12개월로 나눈 값입니다.'],
+    ['식대를 연봉에 더해야 하나요?', `입력한 연봉에 이미 포함된 비과세 식대만 월 비과세액에 적으세요. 기본값은 월 ${taxFree}이며, 비과세 식대가 없다면 0을 입력하세요.`],
+    ['부양가족과 자녀 수는 어떻게 입력하나요?', '본인은 자동으로 포함됩니다. 부양가족 수에는 기본공제 대상인 배우자와 가족만 입력하세요. 그중 만 8~20세 공제 대상 자녀의 수를 별도로 입력하세요.'],
+  ];
+  return layout({
+    config, title: `${year}년 연봉 실수령액 계산기 | ${brand}`,
+    description: `${year}년 세전 연봉에서 보험료·소득세를 뺀 월평균 실수령액과 연간 실수령액을 계산하세요.`,
+    path: salaryCalculatorPath, root, calculator: true, payroll: true, faq,
+    main: `<p class="eyebrow">${year}년 기준 · 공식 자료 확인 <time datetime="${verifiedOn}">${verifiedOn}</time></p><h1>연봉 실수령액 계산기</h1>
+      <p class="intro">세전 연봉과 비과세액을 입력하면 보험료와 세금을 뺀 월평균 실수령액을 확인할 수 있습니다.</p>
+      <p class="note">실수령액은 ${year}년 기준입니다. 2027년 보험 상·하한 등의 추가 고시를 확인한 뒤 연간 계산을 업데이트합니다. 먼저 발표된 요율은 <a href="${root}tools/insurance-rates/">직장인 보험료 비교</a>에서 확인하세요.</p>
+      ${salaryForm()}${ad(config)}${salaryIndex(root)}
       ${faqHTML(faq)}`,
   });
 }

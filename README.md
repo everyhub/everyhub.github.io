@@ -1,14 +1,14 @@
-# 일과 급여
+# 에브리허브 (EveryHub)
 
 [운영 사이트](https://everyhub.github.io/) · [저장소](https://github.com/everyhub/everyhub.github.io) · [배포 기록](https://github.com/everyhub/everyhub.github.io/actions/workflows/pages.yml)
 
-공식 한국 자료를 바탕으로 급여·근로·세금·복지·주거 계산기와 생활 정보를 제공하는 정적 사이트입니다. 별도의 서버나 데이터베이스를 운영하지 않습니다. 연봉별 기존 주소 101개를 유지하며, 홈 계산기, 분야별 계산기 22개, 가구·금액별 예시, IT·AI 소식과 생활 정보를 포함해 총 180페이지를 생성합니다. 왼쪽 메뉴와 [HTML 사이트맵](https://everyhub.github.io/sitemap/)에서 모두 찾을 수 있습니다.
+공식 한국 자료를 바탕으로 한 계산기와 생활 정보, 브라우저 사진·텍스트 도구, IT·AI 소식을 제공하는 정적 사이트입니다. 홈의 **한눈에 바로가기**, 왼쪽 메뉴와 [HTML 사이트맵](https://everyhub.github.io/sitemap/)에서 분야별 기능을 열 수 있습니다. 기존 연봉별 주소 101개와 홈의 `?salary=4000#calculator` 같은 링크를 유지합니다. 전용 연봉 계산기는 `/tools/salary-calculator/`입니다. 공개 페이지 188개와 별도의 검색 제외 이미지 편집기 문서 하나를 생성합니다.
 
 ## 새 작업에 착수할 때
 
 1. 이 문서와 `git status --short -b`를 먼저 확인하세요. 데이터 수정 전에 관련 모듈과 `test/`의 기존 계약을 읽습니다.
 2. 아래 표의 원문에서 수치, 적용일, 범위와 예외를 확인하세요. 공포·고시와 입법·행정예고를 구분합니다. 미확정·미확인 항목은 화면에 표시하고 임의의 수치를 넣지 않습니다. 자료 확인일은 실제로 확인한 경우에만 바꿉니다.
-3. 중립 브랜드 **일과 급여**를 유지하며 운영 URL이나 예시에 개인 이름을 넣지 않습니다. 한국어 표현, 띄어쓰기와 용어를 검토하고 기존 주소와 상대 링크를 보존합니다. 새 공개 페이지는 메뉴, HTML/XML 사이트맵, canonical 및 적절한 구조화 데이터에 포함합니다.
+3. 중립 브랜드 **에브리허브 (EveryHub)**를 유지하며 운영 URL이나 예시에 개인 이름을 넣지 않습니다. 한국어 표현, 띄어쓰기와 용어를 검토하고 기존 주소와 상대 링크를 보존합니다. 새 공개 페이지는 홈 바로가기, 메뉴, HTML/XML 사이트맵, canonical 및 적절한 구조화 데이터에 포함합니다.
 4. 기능·출처·운영 방법·미완료 작업을 바꿀 때마다 **같은 변경에서 이 README를 갱신**하세요. 다음 작업자가 읽을 내용, 다음 확인 시점과 검증 방법을 남깁니다.
 
 ## 파일 지도
@@ -24,6 +24,8 @@
 | `src/browser.mjs`, `src/labor-browser.mjs`, `src/display.mjs` | 브라우저 입력·계산·표시. 계산 입력값은 서버로 보내지 않음 |
 | `src/news-config.mjs`, `src/news.mjs`, `src/news-pages.mjs` | 공식 피드 목록, RSS/Atom·Hacker News API 수집 및 실패 시 복구, 분야별 소식 |
 | `src/information.mjs`, `src/information-pages.mjs` | 공식 공휴일·연휴, 국세청 정기 신고·납부 기간, 연도별 최저임금·보험료 비교 |
+| `src/utility-*.mjs`, `src/utility.mjs` | 브라우저 사진 변환, 글자 수·UTF-8 바이트, 만 나이, 날짜 차이, 면적 환산 도구와 SEO 페이지 |
+| `src/background-removal/` | 같은 출처의 독립 편집기, ONNX 모델·WASM, 브러시·머리카락 보정. 모델 출처와 라이선스는 `vendor/SOURCES.txt` |
 | `test/`, `.github/workflows/pages.yml` | Node 내장 테스트, GitHub Pages 빌드 및 배포 |
 
 ## 로컬 실행과 검증
@@ -37,7 +39,13 @@ npm run build
 python3 -m http.server 8080 --bind 127.0.0.1 --directory dist
 ```
 
-브라우저에서 `http://127.0.0.1:8080/`, `/salary/4000/`, `/sitemap/`, `/news/`, `/info/`를 확인하세요. 모바일에서 메뉴를 열고 항목을 선택한 뒤 Escape로 닫히는지도 확인합니다. 로컬 기본 빌드는 오프라인에서 재현할 수 있도록 피드를 요청하지 않습니다. 온라인 피드 빌드는 `NEWS_REFRESH=1 npm run build`로 확인하세요.
+브라우저에서 `http://127.0.0.1:8080/`, `/salary/4000/`, `/tools/salary-calculator/`, `/tools/`, `/sitemap/`, `/news/`, `/info/`를 확인하세요. 모바일 메뉴와 바로가기를 점검합니다. 누끼는 실제 사용자 사진 대신 합성 이미지를 사용해 모델 추론, 투명 PNG, 직접 수정, 네트워크 탭에서 모델·WASM만 같은 출처로 요청되는지 확인합니다. 로컬 기본 빌드는 피드를 요청하지 않습니다. 온라인 피드 빌드는 `NEWS_REFRESH=1 npm run build`로 확인하세요.
+
+## 사진 도구의 개인정보와 배포 용량
+
+- 누끼·이미지 변환 페이지에는 광고·분석 스크립트를 넣지 않습니다. 사진과 입력값은 메모리에서만 처리하고 사용자 요청 때만 결과 파일을 만듭니다. 편집기 문서와 Blob Worker는 CSP로 연결을 같은 출처에 제한하며, 업로드·외부 폰트·CDN·웹 저장소·서비스 워커를 쓰지 않습니다.
+- ONNX 모델 3개와 Runtime/WASM은 기존 프로젝트 파일을 변경 없이 제공합니다. 가장 큰 파일은 약 44.3MB, 전체 편집기 자산은 약 93.4MB입니다(십진 단위). 모델은 기능을 실행할 때 필요한 것만 받습니다. GitHub Pages에서는 단일 스레드로 동작하며 PWA 설치·오프라인 캐시는 제공하지 않습니다.
+- 새 모델을 넣을 때 출처와 재배포 라이선스를 확인하고 Git 파일당 100MB, Pages 사이트 1GB 한도를 확인하세요. 이미지 변환은 PNG·JPG·WebP를 지원하며 HEIC 디코더는 포함하지 않습니다.
 
 ## 데이터 갱신
 

@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { homePage, salaries, salaryPage } from '../src/pages.mjs';
+import { homePage, salaries, salaryCalculatorPage, salaryPage } from '../src/pages.mjs';
 import { extraPages } from '../src/labor-pages.mjs';
 import { informationPages } from '../src/information-pages.mjs';
 import { holidayCalendar } from '../src/information.mjs';
 import { brand, categories, toolPath, tools } from '../src/tool-specs.mjs';
+import { informationSections } from '../src/information.mjs';
+import { newsSections } from '../src/news-config.mjs';
+import { utilitySections } from '../src/utility-config.mjs';
 
 const config = { baseURL: 'https://example.com/salary-calc/' };
 
@@ -54,6 +57,24 @@ test('개인 이름 없는 브랜드와 분류 탐색 패널', () => {
   assert.match(group.html, /href="\.\.\/sitemap\/"/);
 });
 
+test('새 브랜드와 한눈에 바로가기, 별도 연봉 계산기 및 기존 홈 앵커', () => {
+  const home = homePage(config);
+  assert.match(home, /<h1>에브리허브 \(EveryHub\)<\/h1>/);
+  assert.match(home, /"@type":"WebSite","name":"에브리허브 \(EveryHub\)"/);
+  assert.match(home, /id="shortcuts">한눈에 바로가기/);
+  assert.match(home, /id="calculator"/);
+  const buttons = [...home.matchAll(/class="dashboard-links">([\s\S]*?)<\/ul>/g)].map(([, list]) => list).join('');
+  const paths = [...categories.map(({ id }) => `${id}/`), ...Object.keys(tools).map(toolPath),
+    ...[...informationSections, ...newsSections, ...utilitySections].map(({ path }) => path),
+    'news/', 'info/', 'tools/', 'tools/salary-calculator/'];
+  for (const path of paths) assert.ok(buttons.includes(`href="./${path}"`), path);
+  const salary = salaryCalculatorPage(config);
+  assert.match(salary, /<h1>연봉 실수령액 계산기<\/h1>/);
+  assert.match(salary, /"@type":"FAQPage"/);
+  assert.match(salary, /href="\.\.\/\.\.\/salary\/4000\/"/);
+  assert.ok(salary.includes(`href="${config.baseURL}tools/salary-calculator/"`));
+});
+
 test('각 도구의 공식 출처, 캐노니컬·FAQ·계산기 구조화 데이터', () => {
   const pages = extraPages(config);
   assert.equal(pages.length, 68);
@@ -78,6 +99,8 @@ test('HTML 사이트맵은 이전 연봉 URL과 2027년 가구별 예시를 연�
   for (const salary of salaries) assert.ok(sitemap.includes(`href="../salary/${salary}/"`));
   assert.match(sitemap, /href="\.\.\/median-income\/2027\/7\/"/);
   assert.match(sitemap, /href="\.\.\/news\/ai\/"/);
+  assert.match(sitemap, /href="\.\.\/tools\/background-removal\/"/);
+  assert.match(sitemap, /href="\.\.\/tools\/salary-calculator\/"/);
   assert.match(sitemap, /href="\.\.\/info\/holidays\/2027\/"/);
   const median = pages.find(({ path }) => path === 'median-income/2027/4/').html;
   assert.match(median, /6,929,885원/);

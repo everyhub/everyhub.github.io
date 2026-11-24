@@ -50,6 +50,9 @@ input, select { display: block; width: 100%; margin-top: .3rem; padding: .5rem .
 .tool-directory { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: .75rem; }
 .tool-directory h3 { margin: .3rem 0; }
 .tool-directory ul { margin-block: .35rem; padding-left: 1.25rem; }
+.dashboard-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: .65rem; list-style: none; margin: 0; padding: 0; }
+.dashboard-links a { display: flex; align-items: center; height: 100%; min-height: 3.3rem; padding: .65rem .85rem; border: 1px solid var(--line); border-radius: .55rem; background: var(--paper); font-weight: 700; text-decoration: none; }
+.dashboard-links a:hover { background: #e8f6ef; text-decoration: underline; }
 .tool-output { margin-block: .75rem; }
 .tool-output div { display: flex; justify-content: space-between; gap: .65rem; border-bottom: 1px solid var(--line); padding-block: .4rem; }
 .tool-output dd { margin: 0; white-space: nowrap; color: var(--accent); font-weight: 750; font-variant-numeric: tabular-nums; }
@@ -61,6 +64,12 @@ button, .button { display: inline-block; min-height: 2.75rem; padding: .55rem 1r
 button:hover, .button:hover { background: #04523e; }
 .error { color: #a12524; }
 .error:empty { display: none; }
+.utility-editor { display: block; width: 100%; min-height: max(34rem, 76vh); border: 1px solid var(--line); border-radius: .5rem; }
+[data-utility] textarea { display: block; width: 100%; margin-top: .3rem; padding: .55rem; resize: vertical; font: inherit; }
+[data-utility] > button { margin-top: 1rem; }
+.utility-download[hidden] { display: none; }
+.utility-result { display: block; white-space: pre-line; font-weight: 700; }
+.utility-result:not(:empty) { margin-top: .8rem; }
 .net { display: grid; gap: .5rem 1.5rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); margin-block: 1rem; }
 .net > div { padding: .9rem 1rem; background: #e8f6ef; border-radius: .65rem; }
 .net strong, .net output { display: block; color: #074b3b; font-size: clamp(1.45rem, 4vw, 2rem); font-weight: 790; font-variant-numeric: tabular-nums; }

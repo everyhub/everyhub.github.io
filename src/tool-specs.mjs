@@ -3,7 +3,7 @@ import { laborRates as r, laborSources as s } from './labor-rates.mjs';
 import { formatNumber, won } from './display.mjs';
 import { guideTools } from './guide-specs.mjs';
 
-export const brand = '일과 급여';
+export const brand = '에브리허브 (EveryHub)';
 export const categories = [
   { id: 'pay', title: '급여·세금', description: '연봉 실수령액과 근로자·사업주의 보험료를 확인하세요.' },
   { id: 'hours', title: '시급·근로시간', description: '최저임금과 주휴수당을 확인하고 근로시간에 따른 급여를 계산하세요.' },
