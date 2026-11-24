@@ -2,7 +2,7 @@
 
 [운영 사이트](https://everyhub.github.io/) · [저장소](https://github.com/everyhub/everyhub.github.io) · [배포 기록](https://github.com/everyhub/everyhub.github.io/actions/workflows/pages.yml)
 
-공식 한국 자료를 바탕으로 한 계산기와 생활 정보, 브라우저 사진·텍스트 도구, IT·AI 소식을 제공하는 정적 사이트입니다. 홈의 **한눈에 바로가기**, 왼쪽 메뉴와 [HTML 사이트맵](https://everyhub.github.io/sitemap/)에서 분야별 기능을 열 수 있습니다. 기존 연봉별 주소 101개와 홈의 `?salary=4000#calculator` 같은 링크를 유지합니다. 전용 연봉 계산기는 `/tools/salary-calculator/`입니다. 공개 페이지 224개와 별도의 검색 제외 이미지 편집기 문서 하나를 생성합니다.
+공식 한국 자료를 바탕으로 한 계산기와 생활 정보, 브라우저 사진·텍스트 도구, IT·AI 소식을 제공하는 정적 사이트입니다. 홈은 **한눈에 바로가기** 카드만 보여 주며 연봉 계산기는 `/tools/salary-calculator/`에서 엽니다. 기존 연봉별 주소와 홈의 `?salary=4000#calculator` 같은 링크는 홈에서 전용 계산기 주소로 자동 이동합니다. [HTML 사이트맵](https://everyhub.github.io/sitemap/)과 왼쪽 메뉴에서 분야별 기능을 열 수 있습니다. 공개 페이지 224개와 별도의 검색 제외 이미지 편집기 문서 하나를 생성합니다.
 
 ## 새 작업에 착수할 때
 
@@ -20,6 +20,7 @@
 | `build.mjs`, `site.config.mjs` | 공통 설정, 정적 HTML과 자산, XML 사이트맵·robots, 뉴스 스냅샷 생성 |
 | `src/pages.mjs`, `src/labor-pages.mjs` | 공통 레이아웃/메타데이터, 홈·연봉별 상세, 분야·계산기·예시·HTML 사이트맵 템플릿 |
 | `src/navigation.mjs`, `src/navigation-browser.mjs`, `src/style.css` | 왼쪽 메뉴 트리, 모바일 접기/펼치기, 스타일 |
+| `src/admin-log.mjs`, `src/admin-pages.mjs` | 연결하지 않은 noindex 작업 요청 타임라인과 다음 작업용 요청 기록 |
 | `src/calculator.mjs`, `src/rates.mjs`, `src/withholding-table.mjs` | 연봉 실수령액, 국민연금·건강보험 등 보험료, 공식 근로소득 간이세액표 |
 | `src/labor.mjs`, `src/labor-rates.mjs`, `src/tool-specs.mjs` | 최저임금·퇴직·실업·육아·근로시간 계산, 공식 근거 및 브라우저 폼 정의 |
 | `src/guides.mjs`, `src/guide-rates.mjs`, `src/guide-specs.mjs` | 추가 세금·복지·주거·근로 계산, 공식 근거 및 폼 정의 |
@@ -48,6 +49,7 @@ python3 -m http.server 8080 --bind 127.0.0.1 --directory dist
 ## 브라우저 도구의 개인정보와 배포 용량
 
 - `/tools/`는 글쓰기, 이미지·PDF, 날짜·시간, 생활 계산, 개발 도구의 하위 허브 5개로 연결합니다. 왼쪽 메뉴와 HTML 사이트맵에는 하위 허브까지만 나열하고, 기존 도구 주소와 새 개별 도구는 XML 사이트맵에 모두 포함합니다.
+- 사용자 요청을 반영할 때마다 `src/admin-log.mjs`에 KST 시각, 요청, 반영 내용, 상태와 커밋·배포 기록을 한 행씩 추가합니다. 작업 타임라인은 의도적으로 메뉴·HTML/XML 사이트맵에 연결하지 않고 `noindex,nofollow`로만 보호합니다. 경로를 README나 공개 링크에 적지 않습니다.
 - 사진·PDF·텍스트는 브라우저 메모리에서만 처리합니다. PDF·QR의 라이브러리는 동일 출처의 정적 자산으로 제공하며, 저장은 사용자가 Blob 다운로드를 눌렀을 때만 이뤄집니다. 파일 테스트에는 실제 문서가 아닌 직접 만든 작은 PDF·이미지를 사용합니다.
 - 500·1,000·1,500자와 직접 입력은 일반 목표값입니다. X 가중치나 원고지 규격을 흉내 내지 않습니다. 근무일수는 생활 정보의 2026·2027년 공식 공휴일 데이터를 재사용합니다. 음력 변환은 공식 날짜 대조표가 마련되기 전까지 지원하지 않습니다. 여권 사진은 외교부 권장 온라인 규격으로 자를 뿐, 심사를 보장하지 않습니다.
 

@@ -9,6 +9,7 @@ import { readNewsSnapshot, refreshNews } from './src/news.mjs';
 import { newsPages } from './src/news-pages.mjs';
 import { informationPages } from './src/information-pages.mjs';
 import { utilityPages } from './src/utility-pages.mjs';
+import { adminPath, adminTimelinePage } from './src/admin-pages.mjs';
 
 const dist = fileURLToPath(new URL('./dist/', import.meta.url));
 const source = fileURLToPath(new URL('./src/', import.meta.url));
@@ -49,6 +50,11 @@ await Promise.all(['style.css', 'browser.mjs', 'calculator.mjs', 'display.mjs', 
 await cp(join(source, 'background-removal'), join(dist, 'assets', 'background-removal'), { recursive: true });
 await cp(join(source, 'utility-vendor'), join(dist, 'assets', 'utility-vendor'), { recursive: true });
 await writeFile(join(dist, 'index.html'), homePage(config));
+{
+  const folder = join(dist, adminPath);
+  await mkdir(folder, { recursive: true });
+  await writeFile(join(folder, 'index.html'), adminTimelinePage(config));
+}
 await Promise.all(salaries.map(async (salary, index) => {
   const folder = join(dist, salaryPath(salary));
   await mkdir(folder, { recursive: true });

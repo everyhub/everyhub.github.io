@@ -108,4 +108,8 @@ summary { cursor: pointer; padding: .5rem 0; font-weight: 700; }
 .ad-slot { margin-block: 1.3rem; }
 .site-foot { padding-block: 1rem 2.5rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
 .footer-nav { margin-top: 0; font-weight: 750; }
+.admin-table-wrap { overflow-x: auto; margin-block: 1rem; background: #fff; border: 1px solid var(--line); border-radius: .75rem; }
+.admin-timeline { min-width: 58rem; margin: 0; }
+.admin-timeline th, .admin-timeline td { vertical-align: top; padding: .75rem; }
+.admin-timeline tbody th { white-space: nowrap; }
 .foot-list { padding-left: 1.3rem; }

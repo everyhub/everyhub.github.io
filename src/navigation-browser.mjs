@@ -2,6 +2,14 @@ const toggle = document.querySelector('.nav-toggle');
 const sidebar = document.querySelector('#site-navigation');
 const mobile = matchMedia('(max-width: 52rem)');
 
+const legacySalary = document.body.dataset.pagePath === '' && new URLSearchParams(location.search).has('salary');
+if (legacySalary) {
+  const target = new URL('tools/salary-calculator/', document.baseURI);
+  target.search = location.search;
+  target.hash = location.hash || '#calculator';
+  location.replace(target.href);
+}
+
 function setOpen(open) {
   toggle.setAttribute('aria-expanded', String(open));
   sidebar.hidden = mobile.matches && !open;

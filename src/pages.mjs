@@ -87,7 +87,7 @@ export function ad(config) {
   <script>(window.adsbygoogle = window.adsbygoogle || []).push({});</script></aside>`;
 }
 
-export function layout({ config, title, description, path, root, main, faq, calculator = false, application, script, payroll = false, localOnly = false }) {
+export function layout({ config, title, description, path, root, main, faq, calculator = false, application, script, payroll = false, localOnly = false, robots = '' }) {
   const canonical = new URL(path, config.baseURL).href;
   const graph = [];
   if (calculator || application) graph.push({
@@ -112,6 +112,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
   <meta charset="utf-8">
   ${localOnly ? `<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; img-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'">` : ''}
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  ${robots ? `<meta name="robots" content="${escape(robots)}">` : ''}
   <title>${escape(title)}</title>
   <meta name="description" content="${escape(description)}">
   <link rel="canonical" href="${escape(canonical)}">
@@ -128,7 +129,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
   ${script || calculator ? `<script type="module" src="${root}assets/${script ?? 'browser.mjs'}"></script>` : ''}
   ${!localOnly && config.adsenseClient ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(config.adsenseClient)}" crossorigin="anonymous"></script>` : ''}
 </head>
-<body>
+<body data-page-path="${path}">
   <header class="site-head"><div class="wrap"><a class="brand" href="${root}">${brand}</a>
     <button type="button" class="nav-toggle" hidden aria-controls="site-navigation" aria-expanded="false">전체 메뉴</button>
     <a class="home-link" href="${root}">홈</a></div></header>
@@ -183,11 +184,10 @@ export function homePage(config) {
   return layout({
     config, title: `${brand} | 계산기·생활 도구·IT 소식`,
     description: '연봉 실수령액과 퇴직금 계산기, 사진 배경 제거, 공휴일 달력, 국내외 IT·AI 소식을 한곳에서 찾아보세요.',
-    path: '', root: './', calculator: true, payroll: true,
+    path: '', root: './',
     main: `<h1>${brand}</h1><p class="intro">급여·근로 계산기부터 사진 편집, 생활 정보와 IT·AI 소식까지 원하는 기능을 바로 열어 보세요.</p>
       <section aria-labelledby="shortcuts"><h2 id="shortcuts">한눈에 바로가기</h2>${dashboard()}</section>
-      <p><a href="./${salaryCalculatorPath}">연봉 실수령액 계산 기준과 자주 묻는 질문 보기</a></p>
-      ${salaryForm()}${ad(config)}${salaryIndex('./')}`,
+      <p><a href="./${salaryCalculatorPath}">연봉 실수령액 계산기와 공식 계산 기준 보기</a></p>`,
   });
 }
 

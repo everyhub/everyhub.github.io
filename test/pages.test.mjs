@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { homePage, salaries, salaryCalculatorPage, salaryPage } from '../src/pages.mjs';
 import { extraPages } from '../src/labor-pages.mjs';
@@ -9,6 +10,7 @@ import { informationSections } from '../src/information.mjs';
 import { newsSections } from '../src/news-config.mjs';
 import { utilityGroups } from '../src/utility-config.mjs';
 import { examplePages, medianPages, navigationGroups } from '../src/navigation.mjs';
+import { adminPath, adminTimelinePage } from '../src/admin-pages.mjs';
 
 const config = { baseURL: 'https://example.com/salary-calc/' };
 
@@ -19,12 +21,11 @@ test('연봉 구간의 범위, 간격, 인덱스 링크', () => {
   for (let i = 1; i < salaries.length; i++) {
     assert.equal(salaries[i] - salaries[i - 1], salaries[i] <= 10_000 ? 100 : 500);
   }
-  const home = homePage(config);
-  for (const salary of salaries) assert.ok(home.includes(`href="./salary/${salary}/"`));
-  const salaryIndex = salaryCalculatorPage(config).match(/<details class="example-index">([\s\S]+?)<\/details>/)[1];
+  const salaryPage = salaryCalculatorPage(config);
+  const salaryIndex = salaryPage.match(/<details class="example-index">([\s\S]+?)<\/details>/)[1];
   for (const salary of salaries) assert.ok(salaryIndex.includes(`href="../../salary/${salary}/"`));
-  assert.match(home, /"@type":"WebApplication"/);
-  assert.doesNotMatch(home, /pagead2\.googlesyndication/);
+  assert.match(salaryPage, /"@type":"WebApplication"/);
+  assert.doesNotMatch(salaryPage, /pagead2\.googlesyndication/);
 });
 
 test('연봉 상세의 공제 내역, 인접 연봉 링크, canonical과 FAQ', () => {
@@ -39,14 +40,14 @@ test('연봉 상세의 공제 내역, 인접 연봉 링크, canonical과 FAQ', (
 });
 
 test('설정한 검색 소유권 태그와 광고 슬롯을 렌더링', () => {
-  const home = homePage({
+  const page = salaryCalculatorPage({
     ...config, googleVerification: 'google-code', naverVerification: 'naver-code',
     adsenseClient: 'ca-pub-12345', adsenseSlot: '6789',
   });
-  assert.match(home, /name="google-site-verification" content="google-code"/);
-  assert.match(home, /name="naver-site-verification" content="naver-code"/);
-  assert.match(home, /adsbygoogle\.js\?client=ca-pub-12345/);
-  assert.match(home, /data-ad-slot="6789"/);
+  assert.match(page, /name="google-site-verification" content="google-code"/);
+  assert.match(page, /name="naver-site-verification" content="naver-code"/);
+  assert.match(page, /adsbygoogle\.js\?client=ca-pub-12345/);
+  assert.match(page, /data-ad-slot="6789"/);
 });
 
 test('개인 이름 없는 브랜드와 분류 탐색 패널', () => {
@@ -76,7 +77,10 @@ test('새 브랜드와 한눈에 바로가기, 별도 연봉 계산기 및 기�
   assert.match(home, /<h1>에브리허브 \(EveryHub\)<\/h1>/);
   assert.match(home, /"@type":"WebSite","name":"에브리허브 \(EveryHub\)"/);
   assert.match(home, /id="shortcuts">한눈에 바로가기/);
-  assert.match(home, /id="calculator"/);
+  assert.match(home, /href="\.\/tools\/salary-calculator\/">연봉 실수령액 계산기와 공식 계산 기준 보기<\/a>/);
+  assert.doesNotMatch(home, /id="salary-form"/);
+  assert.doesNotMatch(home, /id="calculator"/);
+  assert.match(home, /data-page-path=""/);
   const buttons = [...home.matchAll(/class="dashboard-links">([\s\S]*?)<\/ul>/g)].map(([, list]) => list).join('');
   const paths = [...navigationGroups.map(({ path }) => path), ...Object.keys(tools).map(toolPath),
     ...[...informationSections, ...newsSections, ...utilityGroups].map(({ path }) => path),
@@ -87,6 +91,18 @@ test('새 브랜드와 한눈에 바로가기, 별도 연봉 계산기 및 기�
   assert.match(salary, /"@type":"FAQPage"/);
   assert.match(salary, /href="\.\.\/\.\.\/salary\/4000\/"/);
   assert.ok(salary.includes(`href="${config.baseURL}tools/salary-calculator/"`));
+});
+
+test('홈 레거시 연봉 링크와 연결되지 않은 작업 타임라인 페이지', async () => {
+  const browser = await readFile(new URL('../src/navigation-browser.mjs', import.meta.url), 'utf8');
+  const admin = adminTimelinePage(config);
+  assert.match(browser, /dataset\.pagePath === ''/);
+  assert.match(browser, /new URL\('tools\/salary-calculator\//);
+  assert.match(browser, /target\.search = location\.search/);
+  assert.match(admin, /name="robots" content="noindex,nofollow"/);
+  assert.match(admin, /작업 요청 타임라인/);
+  assert.match(admin, /src\/admin-log\.mjs/);
+  assert.equal(navigationGroups.some(({ path }) => path === adminPath), false);
 });
 
 test('각 도구의 공식 출처, 캐노니컬·FAQ·계산기 구조화 데이터', () => {
