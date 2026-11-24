@@ -2,7 +2,7 @@
 
 [운영 사이트](https://everyhub.github.io/) · [저장소](https://github.com/everyhub/everyhub.github.io) · [배포 기록](https://github.com/everyhub/everyhub.github.io/actions/workflows/pages.yml)
 
-공식 한국 자료를 바탕으로 한 계산기와 생활 정보, 브라우저 사진·텍스트 도구, IT·AI 소식을 제공하는 정적 사이트입니다. 홈은 **한눈에 바로가기** 카드만 보여 주며 연봉 계산기는 `/tools/salary-calculator/`에서 엽니다. 기존 연봉별 주소와 홈의 `?salary=4000#calculator` 같은 링크는 홈에서 전용 계산기 주소로 자동 이동합니다. [HTML 사이트맵](https://everyhub.github.io/sitemap/)과 왼쪽 메뉴에서 분야별 기능을 열 수 있습니다. 공개 페이지 226개와 별도의 검색 제외 이미지 편집기 문서 하나를 생성합니다.
+공식 한국 자료를 바탕으로 한 계산기와 생활 정보, 브라우저 사진·텍스트 도구, IT·AI 소식을 제공하는 정적 사이트입니다. 홈은 **한눈에 바로가기** 카드만 보여 주며 연봉 계산기는 `/tools/salary-calculator/`에서 엽니다. 기존 연봉별 주소와 홈의 `?salary=4000#calculator` 같은 링크는 홈에서 전용 계산기 주소로 자동 이동합니다. [HTML 사이트맵](https://everyhub.github.io/sitemap/)과 왼쪽 메뉴에서 분야별 기능을 열 수 있습니다. 공개 페이지 229개와 검색에서 제외한 관리 페이지 두 개, 이미지 편집기 문서 하나를 생성합니다.
 
 ## 새 작업에 착수할 때
 
