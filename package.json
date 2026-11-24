@@ -8,6 +8,7 @@
   "scripts": {
     "audit": "node audit.mjs",
     "build": "node build.mjs",
+    "now": "node admin-now.mjs",
     "test": "node --test"
   },
   "devDependencies": {

@@ -116,10 +116,10 @@ input, select { display: block; width: 100%; margin-top: .3rem; padding: .5rem .
 .dashboard-empty { color: var(--muted); }
 [data-dashboard-count]:empty { margin: 0; }
 .dashboard-empty button { min-height: 2.75rem; margin: .15rem; padding: .2rem .65rem; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); color: var(--accent); font-weight: 700; }
-.news-filters:not([hidden]) { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: 1rem; }
-.news-filters button { padding-inline: .85rem; border: 1px solid var(--accent); border-radius: 999px; background: white; color: var(--accent); font-size: .9rem; }
-.news-filters button:hover { background: #e8f6ef; }
-.news-filters button[aria-pressed="true"] { background: var(--accent); color: white; }
+:is(.news-filters, .admin-status-filters):not([hidden]) { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: 1rem; }
+:is(.news-filters, .admin-status-filters) button { padding-inline: .85rem; border: 1px solid var(--accent); border-radius: 999px; background: white; color: var(--accent); font-size: .9rem; }
+:is(.news-filters, .admin-status-filters) button:hover { background: #e8f6ef; }
+:is(.news-filters, .admin-status-filters) button[aria-pressed="true"] { background: var(--accent); color: white; }
 .convenience-reset, .convenience-copy { margin: .75rem .4rem 0 .4rem; color: var(--accent); background: #e8f6ef; border: 1px solid var(--line); }
 .convenience-reset:hover, .convenience-copy:hover { background: #d9f0e6; }
 .back-to-top { position: fixed; right: 1rem; bottom: 1rem; z-index: 5; box-shadow: 0 2px 8px #15293b33; }
@@ -236,6 +236,10 @@ summary { cursor: pointer; padding: .5rem 0; font-weight: 700; }
 .proposal-details dd { margin: 0 0 var(--space-2); }
 .proposal-details ul { margin-block: var(--space-1); padding-inline-start: var(--space-4); }
 .admin-timeline { margin: 0; }
+.admin-timeline tr[hidden] { display: none; }
+.admin-now-items { list-style: none; padding: 0; }
+.admin-now-items > li + li { margin-top: var(--space-3); border-top: 1px solid var(--line); padding-top: var(--space-3); }
+.admin-now-items h3, .admin-now-items p { margin-block: var(--space-1); }
 .admin-timeline th, .admin-timeline td { text-align: left; vertical-align: top; padding: var(--space-2); }
 .admin-timeline tbody th { white-space: nowrap; }
 .admin-timeline .admin-audit-detail td { padding-top: 0; border-bottom: 2px solid var(--line); }

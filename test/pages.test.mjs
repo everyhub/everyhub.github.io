@@ -193,12 +193,12 @@ test('관리 요청과 Markdown 감사 내보내기는 같은 순서·상태·�
   const html = adminTimelinePage(config);
   const markdown = renderRequirementsAudit();
   const body = html.match(/class="admin-timeline"[^]*?<tbody[^>]*>([^]*?)<\/tbody>/)[1];
-  assert.deepEqual([...body.matchAll(/<tr role="row" id="([^"]+)">/g)].map(([, id]) => id),
+  assert.deepEqual([...body.matchAll(/<tr role="row" id="([^"]+)"[^>]*>/g)].map(([, id]) => id),
     rows.map(({ id }) => id));
   assert.equal(new Set(rows.map(({ id }) => id)).size, rows.length);
   assert.equal(markdown.match(/^\| \d{4}-/gm).length, rows.length);
   for (const { id, time, request, status, links } of rows) {
-    assert.match(body.split(`id="${id}">`)[1].split('</tr>')[0], new RegExp(`<strong>${status}</strong>`));
+    assert.match(body.split(`id="${id}"`)[1].split('</tr>')[0], new RegExp(`<strong>${status}</strong>`));
     assert.ok(markdown.includes(`| ${time} | ${request} |`));
     for (const url of links) assert.ok(markdown.includes(`(<${url}>)`));
   }

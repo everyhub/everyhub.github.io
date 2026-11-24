@@ -2,6 +2,7 @@ import { layout } from './pages.mjs';
 import { brand } from './tool-specs.mjs';
 import { adminPending, adminTimeline, auditEvidenceLabel, initialDeployment, sortAdminTimeline } from './admin-log.mjs';
 import { adminProposals, sortAdminProposals } from './admin-proposals.mjs';
+import activeWork from './admin-now.json' with { type: 'json' };
 
 export const adminPath = 'ops-7f3a9c2d/';
 export const adminProposalsPath = adminPath + 'recommendations/';
@@ -16,9 +17,27 @@ function adminTabs(root, current) {
   ].map(([path, name]) => `<li><a href="${root}${path}"${path === current ? ' aria-current="page"' : ''}>${name}</a></li>`).join('')}</ul></nav>`;
 }
 
-export function adminTimelinePage(config) {
+const kst = new Intl.DateTimeFormat('sv-SE', {
+  timeZone: 'Asia/Seoul', dateStyle: 'short', timeStyle: 'short',
+});
+const kstTime = (value) => `<time datetime="${escape(value)}">${kst.format(new Date(value))} KST</time>`;
+
+function activeWorkPanel(items) {
+  const recent = [...items].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  return `<section class="panel admin-now" aria-labelledby="admin-now-title"><h2 id="admin-now-title">지금 작업 중</h2>
+    ${recent.length ? `<ul class="admin-now-items">${recent.map(({ title, step, startedAt, updatedAt }) => `<li>
+      <h3>${escape(title)}</h3><p>현재 단계: ${escape(step)}</p>
+      <p class="note">시작: ${kstTime(startedAt)} · 마지막 갱신: ${kstTime(updatedAt)}</p>
+    </li>`).join('')}</ul>` : '<p>현재 진행 중인 작업 없음</p>'}
+    <p class="note">배포에 반영된 작업 기록입니다. 실시간 상태는 아닙니다.</p>
+  </section>`;
+}
+
+const timelineFilters = ['전체', '진행중', '부분', '미확인', '완료', '제외'];
+
+export function adminTimelinePage(config, items = activeWork) {
   const linkList = (links) => links.length ? `<ul class="foot-list">${links.map((link) => `<li><a href="${escape(link)}">${escape(auditEvidenceLabel(link))}</a></li>`).join('')}</ul>` : '—';
-  const rows = sortAdminTimeline(adminTimeline).map(({ id, time, request, reflection, status, reason, links, items }) => `<tr role="row" id="${escape(id)}">
+  const rows = sortAdminTimeline(adminTimeline).map(({ id, time, request, reflection, status, reason, links, items }) => `<tr role="row" id="${escape(id)}" data-timeline-status="${escape(status)}">
     <th role="rowheader" scope="row"><time datetime="${escape(time.replace(' ', 'T') + '+09:00')}">${escape(time)}</time></th>
     <td role="cell"><span class="admin-cell-label" aria-hidden="true">요청</span>${escape(request)}</td>
     <td role="cell"><span class="admin-cell-label" aria-hidden="true">반영 내용</span>${escape(reflection)}</td>
@@ -35,12 +54,15 @@ export function adminTimelinePage(config) {
   return layout({
     config, path: adminPath, root: '../', title: `작업 요청 타임라인 | ${brand}`,
     description: '에브리허브 작업 요청과 반영 상태를 기록한 내부 운영 문서입니다.',
-    localOnly: true, robots: 'noindex,nofollow',
+    localOnly: true, robots: 'noindex,nofollow', script: 'admin-browser.mjs',
     main: `<p class="eyebrow">내부 운영 문서 · 마지막 기록 ${escape(latestTime)} KST</p>
       <h1>작업 요청 타임라인</h1>
       ${adminTabs('../', adminPath)}
+      ${activeWorkPanel(items)}
       <p class="intro">진행 중인 작업을 먼저 표시하고, 각 그룹은 최신순으로 정렬합니다. 모든 세부 항목의 운영 증거가 있어야 요청을 완료로 표시합니다. 요청 시각이 없으면 관련 작업 시각을 한국시간으로 표시합니다. 이 페이지는 로그인으로 보호되지 않으며, 사이트맵과 메뉴에서 연결하지 않습니다. 새 요청은 <code>src/admin-log.mjs</code>에 기록합니다.</p>
-      <div class="admin-table-wrap"><table class="admin-timeline" role="table"><thead role="rowgroup"><tr role="row">${['시각(KST)', '요청', '반영 내용', '상태', '사유', '근거 URL'].map((label) => `<th role="columnheader" scope="col">${label}</th>`).join('')}</tr></thead><tbody role="rowgroup">${rows}</tbody></table></div>
+      <div class="admin-status-filters" role="group" aria-label="타임라인 상태 필터" hidden>${timelineFilters.map((status, i) => `<button type="button" data-timeline-filter="${status}" aria-pressed="${i === 0}" aria-controls="admin-timeline">${status}</button>`).join('')}</div>
+      <p data-timeline-empty role="status" hidden>선택한 상태의 요청이 없습니다.</p>
+      <div class="admin-table-wrap"><table id="admin-timeline" class="admin-timeline" role="table"><thead role="rowgroup"><tr role="row">${['시각(KST)', '요청', '반영 내용', '상태', '사유', '근거 URL'].map((label) => `<th role="columnheader" scope="col">${label}</th>`).join('')}</tr></thead><tbody role="rowgroup">${rows}</tbody></table></div>
       <section class="panel"><h2>과거 운영 기록</h2><p>${escape(initialDeployment.request)} · <strong>${escape(initialDeployment.status)}</strong> — ${escape(initialDeployment.reason)} ${escape(initialDeployment.reflection)}</p></section>
       <section class="panel"><h2>보류·다음 확인</h2><ul>${pending}</ul></section>`,
   });

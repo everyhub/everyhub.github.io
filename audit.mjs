@@ -6,6 +6,7 @@ import { extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { adminTimeline, sortAdminTimeline } from './src/admin-log.mjs';
+import activeWork from './src/admin-now.json' with { type: 'json' };
 import { PDFDocument } from './src/utility-vendor/pdf-lib-1.17.1.mjs';
 import { jpegLocation } from './src/photo-location.mjs';
 import { jpegWithGPS } from './test/photo-location-fixture.mjs';
@@ -263,6 +264,13 @@ try {
           cases++;
         }
         if (route === '/ops-7f3a9c2d/') {
+          const activePanel = page.getByRole('region', { name: '지금 작업 중' });
+          const titles = await activePanel.getByRole('heading', { level: 3 }).allTextContents();
+          const activeTitles = [...activeWork].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).map(({ title }) => title);
+          if (!await activePanel.isVisible() || JSON.stringify(titles) !== JSON.stringify(activeTitles) ||
+              (!activeWork.length && !await activePanel.getByText('현재 진행 중인 작업 없음', { exact: true }).isVisible())) {
+            issue('Incorrect admin active work');
+          }
           const expected = sortAdminTimeline(adminTimeline);
           const rows = page.locator('.admin-timeline tbody > tr[id]');
           const actual = await rows.evaluateAll((nodes) => nodes.map((row) => ({
@@ -293,7 +301,22 @@ try {
           if (!await list.isVisible() || await overflow() > 1 || (width === 1440 && (await list.boundingBox()).width < 360)) {
             issue('Admin audit details are hidden, cramped or overflow');
           }
-          cases += 2;
+          const filters = page.getByRole('group', { name: '타임라인 상태 필터' });
+          for (const status of ['진행중', '부분', '미확인', '완료', '제외', '전체']) {
+            const button = filters.getByRole('button', { name: status, exact: true });
+            await button.click();
+            const visible = await rows.evaluateAll((nodes) => nodes.filter((row) => !row.hidden).map((row) => row.id));
+            const referenceIds = expected.filter((row) => status === '전체' || row.status === status).map(({ id }) => id);
+            if (JSON.stringify(visible) !== JSON.stringify(referenceIds) ||
+                await rows.evaluateAll((nodes) => nodes.some((row) => row.hidden !== row.nextElementSibling.hidden ||
+                  row.hidden !== (getComputedStyle(row).display === 'none') ||
+                  row.hidden !== (getComputedStyle(row.nextElementSibling).display === 'none'))) ||
+                await button.getAttribute('aria-pressed') !== 'true' ||
+                await filters.getByRole('button', { pressed: true }).count() !== 1 ||
+                await overflow() > 1) issue('Admin timeline filter mismatch: ' + status);
+            cases++;
+          }
+          cases += 3;
         }
         if (route === '/ops-7f3a9c2d/recommendations/') {
           if (!await page.getByText('등록됨 · 첫 실행 확인 대기', { exact: true }).isVisible()) issue('Daily Devin status missing');

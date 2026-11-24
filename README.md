@@ -58,6 +58,7 @@ python3 -m http.server 8080 --bind 127.0.0.1 --directory dist
 
 - `/tools/`는 글쓰기, 이미지·PDF, 날짜·시간, 생활 계산, 개발 도구의 하위 허브 5개로 연결합니다. 왼쪽 메뉴와 HTML 사이트맵에는 하위 허브까지만 나열하고, 기존 도구 주소와 새 개별 도구는 XML 사이트맵에 모두 포함합니다.
 - 사용자 요청을 반영할 때마다 `src/admin-log.mjs`에 KST 시각, 요청, 반영 내용, 상태와 커밋·배포 기록을 한 행씩 추가합니다. 작업 타임라인은 메뉴·HTML/XML 사이트맵과 연결하지 않으며 `noindex,nofollow`를 사용합니다. 로그인으로 보호되는 페이지는 아니므로 경로를 공개 링크에 적지 않고 비공개 정보를 넣지 않습니다.
+- 모든 작업 세션과 자동화 실행은 시작할 때 `npm run now -- start "작업명" "현재 단계"`, 단계가 바뀌면 `npm run now -- step "작업명" "새 단계"`를 실행하세요. 끝날 때는 성공·실패와 관계없이 `npm run now -- done "작업명"`으로 자신의 항목을 지웁니다. 각 변경은 `src/admin-now.json`을 커밋·푸시한 뒤 Pages가 배포하면 관리 페이지의 **지금 작업 중**에 표시됩니다. 요청의 완료 여부는 별도로 작업 타임라인에 기록하고, 상태 필터로 확인합니다.
 - 모든 사용자 요청과 답변에서 약속한 항목을 `src/admin-audit-items.mjs`에 각각 기록하세요. 각 세부 항목을 운영 사이트에서 실제 사용하여 성공한 검사·화면과 근거 URL을 남긴 뒤에만 완료로 표시합니다. 검증하지 못하거나 반영하지 못한 항목에는 구체적인 사유·남은 일을 쓰고, 하위 항목이 하나라도 완료가 아니면 상위 요청을 종료하지 않습니다.
 - 운영 사이트에서도 동일한 브라우저 검사를 하려면 `AUDIT_LIVE_URL=https://everyhub.github.io npm run audit`를 실행합니다. 관리 타임라인과 동일한 표는 `node --input-type=module -e "import { renderRequirementsAudit } from './src/admin-log.mjs'; process.stdout.write(renderRequirementsAudit())" > "$HOME/everyhub-requirements-audit.md"`로 내보냅니다.
 - 관리 페이지의 추천은 GitHub 이슈에서만 승인·거절합니다. [일일 추천 운영 절차](docs/daily-proposals.md)는 매일 09:13 KST에 실행하도록 등록됐으며, **등록됨 · 첫 실행 확인 대기**(2026-11-25 09:13 KST 예정) 상태입니다. 운영용 토큰은 **2027-01-23** 만료 전에 같은 최소 권한으로 교체합니다.
