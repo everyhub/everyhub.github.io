@@ -61,7 +61,7 @@ export function adminProposalsPage(config, proposals = adminProposals) {
         <dt>위험·제외 조건</dt><dd>${escape(risks)}</dd>
       </dl>
       ${issue && status === '제안' ? `<p><a class="button" href="${escape(issueUrl)}" aria-label="${escape(title)} 승인 검토 (GitHub)">승인 <span aria-hidden="true">↗</span></a></p>
-      <p class="note">권한이 있는 GitHub 계정으로 이슈에 <strong>승인</strong> 라벨을 달거나 <strong>승인</strong> 댓글을 남겨 주세요. 일일 자동 실행이 설정되면 다음 실행에서 승인된 항목을 검토합니다. 거절하려면 <strong>거절</strong> 라벨을 달아 주세요.</p>` : issue ? `<p><a href="${escape(issueUrl)}">GitHub 이슈 보기</a></p>` : ''}
+      <p class="note">권한이 있는 GitHub 계정으로 이슈에 <strong>승인</strong> 라벨을 달거나 <strong>승인</strong> 댓글을 남겨 주세요. 일일 자동 실행에서 승인된 항목을 검토하도록 등록했습니다. 거절하려면 <strong>거절</strong> 라벨을 달아 주세요.</p>` : issue ? `<p><a href="${escape(issueUrl)}">GitHub 이슈 보기</a></p>` : ''}
     </article>`;
   }).join('');
   return layout({
@@ -70,7 +70,8 @@ export function adminProposalsPage(config, proposals = adminProposals) {
     localOnly: true, robots: 'noindex,nofollow',
     main: `<h1>페이지 추가 추천</h1>
       ${adminTabs('../../', adminProposalsPath)}
-      <p class="intro">검색 동향과 공식 자료를 바탕으로 어떤 페이지를 추가할지 제안합니다. 일일 조사·반영은 아직 예약되지 않았습니다. 승인이나 거절은 권한이 있는 GitHub 계정에서 처리합니다.</p>
+      <p class="intro">검색 동향과 공식 자료를 바탕으로 어떤 페이지를 추가할지 제안합니다. 승인이나 거절은 권한이 있는 GitHub 계정에서 처리합니다.</p>
+      <p class="note"><strong>등록됨 · 첫 실행 확인 대기</strong> — 매일 09:13 KST, 첫 예정 실행 2026-11-25 09:13 KST.</p>
       ${cards || '<p class="panel">등록된 제안이 없습니다. 조사 결과가 등록되면 이곳에 표시됩니다.</p>'}`,
   });
 }
