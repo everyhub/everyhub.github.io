@@ -12,7 +12,7 @@ execFileSync(process.execPath, [fileURLToPath(new URL('./build.mjs', import.meta
   stdio: 'inherit', env: { ...process.env, GITHUB_OUTPUT: '', NEWS_SKIP_UNCHANGED: '0', ADSENSE_CLIENT_ID: '', ADSENSE_SLOT_ID: '' },
 });
 const routes = (await readdir(dist, { recursive: true }))
-  .filter((path) => /(^|\/)index\.html$/.test(path) && !path.split('/').some((segment) => /^\d+$/.test(segment)))
+  .filter((path) => /(^|\/)index\.html$/.test(path) && !/^(salary|hourly|severance|median-income)\/\d+\//.test(path))
   .map((path) => '/' + path.replace(/index\.html$/, ''))
   .sort();
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.wasm': 'application/wasm' };
@@ -73,6 +73,7 @@ try {
     if (response.status() >= 400) issue(`HTTP ${response.status()}: ${new URL(response.url()).pathname}`);
   });
   const page = await context.newPage();
+  await page.clock.setFixedTime(new Date('2026-05-24T15:05:00Z'));
   page.on('pageerror', (error) => issue(error.message));
   page.on('console', (message) => {
     if (message.type() === 'error') issue('Console: ' + message.text());
@@ -95,6 +96,26 @@ try {
         if (!response?.ok()) issue('Page did not return 200');
         const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
         if (await overflow() > 1) issue('Page overflows horizontally');
+        if (route.startsWith('/info/holidays/')) {
+          const calendar = await page.locator('.calendar-grid').evaluate((grid) => {
+            const current = grid.querySelector('[aria-current="date"]');
+            return {
+              months: grid.children.length,
+              columns: getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+              today: current?.dateTime ?? null,
+              substitute: grid.querySelector('.long-break.substitute time[datetime$="-05-25"]')?.dateTime ?? null,
+            };
+          });
+          const is2026 = route.endsWith('/2026/');
+          if (calendar.months !== 12 || calendar.columns !== (width === 390 ? 1 : 3)) issue('Incorrect calendar layout');
+          if (calendar.today !== (is2026 ? '2026-05-25' : null) || (is2026 && calendar.substitute !== '2026-05-25')) {
+            issue('Incorrect Korean-time today or substitute holiday indicator');
+          }
+          if (await page.locator('.calendar-years a[aria-current="page"]').getAttribute('href') !== '../../..' + route) {
+            issue('Incorrect active calendar year');
+          }
+          cases++;
+        }
         if (route === '/tools/background-removal/') {
           const embedded = page.frameLocator('iframe');
           await embedded.locator('input[value="portrait"]').check();

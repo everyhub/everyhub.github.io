@@ -124,6 +124,50 @@ th { text-align: left; }
 td, thead th:not(:first-child) { text-align: right; }
 thead th, tfoot th, tfoot td { font-weight: 760; }
 tfoot { color: var(--accent); }
+.calendar-section, #holiday-list { margin-block: 1.5rem; scroll-margin-top: 1rem; }
+.calendar-years, .calendar-legend, .calendar-jumps { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+.calendar-years a { display: block; padding: .5rem .9rem; border: 1px solid var(--line); border-radius: 999px; background: white; font-weight: 750; text-decoration: none; }
+.calendar-years a[aria-current="page"] { background: var(--accent); color: white; border-color: var(--accent); }
+.calendar-jumps { gap: 1rem; margin-block: .65rem 1rem; }
+.calendar-legend { margin: 0; padding: 0; list-style: none; font-size: .8rem; }
+.calendar-legend li { padding: .18rem .4rem; border-radius: .28rem; }
+.calendar-grid { display: grid; gap: .8rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.calendar-month { padding: .7rem; border: 1px solid var(--line); border-radius: .8rem; background: white; }
+.calendar-month table { table-layout: fixed; border-collapse: separate; border-spacing: 0 .15rem; font-size: .82rem; }
+.calendar-month caption { margin: 0 0 .3rem; color: var(--ink); font-size: 1.05rem; font-weight: 760; }
+.calendar-month td, .calendar-month th { padding: 0; border: 0; text-align: center; }
+.calendar-month time { display: inline-grid; place-items: center; min-width: 1.55rem; min-height: 1.55rem; border-radius: .25rem; }
+.calendar-month .saturday, .calendar-legend .saturday { color: #254a79; background: #f4f8fd; }
+.calendar-month .sunday, .calendar-legend .sunday { color: #843451; background: #fcf3f7; }
+.calendar-month .long-break, .calendar-legend .long-break { background: #e2eefc; }
+.calendar-month .holiday time, .calendar-legend .holiday { background: #fce7eb; color: #8a233c; font-weight: 760; }
+.calendar-month .substitute time, .calendar-legend .substitute { background: #fff0c9; color: #714700; font-weight: 760; }
+.calendar-month time[aria-current="date"], .calendar-current { outline: 2px solid var(--accent); outline-offset: -1px; color: var(--accent); font-weight: 800; scroll-margin-top: 1rem; }
+.calendar-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.calendar-notes { margin: .55rem 0 0; padding: 0; list-style: none; color: var(--muted); font-size: .78rem; }
+.calendar-notes span { color: #8a233c; font-weight: 750; }
+.calendar-notes .substitute span { color: #714700; }
+@media (max-width: 66rem) { .calendar-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 34rem) { .calendar-grid { grid-template-columns: 1fr; } }
+.holiday-table td, .holiday-table thead th { text-align: left; }
+.holiday-table td:first-child { white-space: nowrap; }
+.tax-timeline, .tax-timeline ul { padding: 0; list-style: none; }
+.tax-timeline { display: grid; gap: .75rem; margin-block: 1rem; }
+.tax-timeline > li { display: grid; grid-template-columns: 3.3rem minmax(0, 1fr); gap: .75rem; align-items: start; }
+.tax-timeline h3 { margin: 0; padding: .4rem .25rem; border-radius: .4rem; background: #e8f6ef; color: var(--accent); text-align: center; }
+.tax-timeline ul { border-left: 2px solid var(--line); padding-left: .75rem; }
+.tax-timeline ul li + li { margin-top: .5rem; }
+.tax-range { display: inline-block; color: var(--accent); font-weight: 700; margin-right: .25rem; }
+.tax-timeline small, .rate-comparison small { display: block; font-weight: 400; }
+.rate-comparison { table-layout: fixed; }
+.rate-comparison th:first-child { width: 40%; }
+.rate-comparison th, .rate-comparison td { overflow-wrap: anywhere; }
+.rate-comparison tbody tr:nth-child(odd) { background: #f4f8fa; }
+.rate-comparison tbody td:last-child { font-weight: 700; }
+@media (max-width: 34rem) {
+  .rate-comparison { font-size: .83rem; }
+  .rate-comparison small { font-size: .75rem; }
+}
 .tag-list { display: flex; flex-wrap: wrap; list-style: none; margin: .5rem 0 0; padding: 0; gap: .4rem; }
 .tag-list a { display: block; padding: .38rem .65rem; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; }
 .tag-list a:hover { background: #e8f6ef; }

@@ -182,11 +182,23 @@ test('월력요항 및 개정 법령에 따른 공휴일과 주 5일제 연휴�
     assert.ok(html.includes(`href="${config.baseURL}${path}"`));
     assert.match(html, /"@type":"CollectionPage"/);
   }
+  const holiday = (year) => pages.find(({ path }) => path === `info/holidays/${year}/`).html;
+  for (const year of [2026, 2027]) {
+    const html = holiday(year);
+    assert.equal([...html.matchAll(/class="calendar-month"/g)].length, 12);
+    assert.equal([...html.matchAll(/<time datetime="\d{4}-\d{2}-\d{2}">\d+<\/time>|<time datetime="\d{4}-\d{2}-\d{2}" title="/g)].length, 365);
+    assert.match(html, new RegExp(`href="\\.\\.\\/\\.\\.\\/\\.\\.\\/info/holidays/${year}/" aria-current="page"`));
+    assert.match(html, /href="#holiday-list"/);
+  }
+  assert.match(holiday(2026), /<td class="long-break substitute"><time datetime="2026-05-25"/);
+  assert.match(holiday(2027), /<time datetime="2027-07-19" title="대체공휴일\(제헌절\)"/);
   const tax = pages.find(({ path }) => path === 'info/tax-calendar/').html;
   assert.match(tax, /국세청 · 2027년 세무일정/);
+  assert.match(tax, /class="tax-timeline"[\s\S]*<h3>1월<\/h3>[\s\S]*<h3>5월<\/h3>[\s\S]*<h3>7월<\/h3>/);
   const yearly = pages.find(({ path }) => path === 'info/yearly-rates/').html;
   assert.match(yearly, /2,236,300원/);
   assert.match(yearly, /13\.90%/);
+  assert.match(yearly, /class="rate-comparison"[\s\S]*<th scope="row">국민연금/);
 });
 
 test('예시 페이지는 2026년 시급 12,000원과 연봉 4,000만원 표를 제공', () => {

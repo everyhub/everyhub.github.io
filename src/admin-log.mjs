@@ -18,6 +18,7 @@ export const adminTimeline = [
   { time: '2026-11-24 23:45', request: '방문자 수를 관리 페이지에서 확인할 수 있는지 알려 달라.', reflection: '현재 정적 관리 페이지에는 방문자 집계가 연결되어 있지 않습니다.', status: '제외', reason: '방문자 분석 도입 여부와 개인정보·동의 방식을 결정한 뒤 진행합니다.', links: [] },
   { time: '2026-11-24 23:48', request: '긱뉴스처럼 개발자가 선별한 뉴스 출처를 검토해 반영해 달라.', reflection: '국내 IT에 긱뉴스를 먼저 표시하고 토스, 해외 IT에 GitHub Changelog·LY Corporation, AI에 Google DeepMind를 추가했습니다. 분야별 출처 필터를 적용했습니다.', status: '완료', links: ['https://everyhub.github.io/news/korea/', '8083dae', 'https://github.com/everyhub/everyhub.github.io/actions/runs/45418992749'] },
   { time: '2026-11-24 23:53', request: '만 나이의 연도 입력을 네 자리로 제한하고 기존 도구의 오류와 외부 정보 전송을 점검해 달라.', reflection: '날짜 입력 범위를 제한하고 오류 안내를 추가했습니다. 계산기·도구의 외부 연결과 폼 전송을 CSP로 차단하고, 모바일·데스크톱 입력 및 네트워크 감사를 푸시 전 점검에 추가했습니다.', status: '완료', links: ['https://everyhub.github.io/tools/age/'] },
+  { time: '2026-11-24 23:59', request: '공휴일·연휴에 달력을 추가하고 다른 생활 정보도 읽기 쉽게 개선해 달라.', reflection: '2026·2027년의 12개월 달력과 연도 전환, 한국시간 오늘·휴일 표시를 추가했습니다. 기존 휴일 목록은 보존하고 신고 기간을 월별로, 요율 비교표를 모바일에 맞게 정리했습니다.', status: '완료', links: ['https://everyhub.github.io/info/holidays/2026/', 'https://everyhub.github.io/info/holidays/2027/'] },
 ];
 
 export const adminPending = [
