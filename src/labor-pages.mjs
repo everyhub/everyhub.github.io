@@ -6,8 +6,9 @@ import { formatNumber, salaryName, won } from './display.mjs';
 import { severancePay, wageConversion } from './labor.mjs';
 import { medianIncome } from './guides.mjs';
 import { examplePages, groupedTools, medianPages, siteTree } from './navigation.mjs';
+import { housingExamples } from './housing-examples.mjs';
 
-const examples = [...examplePages, ...medianPages];
+const examples = [...examplePages, ...medianPages, ...housingExamples];
 const toolLink = (root, id) => `<a href="${root}${toolPath(id)}">${tools[id].name}</a>`;
 const exampleLink = (root, example) => `<a href="${root}${example.path}">${example.title}</a>`;
 const review = `공식 자료 확인 <time datetime="${verifiedOn}">${verifiedOn}</time>`;
@@ -54,12 +55,13 @@ function toolPage(config, id, tool) {
     path: toolPath(id), root, faq: tool.faq, application: tool.name, script: 'labor-browser.mjs',
     main: `<p class="eyebrow"><a href="${root}${category.id}/">${category.title}</a> · ${review}</p>
       <h1>${tool.name}</h1><p class="intro">${escape(tool.description)}</p>
+      ${tool.related?.length ? `<ul class="tag-list" aria-label="관련 계산기">${tool.related.map((related) => `<li>${toolLink(root, related)}</li>`).join('')}</ul>` : ''}
       <section class="panel" aria-labelledby="tool-calculate"><h2 id="tool-calculate">조건 입력</h2>
         <form id="tool-form" data-tool="${id}"><div class="form-grid">${tool.fields.map(formField).join('')}</div>
           <p><button type="submit">계산하기</button></p>
           <noscript><p>입력에 따른 계산은 자바스크립트가 필요합니다. 현재 기본 예시를 표시합니다.</p></noscript>
         </form>
-        <div class="tool-result"><h3>계산 결과</h3><p id="tool-status" role="status"></p>
+        <div class="tool-result"><h3>계산 결과</h3><p id="tool-status" role="status">${result.note ? escape(result.note) : ''}</p>
           <dl class="tool-output">${tool.outputs.map(({ key, label, format }) => `<div><dt>${escape(label)}</dt><dd data-result="${key}">${result[key] === undefined ? '표시 대상 아님' : escape(format(result[key]))}</dd></div>`).join('')}</dl>
           ${tool.iterate ? `<ol id="tool-periods" aria-label="개월별 예상 지급액">${result[tool.iterate].map((amount, i) => `<li>${i + 1}개월째 ${won(amount)}</li>`).join('')}</ol>` : ''}
         </div>
@@ -158,7 +160,7 @@ function medianPage(config, { path, title, year, size }) {
   return layout({
     config, path, root, title: `${title} ${won(data.median)} | ${brand}`,
     description: `${title}은 월 ${won(data.median)}입니다. 생계급여 ${won(data.livelihood)} 등 급여별 가구 소득 기준을 확인하세요.`, faq,
-    main: `<p class="eyebrow"><a href="${root}living/">복지·주거</a> · ${year}년 1월 1일 기준</p>
+    main: `<p class="eyebrow"><a href="${root}living/">복지·소득</a> · ${year}년 1월 1일 기준</p>
       <h1>${title}</h1>
       <div class="net"><div>월 기준 중위소득<strong>${won(data.median)}</strong></div></div>
       <p class="intro">같은 가구원 수로 <a href="${root}median-income/${otherYear}/${size}/">${otherYear}년 기준</a>을 보면 월 ${won(other.median)}입니다.</p>
@@ -181,12 +183,38 @@ function sitemapPage(config) {
   });
 }
 
+function housingExample(config, { id, path, title, description, rowKeys, cases }) {
+  const root = '../../';
+  const tool = tools[id];
+  const columns = tool.outputs.filter(({ key }) => rowKeys.includes(key));
+  const rows = cases.map(([name, inputs]) => {
+    const result = tool.calculate({ ...defaultsFor(tool), ...inputs });
+    const values = columns.map(({ key, format }) => result[key] === undefined ? '해당 없음' : format(result[key]));
+    return { name, values };
+  });
+  const faq = rows.map(({ name, values }) => [
+    `${name} 조건의 계산 결과는 어떻게 되나요?`,
+    columns.map(({ label }, i) => `${label}: ${values[i]}`).join(', ') + '.',
+  ]);
+  return layout({
+    config, path, root, title: `${title} | ${brand}`, description, faq,
+    main: `<p class="eyebrow"><a href="${root}housing/">주거·전월세</a> · ${review}</p>
+    <h1>${title}</h1><p class="intro">${description}</p>
+    <section class="panel"><h2>조건별 예상 금액</h2><table><thead><tr><th scope="col">조건</th>
+    ${columns.map(({ label }) => `<th scope="col">${escape(label)}</th>`).join('')}</tr></thead><tbody>
+    ${rows.map(({ name, values }) => `<tr><th scope="row">${name}</th>${values.map((value) => `<td>${escape(value)}</td>`).join('')}</tr>`).join('')}
+    </tbody></table><p class="note">${escape(tool.scope)}</p><p>${toolLink(root, id)}</p></section>
+    <section class="panel"><h2>공식 계산 기준</h2>${sourcesHTML(tool.sources)}</section>${faqHTML(faq)}`,
+  });
+}
+
 export function extraPages(config) {
   return [
     ...categories.map((category) => ({ path: `${category.id}/`, html: categoryPage(config, category) })),
     ...Object.entries(tools).map(([id, tool]) => ({ path: toolPath(id), html: toolPage(config, id, tool) })),
     ...examplePages.map((example) => ({ path: example.path, html: examplePage(config, example) })),
     ...medianPages.map((example) => ({ path: example.path, html: medianPage(config, example) })),
+    ...housingExamples.map((example) => ({ path: example.path, html: housingExample(config, example) })),
     { path: 'sitemap/', html: sitemapPage(config) },
   ];
 }

@@ -2,6 +2,7 @@ import * as calc from './labor.mjs';
 import { laborRates as r, laborSources as s } from './labor-rates.mjs';
 import { formatNumber, won } from './display.mjs';
 import { guideTools } from './guide-specs.mjs';
+import { housingTools } from './housing-specs.mjs';
 
 export const brand = '에브리허브 (EveryHub)';
 export const categories = [
@@ -10,7 +11,8 @@ export const categories = [
   { id: 'separation', title: '퇴직·실업', description: '퇴직금과 퇴사 후 받을 수 있는 구직급여를 비교하세요.' },
   { id: 'leave', title: '육아·휴가', description: '육아휴직·출산전후휴가의 급여와 근속에 따른 연차 일수를 확인하세요.' },
   { id: 'tax', title: '프리랜서·세금', description: '프리랜서 원천징수, 종합소득세 기본세율, 부가가치세와 증여재산공제 기준을 확인하세요.' },
-  { id: 'living', title: '복지·주거', description: '가구원 수별 기준 중위소득과 기초생활보장 선정 기준, 전세 보증금의 월세 전환 한도를 확인하세요.' },
+  { id: 'living', title: '복지·소득', description: '가구원 수별 기준 중위소득과 기초생활보장 선정 기준을 확인하세요.' },
+  { id: 'housing', title: '주거·전월세', description: 'LH·SH 전환보증금, 전월세 전환 한도, 전세보증보험, 전세대출, 중개보수와 청약을 공식 기준으로 확인하세요.' },
 ];
 
 const number = (key, label, value, min = 0, max = 100_000_000, step = 1) => ({ key, label, value, min, max, step });
@@ -156,6 +158,7 @@ export const tools = {
     ],
   },
   ...guideTools,
+  ...housingTools,
 };
 
 export const toolPath = (id) => `tools/${id}/`;

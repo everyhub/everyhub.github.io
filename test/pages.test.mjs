@@ -77,7 +77,7 @@ test('새 브랜드와 한눈에 바로가기, 별도 연봉 계산기 및 기�
 
 test('각 도구의 공식 출처, 캐노니컬·FAQ·계산기 구조화 데이터', () => {
   const pages = extraPages(config);
-  assert.equal(pages.length, 68);
+  assert.equal(pages.length, 81);
   assert.equal(new Set(pages.map(({ path }) => path)).size, pages.length);
   for (const [id, tool] of Object.entries(tools)) {
     const path = toolPath(id);
@@ -88,7 +88,7 @@ test('각 도구의 공식 출처, 캐노니컬·FAQ·계산기 구조화 데이
     assert.match(html, /2026-11-24/);
     for (const { name, url } of tool.sources) {
       assert.ok(html.includes(name));
-      assert.match(new URL(url).hostname, /(?:^|\.)(?:(?:law|moel|work24|minimumwage|mohw|lawmaking|korea|nts)\.go\.kr|(?:nhis|nps|bok)\.or\.kr|korea\.kr)$/);
+      assert.match(new URL(url).hostname, /(?:^|\.)(?:(?:law|moel|work24|minimumwage|mohw|lawmaking|korea|nts|molit|seoul|goheung|hf)\.go\.kr|(?:nhis|nps|bok|lh|khug)\.or\.kr|(?:i-sh|sgic|applyhome)\.co\.kr|korea\.kr)$/);
     }
   }
 });

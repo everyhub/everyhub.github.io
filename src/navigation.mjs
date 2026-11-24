@@ -4,6 +4,7 @@ import { categories, toolPath, tools } from './tool-specs.mjs';
 import { informationSections } from './information.mjs';
 import { newsSections } from './news-config.mjs';
 import { utilitySections } from './utility-config.mjs';
+import { housingExamples } from './housing-examples.mjs';
 
 export const salaryCalculatorPath = 'tools/salary-calculator/';
 
@@ -23,14 +24,15 @@ export const medianPages = [2026, 2027].flatMap((year) =>
 export const groupedTools = (category) => Object.entries(tools).filter(([, tool]) => tool.category === category);
 
 const keyPaths = ['hourly/10320/', 'hourly/10700/', 'hourly/12000/', 'severance/4000/', 'severance/5000/',
-  'median-income/2026/1/', 'median-income/2027/1/', 'median-income/2027/4/'];
+  'median-income/2026/1/', 'median-income/2027/1/', 'median-income/2027/4/',
+  ...housingExamples.map(({ path }) => path)];
 
 function link(root, path, title, current) {
   return `<a href="${root}${path}"${path === current ? ' aria-current="page"' : ''}>${title}</a>`;
 }
 
 export function siteTree(root, path, { full = false, salaries = [] } = {}) {
-  const examples = [...examplePages, ...medianPages];
+  const examples = [...examplePages, ...medianPages, ...housingExamples];
   const directory = (group, name, pages) => `<li>${link(root, group, name, path)}<ul>
     ${pages.map(({ path: childPath, name: childName }) => `<li>${link(root, childPath, childName, path)}</li>`).join('')}</ul></li>`;
   return `<ul class="site-tree">${categories.map(({ id, title }) => `<li>

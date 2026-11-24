@@ -22,5 +22,5 @@ form.addEventListener('submit', (event) => {
     item.textContent = `${i + 1}개월째 ${won(amount)}`;
     return item;
   }));
-  status.textContent = `계산 결과: ${[...rows.values()].at(-1).textContent}`;
+  status.textContent = result.note ?? `계산 결과: ${[...rows.values()].at(-1).textContent}`;
 });

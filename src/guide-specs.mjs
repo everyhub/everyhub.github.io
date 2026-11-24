@@ -83,10 +83,13 @@ export const guideTools = {
     [out('median', '기준 중위소득 (100%)'), out('selected', '입력한 비율의 월 소득 기준'), out('livelihood', '생계급여 선정 기준 (32%)'), out('medical', '의료급여 선정 기준 (40%)'), out('housing', '주거급여 선정 기준 (48%)'), out('education', '교육급여 선정 기준 (50%)')],
     calc.medianIncome, [s.welfare26, s.welfareRatios26, s.welfare27, s.welfareRatios],
     [['2027년 4인 가구 기준 중위소득은 얼마인가요?', '보건복지부 고시에 따르면 월 6,929,885원입니다. 2026년 월 6,494,738원과 구분해 적용하세요.']]),
-  'rent-conversion': entry('living', '전세·보증금 월세 전환 한도 계산기',
+  'rent-conversion': { ...entry('housing', '전세·보증금 월세 전환 한도 계산기',
     '주택임대차보호법에 따라 보증금의 전부 또는 일부를 월세로 전환할 때 법정 전환율과 월세 증가 한도를 계산하세요.',
     '보증금을 월세로 전환하는 경우에 적용합니다. 반대로 월세를 보증금으로 바꾸는 경우, 신규 계약의 가격 산정, 별도의 임대료 증액 요건은 계산하지 않습니다. 전환 시점의 한국은행 기준금리를 직접 입력하세요.',
     [num('depositReduction', '줄이는 보증금 (원)', 100_000_000), num('baseRate', '전환 시점의 한국은행 기준금리 (%)', 2.5, 0, 20, 0.01), num('existing', '기존 월세 (원)', 0)],
     [out('rate', '법정 전환율 상한 (연)', pct), out('increase', '월세 증가 한도'), out('monthly', '전환 후 한도 (기존 월세 포함)')],
-    calc.rentConversion, [s.rent, s.rentDecree, s.bank], [['월세 전환율은 어떻게 계산하나요?', '연 10%와 한국은행 기준금리에 2%포인트를 더한 값 중 낮은 값을 적용합니다. 줄인 보증금에 이 연이율을 곱하고 12로 나누면 월세 증가 한도가 됩니다.']]),
+    calc.rentConversion, [s.rent, s.rentDecree, s.bank], [
+      ['월세 전환율은 어떻게 계산하나요?', '연 10%와 한국은행 기준금리에 2%포인트를 더한 값 중 낮은 값을 적용합니다. 줄인 보증금에 이 연이율을 곱하고 12로 나누면 월세 증가 한도가 됩니다.'],
+      ['LH·SH 전환보증금도 같은 방식인가요?', '아닙니다. 공공임대의 증액·감액에는 LH·SH가 안내한 방향별 전환이율과 공고·계약의 한도를 확인해야 합니다.'],
+    ]), related: ['public-rent-conversion', 'tenancy-renewal-report'] },
 };
