@@ -3,7 +3,7 @@ import { laborRates } from './labor-rates.mjs';
 import { categories, toolPath, tools } from './tool-specs.mjs';
 import { informationSections } from './information.mjs';
 import { newsSections } from './news-config.mjs';
-import { utilitySections } from './utility-config.mjs';
+import { utilityGroups, utilitySections } from './utility-config.mjs';
 import { housingExamples } from './housing-examples.mjs';
 
 export const salaryCalculatorPath = 'tools/salary-calculator/';
@@ -31,7 +31,7 @@ export const navigationGroups = [
       ? [{ path: salaryCalculatorPath, name: '연봉 실수령액 계산기' }, ...entries(id), ...entries('tax')]
       : entries(id),
   })),
-  { path: 'tools/', name: '도구', items: utilitySections },
+  { path: 'tools/', name: '도구', items: utilityGroups },
   { path: 'news/', name: 'IT·AI 소식', items: newsSections },
   { path: 'info/', name: '생활 정보·복지', items: [...informationSections, ...entries('living')] },
 ];
@@ -46,7 +46,9 @@ function groupLinks(root, { items }, path) {
 
 export function siteTree(root, path) {
   const example = [...examplePages, ...medianPages, ...housingExamples].find((item) => item.path === path);
-  const parent = example ? toolPath(example.id) : path.startsWith('salary/') ? salaryCalculatorPath : path;
+  const utility = utilitySections.find((item) => item.path === path);
+  const parent = example ? toolPath(example.id) : path.startsWith('salary/') ? salaryCalculatorPath
+    : utility ? utilityGroups.find((group) => group.name === utility.group).path : path;
   const hub = path === 'tax/' ? 'pay/' : path === 'living/' ? 'info/' : path;
   return `<ul class="site-tree">${navigationGroups.map((group) => {
     const active = group.path === hub || group.items.some((item) => item.path === parent);

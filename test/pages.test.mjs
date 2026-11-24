@@ -7,7 +7,7 @@ import { holidayCalendar } from '../src/information.mjs';
 import { brand, toolPath, tools } from '../src/tool-specs.mjs';
 import { informationSections } from '../src/information.mjs';
 import { newsSections } from '../src/news-config.mjs';
-import { utilitySections } from '../src/utility-config.mjs';
+import { utilityGroups } from '../src/utility-config.mjs';
 import { examplePages, medianPages, navigationGroups } from '../src/navigation.mjs';
 
 const config = { baseURL: 'https://example.com/salary-calc/' };
@@ -75,7 +75,7 @@ test('새 브랜드와 한눈에 바로가기, 별도 연봉 계산기 및 기�
   assert.match(home, /id="calculator"/);
   const buttons = [...home.matchAll(/class="dashboard-links">([\s\S]*?)<\/ul>/g)].map(([, list]) => list).join('');
   const paths = [...navigationGroups.map(({ path }) => path), ...Object.keys(tools).map(toolPath),
-    ...[...informationSections, ...newsSections, ...utilitySections].map(({ path }) => path),
+    ...[...informationSections, ...newsSections, ...utilityGroups].map(({ path }) => path),
     'news/', 'info/', 'tools/', 'tools/salary-calculator/'];
   for (const path of paths) assert.ok(buttons.includes(`href="./${path}"`), path);
   const salary = salaryCalculatorPage(config);
@@ -116,7 +116,7 @@ test('HTML 사이트맵에는 도구만 표시하며 상세 예시는 계산기�
     assert.ok(pages.some((page) => page.path === path));
   }
   assert.match(sitemap, /href="\.\.\/news\/ai\/"/);
-  assert.match(sitemap, /href="\.\.\/tools\/background-removal\/"/);
+  assert.match(sitemap, /href="\.\.\/tools\/image-pdf\/"/);
   assert.match(sitemap, /href="\.\.\/tools\/salary-calculator\/"/);
   assert.match(sitemap, /href="\.\.\/info\/holidays\/2027\/"/);
   const median = pages.find(({ path }) => path === 'median-income/2027/4/').html;

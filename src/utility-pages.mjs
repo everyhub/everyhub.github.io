@@ -1,9 +1,10 @@
 import { faqHTML, layout, sourcesHTML } from './pages.mjs';
 import { brand } from './tool-specs.mjs';
-import { utilitySections } from './utility-config.mjs';
+import { utilityGroups, utilitySections } from './utility-config.mjs';
+import { extraUtilityForms } from './utility-forms.mjs';
 
 const root = '../../';
-const toolIntro = '사진 편집, 글자 수 세기, 날짜 계산과 면적 환산을 브라우저에서 바로 할 수 있습니다. 사진과 입력값은 서버로 전송하거나 저장하지 않습니다.';
+const toolIntro = '글쓰기, 이미지·PDF, 날짜·시간, 생활 계산과 개발 도구를 브라우저에서 바로 사용하세요. 파일과 입력값은 서버로 보내지 않습니다.';
 const forms = {
   'background-removal': {
     faq: [
@@ -28,8 +29,9 @@ const forms = {
   },
   'character-count': {
     faq: [['이모지는 어떻게 세나요?', '눈으로 읽는 글자 단위로 셉니다. 예를 들어 가족 이모지처럼 여러 코드 포인트가 합쳐진 문자도 한 글자로 셉니다.'],
-      ['바이트는 무엇을 기준으로 세나요?', '입력 전체를 UTF-8로 인코딩한 크기입니다. 공백과 줄바꿈도 포함하며 다른 인코딩을 쓰는 서비스와는 다를 수 있습니다.']],
-    html: '<label>텍스트<textarea name="text" rows="7" placeholder="여기에 글을 입력하거나 붙여 넣으세요."></textarea></label>',
+      ['바이트는 무엇을 기준으로 세나요?', '입력 전체를 UTF-8로 인코딩한 크기입니다. 공백과 줄바꿈도 포함하며 다른 인코딩을 쓰는 서비스와는 다를 수 있습니다.'],
+      ['글자 수 제한을 어떻게 확인하나요?', '자기소개서나 게시글에 적힌 제한을 선택하거나 직접 입력하세요. 공백 포함 글자 수를 기준으로 하며 서비스별 계산 방식은 다를 수 있습니다.']],
+    html: '<label>텍스트<textarea name="text" rows="7" placeholder="여기에 글을 입력하거나 붙여 넣으세요."></textarea></label><div class="form-grid"><label>목표 글자 수<select name="preset"><option value="">사용하지 않음</option><option>500</option><option>1000</option><option>1500</option><option value="custom">직접 입력</option></select></label><label>직접 입력 (자)<input type="number" name="target" min="1" max="1000000" disabled></label></div>',
   },
   age: {
     faq: [['만 나이는 언제 한 살 늘어나나요?', '출생일에 0세이며 생일마다 한 살 늘어납니다. 이 도구는 2월 29일생의 평년 기준에서는 3월 1일부터 한 살을 더합니다.'],
@@ -55,16 +57,23 @@ const forms = {
 };
 
 export function utilityPages(config) {
+  const cards = (items, prefix) => `<div class="sitemap-grid">${items.map(({ name, path, description }) =>
+    `<article class="sitemap-card"><h2><a href="${prefix}${path}">${name}</a></h2><p>${description}</p></article>`).join('')}</div>`;
   const hub = layout({
-    config, root: '../', path: 'tools/', title: `사진 편집·생활 도구 | ${brand}`, description: toolIntro, localOnly: true,
-    main: `<h1>도구</h1><p class="intro">${toolIntro}</p><section class="panel"><h2>도구 모음</h2>
-    ${utilitySections.map(({ name, path, description }) => `<h3><a href="../${path}">${name}</a></h3><p>${description}</p>`).join('')}</section>`,
+    config, root: '../', path: 'tools/', title: `글쓰기·사진 편집·생활 도구 | ${brand}`, description: toolIntro, localOnly: true,
+    main: `<h1>도구</h1><p class="intro">${toolIntro}</p>${cards(utilityGroups, '../')}`,
   });
-  return [{ path: 'tools/', html: hub }, ...utilitySections.map(({ name, path, description }) => {
+  const groups = utilityGroups.map(({ name, path, description }) => ({ path, html: layout({
+    config, root, path, title: `${name} 도구 모음 | ${brand}`, description, localOnly: true,
+    main: `<p class="eyebrow"><a href="${root}tools/">도구</a></p><h1>${name}</h1><p class="intro">${description}</p>
+    ${cards(utilitySections.filter(({ group }) => group === name), root)}`,
+  }) }));
+  return [{ path: 'tools/', html: hub }, ...groups, ...utilitySections.map(({ name, path, description, group }) => {
     const id = path.split('/')[1];
-    const { html, faq, sources } = forms[id];
+    const { html, faq, sources } = forms[id] ?? extraUtilityForms[id];
     const embedded = id === 'background-removal';
-    const main = `<p class="eyebrow"><a href="${root}tools/">도구</a></p><h1>${name}</h1><p class="intro">${description}</p>
+    const parent = utilityGroups.find((item) => item.name === group);
+    const main = `<p class="eyebrow"><a href="${root}tools/">도구</a> · <a href="${root}${parent.path}">${group}</a></p><h1>${name}</h1><p class="intro">${description}</p>
     ${embedded ? html : `<section class="panel"><form data-utility="${id}">${html}
       <output class="utility-result" aria-live="polite"></output></form></section>`}
     ${sources ? `<section class="panel"><h2>공식 자료</h2>${sourcesHTML(sources)}</section>` : ''}
