@@ -25,9 +25,22 @@ export const adminTimeline = [
   { time: '2026-11-25 00:07', request: '바로가기 검색에서 이름이 정확히 기억나지 않아도 ‘나이’, ‘집’ 같은 단어로 관련 도구를 찾고 싶다.', reflection: '홈에 관련어·초성·한 글자 오타 검색, 분야 표시와 추천 검색어, 키보드 이동을 적용했습니다. 검색어는 전송하거나 저장하지 않습니다.', status: '완료', links: ['https://everyhub.github.io/#shortcuts'] },
   { time: '2026-11-25 00:13', request: '반영 내역을 모아 보는 관리 페이지 주소를 다시 알려 주고, 홈에 남은 연봉 계산기 안내 링크를 정리해 달라.', reflection: '홈 하단에 별도로 남아 있던 연봉 계산 기준 링크를 제거했습니다. 급여·세금 카드와 바로가기 검색에서는 기존 계산기를 계속 열 수 있습니다. 이 페이지가 반영 내역을 보는 관리 페이지입니다.', status: '완료', links: ['https://everyhub.github.io/'] },
   { time: '2026-11-25 00:15', request: '요청 반영과 작업 상태를 재점검하고, 페이지 배치·줄바꿈·글자 크기를 정리해 달라.', reflection: '헤더와 본문 여백, 홈 제목과 검색의 위치, 한글 줄바꿈과 제목 크기를 정리했습니다. 좁은 화면에서는 관리 내역을 세로로 표시하고 자동 검사에 화면 폭과 계층 정렬 확인을 추가했습니다. 뉴스 예약 실행은 미확인으로 따로 표시합니다.', status: '완료', links: ['https://everyhub.github.io/'] },
+  { time: '2026-11-25 00:21', request: '검색 동향을 주기적으로 조사해 페이지 추가를 제안하고 관리자가 승인하면 반영해 달라.', reflection: '추천 탭, GitHub 이슈 승인·거절 절차와 첫 제안 3건을 마련했습니다. 공개 정적 페이지에는 승인 권한이나 토큰을 두지 않습니다.', status: '부분', reason: '자동 조사와 승인 후 반영은 일일 실행 예약이 필요합니다.', links: [] },
+  { time: '2026-11-25 00:21', request: '관리 페이지에서 진행 중인 작업과 최신 작업을 위에 보여 달라.', reflection: '진행 중인 작업을 먼저 보여 주고, 각 그룹 안에서는 최신 기록을 먼저 보여 줍니다.', status: '완료', links: [] },
+  { time: '2026-11-25 00:23', request: '추천 조사와 승인 항목 반영을 하루 한 번 실행해 달라.', reflection: '하루 한 번 조사·승인 확인·구현·배포하는 절차를 문서화했습니다.', status: '보류', reason: '외부 일일 실행 예약을 등록한 뒤 첫 실행을 검증해야 합니다.', links: [] },
+  { time: '2026-11-25 00:25', request: '추천에 필요한 이슈 권한을 확인해 달라.', reflection: '권한 변경 후 제안·승인·거절 라벨과 첫 제안 이슈 3건을 만들었습니다.', status: '완료', links: [] },
 ];
 
+const inProgress = ({ status }) => Number(status.replace(/\s+/g, '') === '진행중');
+
+export function sortAdminTimeline(entries) {
+  return entries.toReversed().sort((a, b) =>
+    inProgress(b) - inProgress(a) || b.time.localeCompare(a.time));
+}
+
 export const adminPending = [
+  '하루 한 번 추천 조사·승인 반영 작업 예약 등록 및 첫 실행 검증',
+  '추천 운영용 GitHub 토큰 만료일(2027-01-23) 전에 동일한 최소 권한으로 교체하고 연결 확인',
   '30분 뉴스 schedule 실행이 실제로 생성되는지 다음 예정 시각 이후 다시 확인',
   '공식 고시 전인 2027년 구직급여 상한·일부 보험 상·하한·산재 요율·간이세액표 확인',
   'Google Search Console·네이버 서치어드바이저 색인과 sitemap 처리 결과 확인',

@@ -10,7 +10,9 @@ import { informationSections } from '../src/information.mjs';
 import { newsSections } from '../src/news-config.mjs';
 import { utilityGroups } from '../src/utility-config.mjs';
 import { examplePages, medianPages, navigationGroups } from '../src/navigation.mjs';
-import { adminPath, adminTimelinePage } from '../src/admin-pages.mjs';
+import { adminPath, adminTimelinePage, adminProposalsPath, adminProposalsPage } from '../src/admin-pages.mjs';
+import { sortAdminTimeline } from '../src/admin-log.mjs';
+import { sortAdminProposals } from '../src/admin-proposals.mjs';
 
 const config = { baseURL: 'https://example.com/salary-calc/' };
 
@@ -152,6 +154,47 @@ test('홈 레거시 연봉 링크와 연결되지 않은 작업 타임라인 페
   assert.match(admin, /class="admin-cell-label" aria-hidden="true">반영 내용<\/span>/);
   assert.match(admin, /src\/admin-log\.mjs/);
   assert.equal(navigationGroups.some(({ path }) => path === adminPath), false);
+});
+
+test('타임라인은 진행 중인 항목 먼저, 각 그룹에서는 최신순으로 표시한다', () => {
+  const items = [
+    { id: 'older-done', time: '2026-11-24 22:00', status: '완료' },
+    { id: 'older-active', time: '2026-11-24 20:00', status: '진행중' },
+    { id: 'new-done', time: '2026-11-25 00:00', status: '완료' },
+    { id: 'new-active', time: '2026-11-24 23:00', status: '진행 중' },
+    { id: 'same-minute-added-later', time: '2026-11-25 00:00', status: '보류' },
+  ];
+  const original = [...items];
+  assert.deepEqual(sortAdminTimeline(items).map(({ id }) => id),
+    ['new-active', 'older-active', 'same-minute-added-later', 'new-done', 'older-done']);
+  assert.deepEqual(items, original);
+});
+
+test('추천 탭은 검토할 제안을 먼저 보여 주고 승인은 해당 GitHub 이슈로 연결한다', () => {
+  const template = {
+    title: '예시', what: '안내 페이지', why: { text: '공식 신청 안내', sources: [] },
+    officialSources: [], scope: '안내 1페이지', risks: '신청 대행 제외',
+    issueUrl: 'https://github.com/everyhub/everyhub.github.io/issues/9',
+  };
+  const entries = [
+    { ...template, id: 'done', createdAt: '2026-11-25 02:00', status: '완료' },
+    { ...template, id: 'older', createdAt: '2026-11-24 20:00', status: '제안', issueUrl: 'https://github.com/everyhub/everyhub.github.io/issues/10' },
+    { ...template, id: 'active', createdAt: '2026-11-25 00:00', status: '진행중' },
+    { ...template, id: 'newer', createdAt: '2026-11-24 23:00', status: '제안', issueUrl: 'https://github.com/other/repo/issues/1' },
+    { ...template, id: 'approved', createdAt: '2026-11-25 01:00', status: '승인됨' },
+  ];
+  assert.deepEqual(sortAdminProposals(entries).map(({ id }) => id),
+    ['newer', 'older', 'approved', 'active', 'done']);
+  const html = adminProposalsPage(config, entries);
+  assert.deepEqual([...html.matchAll(/id="proposal-([^"]+)"/g)].map(([, id]) => id),
+    ['newer', 'older', 'approved', 'active', 'done']);
+  assert.match(adminTimelinePage(config), new RegExp(`href="../${adminProposalsPath}">추천</a>`));
+  assert.match(html, /name="robots" content="noindex,nofollow"/);
+  assert.match(html, /추천<\/a>/);
+  assert.match(html, /무엇을 추가하나요\?[^]*왜 필요하나요\?[^]*공식 자료[^]*작업 범위·예상 페이지[^]*위험·제외 조건/);
+  assert.match(html, /class="button" href="https:\/\/github\.com\/everyhub\/everyhub\.github\.io\/issues\/10"/);
+  assert.doesNotMatch(html, /github\.com\/other\/repo/);
+  assert.match(adminProposalsPage(config, []), /등록된 제안이 없습니다/);
 });
 
 test('각 도구의 공식 출처, 캐노니컬·FAQ·계산기 구조화 데이터', () => {

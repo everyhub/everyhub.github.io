@@ -213,6 +213,12 @@ summary { cursor: pointer; padding: .5rem 0; font-weight: 700; }
 .site-foot { padding-block: 1rem 2.5rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
 .footer-nav { margin-top: 0; font-weight: 750; }
 .admin-table-wrap { margin-block: var(--space-3); background: #fff; border: 1px solid var(--line); border-radius: .75rem; }
+.admin-tabs { margin-block: var(--space-3); }
+.admin-tabs a[aria-current="page"] { color: #fff; background: var(--accent); border-color: var(--accent); font-weight: 750; }
+.proposal-details { display: grid; gap: var(--space-1); }
+.proposal-details dt { font-weight: 750; }
+.proposal-details dd { margin: 0 0 var(--space-2); }
+.proposal-details ul { margin-block: var(--space-1); padding-inline-start: var(--space-4); }
 .admin-timeline { margin: 0; }
 .admin-timeline th, .admin-timeline td { text-align: left; vertical-align: top; padding: var(--space-2); }
 .admin-timeline tbody th { white-space: nowrap; }
