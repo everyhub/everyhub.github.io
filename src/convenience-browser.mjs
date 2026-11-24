@@ -1,3 +1,5 @@
+import { indexShortcuts, searchShortcuts } from './shortcut-search.mjs';
+
 const storage = (key, fallback) => {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
 };
@@ -133,19 +135,86 @@ function dashboardSearch() {
   search.closest('label').hidden = false;
   const cards = [...document.querySelectorAll('[data-dashboard-card]')];
   const empty = document.querySelector('[data-dashboard-empty]');
+  const count = document.querySelector('[data-dashboard-count]');
   const results = document.querySelector('[data-dashboard-results]');
   const links = [...results.querySelectorAll('li')];
-  search.addEventListener('input', () => {
-    const terms = search.value.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
-    for (const card of cards) card.hidden = terms.length > 0;
-    let matched = 0;
+  const index = indexShortcuts(links.map((item) => {
+    const titleNode = item.querySelector('[data-search-title]');
+    return { item, titleNode, title: titleNode.textContent, keywords: JSON.parse(item.dataset.searchKeywords) };
+  }));
+  let visible = [];
+  const render = () => {
+    const query = search.value.trim();
+    const active = Boolean(query);
+    const ranked = searchShortcuts(index, query);
+    const terms = (query.match(/[\p{L}\p{N}]+/gu) ?? []).sort((a, b) => b.length - a.length);
+    const pattern = terms.length ? new RegExp('(' + terms.join('|') + ')', 'giu') : null;
+    for (const card of cards) card.hidden = active;
     for (const item of links) {
-      item.hidden = !terms.every((term) => item.textContent.toLocaleLowerCase().includes(term));
-      if (!item.hidden) matched++;
+      item.hidden = true;
     }
-    empty.hidden = !terms.length || matched > 0;
-    results.hidden = !terms.length || !matched;
+    visible = ranked.map(({ entry: { item, titleNode, title }, keyword, highlight }) => {
+      const matcher = highlight ? new RegExp('(' + highlight + ')', 'giu') : pattern;
+      const parts = matcher ? title.split(matcher) : [title];
+      titleNode.replaceChildren(...parts.map((part, i) => {
+        if (i % 2 === 0) return part;
+        const mark = document.createElement('mark');
+        mark.textContent = part;
+        return mark;
+      }));
+      const hint = item.querySelector('.shortcut-keyword');
+      hint.hidden = !keyword || parts.length > 1;
+      if (!hint.hidden) {
+        const mark = document.createElement('mark');
+        mark.textContent = keyword;
+        hint.replaceChildren('관련 검색어: ', mark);
+      }
+      item.hidden = false;
+      results.append(item);
+      return item.querySelector('a');
+    });
+    count.textContent = !active ? '' : ranked.length ? `검색 결과 ${ranked.length}개` : '검색 결과가 없습니다.';
+    empty.hidden = !active || ranked.length > 0;
+    results.hidden = !active || !ranked.length;
+  };
+
+  search.addEventListener('input', render);
+  search.addEventListener('keydown', (event) => {
+    if (event.isComposing || event.keyCode === 229 || !visible.length) return;
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      visible.at(event.key === 'ArrowDown' ? 0 : -1).focus();
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      visible[0].click();
+    }
   });
+  results.addEventListener('keydown', (event) => {
+    const current = visible.indexOf(event.target);
+    if (current < 0) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      search.focus();
+    } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      const next = current + (event.key === 'ArrowDown' ? 1 : -1);
+      (visible[next] ?? search).focus();
+    }
+  });
+  empty.addEventListener('click', (event) => {
+    const suggestion = event.target.closest('[data-shortcut-query]');
+    if (!suggestion) return;
+    search.value = suggestion.dataset.shortcutQuery;
+    search.focus();
+    render();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== '/' || event.defaultPrevented || event.repeat || event.isComposing || event.ctrlKey || event.altKey || event.metaKey
+      || event.target.closest('input, textarea, select, [contenteditable]') || document.querySelector('.nav-toggle[aria-expanded="true"]')) return;
+    event.preventDefault();
+    search.focus();
+  });
+  render();
 }
 
 try {

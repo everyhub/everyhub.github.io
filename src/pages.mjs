@@ -2,7 +2,7 @@ import { calculate, defaults, limits } from './calculator.mjs';
 import { breakdown, salaryName, won } from './display.mjs';
 import { rates, sources } from './rates.mjs';
 import { verifiedOn } from './labor-rates.mjs';
-import { brand } from './tool-specs.mjs';
+import { brand, shortcutKeywords } from './tool-specs.mjs';
 import { categoryIcon, navigationGroups, salaryCalculatorPath, siteTree } from './navigation.mjs';
 import { utilitySections } from './utility-config.mjs';
 
@@ -201,10 +201,20 @@ function dashboard() {
   return navigationGroups.map(({ name, path, items }) => section(name, path, items)).join('');
 }
 
+export function homeShortcuts() {
+  const groupItems = ({ name: category, items }) => items.map((item) => ({ ...item, category }));
+  const ordered = [...navigationGroups.filter(({ path }) => path !== 'tools/').flatMap(groupItems),
+    ...utilitySections.map(({ group: category, ...item }) => ({ ...item, category })),
+    ...navigationGroups.filter(({ path }) => path === 'tools/').flatMap(groupItems),
+    ...navigationGroups.map(({ name, path }) => ({ name, path, category: name }))];
+  return ordered.map(({ path, name: title, category }) => ({
+    path, title, category, keywords: shortcutKeywords[path.split('/')[1]] ?? [],
+  }));
+}
+
 export function homePage(config) {
-  const shortcuts = new Map(navigationGroups.flatMap(({ name, path, items }) => [{ name, path }, ...items])
-    .concat(utilitySections).map(({ path, name }) => [path, name]));
-  const results = [...shortcuts].map(([path, name]) => `<li><a href="./${path}">${escape(name)}</a></li>`).join('');
+  const results = homeShortcuts().map(({ path, title, category, keywords }) =>
+    `<li data-search-keywords="${escape(JSON.stringify(keywords))}"><a href="./${path}"><span class="shortcut-badge">${escape(category)}</span><span data-search-title>${escape(title)}</span><span class="shortcut-keyword" hidden></span></a></li>`).join('');
   return layout({
     config, title: `${brand} | 계산기·생활 도구·IT 소식`,
     description: '연봉 실수령액과 퇴직금 계산기, 사진 배경 제거, 공휴일 달력, 국내외 IT·AI 소식을 한곳에서 찾아보세요.',
@@ -213,9 +223,15 @@ export function homePage(config) {
       <p class="intro">급여·근로 계산기부터 사진 편집, 생활 정보와 IT·AI 소식까지 원하는 기능을 바로 열어 보세요.</p></div>
       <img class="home-hero-art" src="./${brandAssets}hero.svg" width="600" height="270" alt=""></div>
       <section aria-labelledby="shortcuts"><div class="dashboard-title"><h2 id="shortcuts">한눈에 바로가기</h2>
-        <label class="dashboard-search" hidden>바로가기 검색<input type="search" data-dashboard-search placeholder="예: 연차, PDF, 주거" autocomplete="off"></label></div>
-        <p class="dashboard-empty" data-dashboard-empty role="status" hidden>검색 결과가 없습니다.</p>
-        <ul class="dashboard-links dashboard-results" data-dashboard-results hidden>${results}</ul>${dashboard()}</section>
+        <label class="dashboard-search" hidden>바로가기 검색<input type="search" data-dashboard-search aria-controls="shortcut-results" aria-describedby="shortcut-search-help" placeholder="예: 나이, 집, PDF, ㅇㅂ" autocomplete="off" maxlength="80">
+          <small id="shortcut-search-help">관련 단어·초성 검색 · / 키로 검색 열기</small></label></div>
+        <p class="dashboard-empty" data-dashboard-count role="status"></p>
+        <div class="dashboard-empty" data-dashboard-empty hidden>이런 검색어는 어떠세요?
+          <button type="button" data-shortcut-query="나이">나이</button>
+          <button type="button" data-shortcut-query="집">집</button>
+          <button type="button" data-shortcut-query="월급">월급</button>
+          <button type="button" data-shortcut-query="PDF">PDF</button></div>
+        <ul id="shortcut-results" class="dashboard-links dashboard-results" data-dashboard-results hidden>${results}</ul>${dashboard()}</section>
       <section class="panel recent-tools" data-recent-tools hidden><h2>최근 본 도구</h2><ul class="tag-list"></ul></section>
       <p><a href="./${salaryCalculatorPath}">연봉 실수령액 계산기와 공식 계산 기준 보기</a></p>`,
   });

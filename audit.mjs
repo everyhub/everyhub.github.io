@@ -109,6 +109,36 @@ try {
           });
           if (!sameHeaderRow) issue('Branded header wraps the home link onto another row');
           cases++;
+          const search = page.locator('[data-dashboard-search]');
+          const matches = page.locator('[data-dashboard-results] li:not([hidden]) > a');
+          await page.keyboard.press('/');
+          if (!await search.evaluate((input) => document.activeElement === input)) issue('Shortcut search hotkey did not focus the input');
+          for (const [query, first, related] of [
+            ['나이', 'age', 'date-difference'],
+            ['집', 'rent-conversion', 'subscription-score'],
+            ['ㅇㅂ', 'salary-calculator'],
+            ['퇴사', 'severance-pay', 'unemployment-pay'],
+            ['pdf', 'pdf-merge', 'pdf-split'],
+          ]) {
+            await search.fill(query);
+            const paths = await matches.evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+            if (paths[0] !== `./tools/${first}/` || (related && !paths.includes(`./tools/${related}/`))) issue('Incorrect shortcut matches for ' + query);
+            if (await overflow() > 1) issue('Shortcut results overflow horizontally');
+            cases++;
+          }
+          await search.press('ArrowDown');
+          await page.keyboard.press('ArrowDown');
+          if (await matches.nth(1).evaluate((link) => document.activeElement !== link)) issue('Shortcut result keyboard navigation failed');
+          await page.keyboard.press('Escape');
+          if (!await search.evaluate((input) => document.activeElement === input)) issue('Shortcut search Escape did not return focus');
+          await search.fill('없는결과확인');
+          const suggestions = page.locator('[data-dashboard-empty]');
+          if (!await suggestions.isVisible()) issue('No shortcut suggestions for an unmatched query');
+          await suggestions.getByRole('button', { name: '집', exact: true }).click();
+          if (await search.inputValue() !== '집' || await matches.count() < 6) issue('Shortcut suggestion did not run the related search');
+          await search.fill('');
+          if (!await page.locator('[data-dashboard-card]').first().isVisible()) issue('Clearing search did not restore shortcut cards');
+          cases += 3;
         }
         if (route.startsWith('/info/holidays/')) {
           const calendar = await page.locator('.calendar-grid').evaluate((grid) => {
