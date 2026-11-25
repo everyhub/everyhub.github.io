@@ -1,5 +1,92 @@
 export const adminProposals = [
   {
+    id: "csv-json-converter",
+    title: "CSV·JSON 변환기",
+    what: "표 데이터를 CSV와 JSON 객체 배열 사이에서 양방향으로 바꾸고, 결과를 내려받을 수 있는 브라우저 도구를 제안합니다.",
+    why: {
+      text: "2026-11-25 KST에 확인한 브라우저용 CSV 도구 Papa Parse의 공개 저장소 별 13,601개는 개발자 관심의 간접 근거입니다. 국내 검색량이나 이용자 수는 아닙니다. 기존 JSON 정리 도구만으로는 스프레드시트에서 내보낸 표를 JSON으로 바꿀 수 없습니다.",
+      sources: [
+        {
+          label: "Papa Parse 공식 저장소와 공개 별 집계",
+          url: "https://github.com/mholt/PapaParse"
+        }
+      ]
+    },
+    officialSources: [
+      {
+        label: "Python 공식 문서 원본: CSV와 구분자·인용 규칙",
+        url: "https://github.com/python/cpython/blob/main/Doc/library/csv.rst"
+      },
+      {
+        label: "Python 공식 문서 원본: JSON 데이터 형식",
+        url: "https://github.com/python/cpython/blob/main/Doc/library/json.rst"
+      }
+    ],
+    scope: "개발 도구 하위 /tools/csv-json-converter/ 1페이지. UTF-8 CSV의 첫 줄을 열 이름으로 사용하며 따옴표·쉼표·필드 내부 줄바꿈을 처리합니다. 변환 결과 복사·다운로드와 합성 예제를 제공합니다.",
+    risks: "서버 전송·저장, XLSX, 중첩 JSON 평탄화와 자동 숫자 추론은 제외합니다. 중복 열 이름과 행 길이 불일치를 알리며, CSV 내보내기는 스프레드시트의 수식 해석 위험과 안전 처리의 차이를 안내합니다.",
+    createdAt: "2026-11-25 09:16",
+    status: "제안",
+    issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/4"
+  },
+  {
+    id: "civil-service-fertility-leave",
+    title: "국가·지방공무원 난임휴직 준비 체크리스트",
+    what: "새 난임휴직과 기존 난임치료 시술휴가의 차이, 해당 공무원이 소속기관에 확인할 절차와 서류를 정리하는 안내를 제안합니다.",
+    why: {
+      text: "2026-11-25 KST 공식 발표 확인: 행정안전부와 인사혁신처가 국무회의에서 의결된 임용령 개정과 12월 3일 시행을 안내했습니다. 휴가와 휴직을 혼동하지 않고 인사 담당 부서에 무엇을 물을지 정리할 수 있습니다. 국내 검색량은 확인하지 않았습니다.",
+      sources: [
+        {
+          label: "대한민국 정책브리핑의 난임휴직 시행 안내",
+          url: "https://www.korea.kr/news/policyNewsView.do?newsId=148976392"
+        }
+      ]
+    },
+    officialSources: [
+      {
+        label: "행정안전부·인사혁신처의 임용령 개정 설명(정책브리핑)",
+        url: "https://www.korea.kr/news/policyNewsView.do?newsId=148976392"
+      },
+      {
+        label: "국가법령정보센터: 시행일과 공포 원문 재확인",
+        url: "https://www.law.go.kr/"
+      }
+    ],
+    scope: "임신·출산·육아 분야 /info/civil-service-fertility-leave/ 1페이지. 국가·지방 적용 근거를 나누고 시행일·신청 전 확인 항목·공식 문의 경로를 안내합니다. 체크리스트는 화면에서만 표시합니다.",
+    risks: "민간 근로자 제도와 합쳐 설명하지 않으며 개인 자격·급여·승인 결과를 판단하지 않습니다. 공포된 시행 조문과 최신 지침을 구현 때 다시 확인하고 미공개 서류나 기준은 추정하지 않습니다. 치료 이력은 받지 않습니다.",
+    createdAt: "2026-11-25 09:16",
+    status: "제안",
+    issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/5"
+  },
+  {
+    id: "rare-disease-support-checklist",
+    title: "국가관리대상 희귀질환 지원 확인 순서",
+    what: "질환 지정 여부 조회, 건강보험 산정특례, 희귀질환자 의료비 지원 신청을 각각 어디에서 확인할지 정리하는 안내를 제안합니다.",
+    why: {
+      text: "2026-11-25 KST 공식 발표 확인: 질병관리청은 2026년 국가관리대상 희귀질환 신규 지정을 발표했습니다. 신규 지정과 산정특례 등록·의료비 지원 신청이 같은 절차가 아니라는 점을 안내하면 사용자가 다음 문의처를 찾기 쉽습니다. 국내 검색량은 확인하지 않았습니다.",
+      sources: [
+        {
+          label: "대한민국 정책브리핑의 2026년 희귀질환 신규 지정 안내",
+          url: "https://www.korea.kr/news/policyNewsView.do?newsId=148976393"
+        }
+      ]
+    },
+    officialSources: [
+      {
+        label: "질병관리청 신규 지정 및 연계 지원 설명(정책브리핑)",
+        url: "https://www.korea.kr/news/policyNewsView.do?newsId=148976393"
+      },
+      {
+        label: "질병관리청 희귀질환 헬프라인(구현 전 연결 재확인)",
+        url: "https://helpline.kdca.go.kr/"
+      }
+    ],
+    scope: "생활정보 /info/rare-disease-support-checklist/ 1페이지와 지원금 일정 안내에서 링크 1개. 각 단계에서 확인해야 할 기관·절차·문의 경로를 구분합니다.",
+    risks: "진단, 치료 조언, 개인별 자격 판정, 질환명·진료기록 입력과 신청 대행은 제외합니다. 신규 지정의 적용 시점이나 비용은 원문이 확인되지 않으면 표시하지 않으며, 조회처가 연결되는지 구현 전에 다시 검증합니다.",
+    createdAt: "2026-11-25 09:16",
+    status: "제안",
+    issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/6"
+  },
+  {
     id: "move-in-checklist",
     createdAt: "2026-11-25 00:24",
     title: "전입신고·확정일자 체크리스트",

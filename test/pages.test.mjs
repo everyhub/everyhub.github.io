@@ -159,6 +159,19 @@ test('관리 추천은 승인된 두 건의 완료와 거절된 한 건의 종�
   assert.equal(statuses['continued-health-insurance'], '거절');
 });
 
+test('11월 25일 신규 추천의 승인 링크와 범위는 해당 이슈에 연결된다', () => {
+  const proposals = adminProposalsPage(config);
+  for (const [id, number] of [
+    ['csv-json-converter', 4], ['civil-service-fertility-leave', 5], ['rare-disease-support-checklist', 6],
+  ]) {
+    const card = proposals.match(new RegExp(`id="proposal-${id}"[^]*?</article>`))?.[0];
+    assert.ok(card, id);
+    assert.match(card, /제안 · <time datetime="2026-11-25T09:16\+09:00"/);
+    assert.ok(card.includes(`href="https://github.com/everyhub/everyhub.github.io/issues/${number}"`), id);
+    assert.ok(card.includes(`/${id}/`), id);
+  }
+});
+
 test('주거 사례 제목과 도입문은 금액과 원 단위를 함께 줄바꿈한다', () => {
   const pages = extraPages(config);
   const brokerage = pages.find(({ path }) => path === 'housing/jeonse-brokerage-3eok/').html;
