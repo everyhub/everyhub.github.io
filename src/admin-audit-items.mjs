@@ -88,7 +88,7 @@ export const auditItems = {
   'news-cadence': [
     verified('별도 뉴스 작업 수동 실행 경로', repo + '/actions/runs/45426475348', 'workflow_dispatch의 build 및 deploy 성공'),
     verified('실제 뉴스 예약 실행과 배포', repo + '/actions/runs/45515165966', '2026-11-25 09:04 KST 시작, event=schedule, refresh / build·refresh / deploy 모두 success'),
-    open('권장 주기 30분의 지속 실행', '2026-11-25 첫 오전 조회에서 확인된 예약 성공은 1건입니다. 이후 반복 실행 기록이 필요합니다.', '미확인', [repo + '/actions/workflows/news.yml']),
+    open('권장 주기 30분의 지속 실행', '2026-11-25 10:00 KST 재조회까지 09:04 KST 이후 예약 성공 1건만 확인했습니다. 반복 실행 기록이 필요합니다.', '미확인', [repo + '/actions/workflows/news.yml']),
   ],
   'non-calculators': [
     verified('계산기 외 생활정보 허브', '/info/', '공휴일, 세무 일정, 연도별 기준 안내 링크 확인'),
@@ -302,6 +302,14 @@ export const auditItems = {
     open('하루 여러 번 추천 조사와 승인 실행', '09:13 KST 실행은 확인했습니다. 추가 슬롯은 Devin에서 등록하고 실행 결과와 중복 방지를 확인해야 합니다.', '진행중', [repo + '/blob/main/docs/daily-proposals.md']),
     verified('실제 뉴스 예약과 카카오 수집 복구 확인', repo + '/actions/runs/45515165966', '09:04 KST 예약 빌드·배포 성공. 해당 실행에서 카카오 요청이 시간 초과되어 캐시를 사용했고, 한 번 재시도하도록 고친 배포 #45520510235는 112건과 피드 실패 0건을 기록했습니다.'),
     verified('국내 공식 RSS와 사용 조건 확인 및 과기정통부 추가', '/news/korea/#source-msit', '원문 공공누리 제1유형 표기와 출처를 확인한 보도자료 제목·원문 8건이 네 너비에서 필터로 표시됩니다. 네이버·언론사·정책브리핑 검토 결과와 제외 사유는 README에 기록했습니다.'),
+  ],
+  'csv-json-converter': [
+    tool('입력과 양방향 CSV·JSON 변환', 'csv-json-converter', '운영 브라우저에서 클립보드 붙여 넣기와 합성 UTF-8 파일, 쉼표·탭·세미콜론, 앞자리 0 보존, BOM·따옴표·셀 내부 줄바꿈을 확인했습니다.'),
+    tool('결과 복사·다운로드·초기화', 'csv-json-converter', '운영 브라우저에서 클립보드와 JSON·TSV 내려받기 내용을 결과와 비교했고, 잘못된 입력과 초기화 후에는 이전 결과를 복사·다운로드할 수 없음을 확인했습니다.'),
+    tool('브라우저 전용 및 외부 요청 없음', 'csv-json-converter', '페이지 로딩 후 네트워크를 끈 상태에서 붙여 넣기·파일 읽기·변환·복사·다운로드가 동작했고 상호작용 중 네트워크 요청은 0건, 전체 운영 감사 외부 요청은 0건입니다.'),
+    verified('경계값·테스트·운영 감사와 Pages 배포', repo + '/actions/runs/45521833543', '단위 테스트 93건 통과. 중복 헤더·행 길이 불일치·잘못된 UTF-8·중첩 JSON·수식 보호를 검사했습니다. 운영 브라우저 감사는 네 너비 420개 레이아웃, 1,658개 검사, 문제 0건. 빌드와 배포 모두 성공했습니다.'),
+    verified('승인 이슈에 결과 댓글을 남기고 완료 종료', repo + '/issues/4#issuecomment-7149108445', '운영 검증 후 검사 결과와 배포 링크를 댓글로 남기고 이슈를 완료로 닫았습니다.'),
+    verified('09:04 KST 이후 news.yml 예약 실행 재조회', repo + '/actions/runs/45515165966', '2026-11-25 10:00 KST Actions API에서 event=schedule 및 09:04 KST 이후로 조회한 결과 1건입니다. #45515165966은 09:04:30 KST에 생성되어 성공했습니다. 수동 실행은 제외했고 30분 반복은 미확인입니다.'),
   ],
   'daily-proposals-2026-11-25': [
     verified('미완료 승인 이슈 확인', repo + '/issues?q=is%3Aissue', '신규 제안 등록 전 저장소 이슈 API와 추천 데이터를 대조했습니다. #1·#2 완료, #3 거절로 모두 종료되어 구현 대상이 없습니다.'),

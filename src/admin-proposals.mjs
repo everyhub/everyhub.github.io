@@ -70,7 +70,7 @@ export const adminProposals = [
     scope: "개발 도구 하위 /tools/csv-json-converter/ 1페이지. UTF-8 CSV의 첫 줄을 열 이름으로 사용하며 따옴표·쉼표·필드 내부 줄바꿈을 처리합니다. 변환 결과 복사·다운로드와 합성 예제를 제공합니다.",
     risks: "서버 전송·저장, XLSX, 중첩 JSON 평탄화와 자동 숫자 추론은 제외합니다. 중복 열 이름과 행 길이 불일치를 알리며, CSV 내보내기는 스프레드시트의 수식 해석 위험과 안전 처리의 차이를 안내합니다.",
     createdAt: "2026-11-25 09:16",
-    status: "제안",
+    status: "완료",
     issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/4"
   },
   {
