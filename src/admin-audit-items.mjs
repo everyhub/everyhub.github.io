@@ -87,7 +87,8 @@ export const auditItems = {
   ],
   'news-cadence': [
     verified('별도 뉴스 작업 수동 실행 경로', repo + '/actions/runs/45426475348', 'workflow_dispatch의 build 및 deploy 성공'),
-    open('권장 주기 30분 실제 예약 실행', '2026-11-25 01:45 KST 재조회에서 schedule 실행 0건입니다. 저장소 또는 조직 관리자가 Actions 정책을 확인한 뒤 실제 예약 실행 기록이 필요합니다.', '미확인', [repo + '/actions/workflows/news.yml']),
+    verified('실제 뉴스 예약 실행과 배포', repo + '/actions/runs/45515165966', '2026-11-25 09:04 KST 시작, event=schedule, refresh / build·refresh / deploy 모두 success'),
+    open('권장 주기 30분의 지속 실행', '2026-11-25 첫 오전 조회에서 확인된 예약 성공은 1건입니다. 이후 반복 실행 기록이 필요합니다.', '미확인', [repo + '/actions/workflows/news.yml']),
   ],
   'non-calculators': [
     verified('계산기 외 생활정보 허브', '/info/', '공휴일, 세무 일정, 연도별 기준 안내 링크 확인'),
@@ -230,7 +231,7 @@ export const auditItems = {
   ],
   'schedule-recheck': [
     verified('수동 실행의 변경 없음 배포 건너뛰기', repo + '/actions/runs/45426026991', '수동 빌드에서 변경 없음 메시지와 deploy skipped 확인'),
-    verified('예약 실행 재조회', repo + '/actions/workflows/news.yml', '2026-11-25 01:45 KST Actions API에서 event=schedule 조회 결과 0건. 실제 실행 여부는 뉴스 갱신 주기 항목에서 별도 추적'),
+    verified('예약 실행 재조회', repo + '/actions/runs/45515165966', 'Actions API event=schedule과 jobs를 대조해 2026-11-25 09:04 KST 시작 및 빌드·배포 성공 확인'),
   ],
   'admin-address': [
     verified('요청 타임라인 운영 주소', '/ops-7f3a9c2d/', '사용자에게 전달한 주소가 HTTP 200'),
@@ -279,6 +280,7 @@ export const auditItems = {
   'schedule-experiment': [
     verified('기본 브랜치 별도 워크플로·7,37 * * * *', repo + '/actions/workflows/news.yml', '워크플로 active, main 파일의 cron, 성공한 수동 빌드/배포 확인'),
     verified('두 예정 시각 포함 최소 45분 관찰', repo + '/actions/workflows/news.yml', '00:31~01:16 KST 관찰 기록과 schedule 실행 0건 확인'),
+    verified('이후 실제 예약 실행 확인', repo + '/actions/runs/45515165966', '2026-11-25 09:04 KST 시작한 Refresh news 예약 빌드 및 배포 성공'),
     open('GitHub 내부 예약 등록과 미실행 원인', 'Actions 설정 API가 403이고 내부 예약 등록 상태가 API에 공개되지 않습니다. 조직·저장소 관리자의 정책 확인 후에도 이상이 없으면 GitHub 측 예약 등록 확인이 필요합니다.'),
   ],
   'publish-audit': [
@@ -292,6 +294,16 @@ export const auditItems = {
   'automation-correction': [
     verified('관리 페이지의 등록됨 · 첫 실행 확인 대기 표기', '/ops-7f3a9c2d/recommendations/', 'f09b795 배포에서 추천 탭과 타임라인 한국어 문구 확인'),
     verified('09:13 KST 및 첫 실행 예정 운영 문서', repo + '/blob/main/docs/daily-proposals.md', 'f09b795 운영 문서와 예약 상태 동기화'),
+    verified('첫 실행 결과의 운영 확인', repo + '/actions/runs/45517359629', '2026-11-25 일일 추천 첫 예약 실행의 제안 등록, Pages build·deploy와 운영 추천 탭 표시 확인'),
+  ],
+  'daily-proposals-2026-11-25': [
+    verified('미완료 승인 이슈 확인', repo + '/issues?q=is%3Aissue', '신규 제안 등록 전 저장소 이슈 API와 추천 데이터를 대조했습니다. #1·#2 완료, #3 거절로 모두 종료되어 구현 대상이 없습니다.'),
+    verified('국내 검색 동향의 공개 표본과 정책 공고 조사', 'https://trends.google.com/trending?geo=KR', '2026-11-25 KST에 한국 Google Trends 최신 RSS 표본(07:40~08:10 KST)과 네이버 데이터랩 공개 화면, 대한민국 정책브리핑 공고를 확인했습니다. 표본을 국내 키워드별 검색량으로 해석하지 않았습니다.'),
+    open('네이버 데이터랩 키워드 비교 수치', '공개 화면은 응답했지만 조회에 필요한 ssl.pstatic.net 스크립트는 DNS에서 실패했습니다. 네이버 상대 지수와 국내 키워드별 검색량을 기재하지 않았습니다.', '미확인', ['https://datalab.naver.com/']),
+    ...[4, 5, 6].map((id) => verified(`신규 이슈 #${id}에 제안 등록`, repo + '/issues/' + id, 'GitHub API의 HTTP 201 응답, 실제 이슈 주소와 제안 라벨을 확인했습니다.')),
+    verified('뉴스 실제 예약 실행·배포 확인', repo + '/actions/runs/45515165966', '2026-11-25 09:04 KST 시작, schedule 실행의 build와 deploy가 모두 성공했습니다.'),
+    verified('GitHub Pages 배포 및 공개 대표 주소 확인', repo + '/actions/runs/45517359629', 'c321c2f의 build·deploy가 success. 운영 홈·연봉 계산기·뉴스·sitemap.xml HTTP 200 확인'),
+    verified('추천 탭 운영 검증', '/ops-7f3a9c2d/recommendations/', '390·768·1024·1440px에서 카드 3건의 내용·출처와 실제 GitHub 이슈 연결, noindex,nofollow를 확인했습니다. 운영 공개 홈·XML 사이트맵·robots.txt에 관리 주소가 없음을 확인했습니다.'),
   ],
   'strict-audit': [
     verified('이전 요청과 약속을 분리하고 확인된 누락 기능 수정', '/ops-7f3a9c2d/', '관리 화면의 세부 상태 및 음양력·증명사진·SNS·사다리·추가 뉴스 출처 운영 검사'),

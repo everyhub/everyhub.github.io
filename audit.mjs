@@ -393,7 +393,7 @@ try {
           cases += 3;
         }
         if (route === '/ops-7f3a9c2d/recommendations/') {
-          if (!await page.getByText('등록됨 · 첫 실행 확인 대기', { exact: true }).isVisible()) issue('Daily Devin status missing');
+          if (!await page.getByText('등록됨 · 첫 실행 확인', { exact: true }).isVisible()) issue('Daily Devin status missing');
           const cards = page.locator('.proposal-card');
           if (await cards.count() < 3 || !await cards.first().getByText('왜 필요하나요?', { exact: true }).isVisible()) issue('Missing proposal detail');
           cases += 2;
