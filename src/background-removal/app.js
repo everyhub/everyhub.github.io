@@ -13,15 +13,12 @@ const fileInput = $('#file');
 const drop = $('#drop');
 
 const assetBase = new URL('./', document.currentScript.src);
-const workerScript = URL.createObjectURL(new Blob([
-  `const assetBase = ${JSON.stringify(assetBase.href)}; importScripts(new URL('worker.js', assetBase).href);`,
-], { type: 'text/javascript' }));
-const worker = new Worker(workerScript);
+let worker;
 const pending = new Map();
 let nextId = 1;
 const loadedModels = new Set();
 
-worker.onmessage = ({ data: msg }) => {
+function workerMessage({ data: msg }) {
   if (msg.type === 'progress') {
     if (!loadedModels.has(msg.model)) showStatus(`${MODEL_LABEL[msg.model]} 불러오는 중 (${MODEL_SIZE[msg.model]}, 처음 한 번만)`, msg.value);
     return;
@@ -31,13 +28,29 @@ worker.onmessage = ({ data: msg }) => {
   pending.delete(msg.id);
   if (msg.type === 'error') p.reject(new Error(msg.message));
   else p.resolve(msg);
-};
+}
+
+function getWorker() {
+  if (worker) return worker;
+  const instance = new Worker(new URL('worker.js', assetBase));
+  instance.onmessage = workerMessage;
+  instance.onerror = (event) => {
+    for (const { reject } of pending.values()) reject(new Error(event.message || '이미지 처리기를 시작할 수 없습니다.'));
+    pending.clear();
+    loadedModels.clear();
+    instance.terminate();
+    worker = undefined;
+  };
+  worker = instance;
+  return instance;
+}
 
 function callWorker(payload, transfer = []) {
   const id = nextId++;
+  const instance = getWorker();
   return new Promise((resolve, reject) => {
     pending.set(id, { resolve, reject });
-    worker.postMessage({ id, ...payload }, transfer);
+    instance.postMessage({ id, ...payload }, transfer);
   });
 }
 

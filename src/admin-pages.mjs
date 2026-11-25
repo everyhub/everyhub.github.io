@@ -2,6 +2,7 @@ import { layout } from './pages.mjs';
 import { brand } from './tool-specs.mjs';
 import { adminPending, adminTimeline, auditEvidenceLabel, initialDeployment, sortAdminTimeline } from './admin-log.mjs';
 import { adminProposals, sortAdminProposals } from './admin-proposals.mjs';
+import { officialValueEvidence } from './official-value-evidence.mjs';
 import activeWork from './admin-now.json' with { type: 'json' };
 
 export const adminPath = 'ops-7f3a9c2d/';
@@ -35,6 +36,15 @@ function activeWorkPanel(items) {
 
 const timelineFilters = ['전체', '진행중', '부분', '미확인', '완료', '제외'];
 
+function officialEvidencePanel() {
+  const groups = Object.entries(officialValueEvidence).map(([group, entries]) =>
+    `<details><summary>${escape(group)} (${entries.length})</summary><ul>${entries.map(({ label, url, applies, excerpt }) =>
+      `<li><strong>${escape(label)}</strong> · 적용: ${escape(applies)}<p>${escape(excerpt)} · <a href="${escape(url)}">기관 원문</a></p></li>`).join('')}</ul></details>`).join('');
+  return `<section class="panel" id="official-value-evidence"><h2>공식 수치 원문 대조</h2>
+    <p>확인한 항목별 적용 기간과 기관 원문 인용 또는 표의 위치입니다. 아직 이 목록에 없는 수치는 전수 대조가 끝난 것이 아닙니다.</p>
+    ${groups}</section>`;
+}
+
 export function adminTimelinePage(config, items = activeWork) {
   const linkList = (links) => links.length ? `<ul class="foot-list">${links.map((link) => `<li><a href="${escape(link)}">${escape(auditEvidenceLabel(link))}</a></li>`).join('')}</ul>` : '—';
   const rows = sortAdminTimeline(adminTimeline).map(({ id, time, request, reflection, status, reason, links, items }) => `<tr role="row" id="${escape(id)}" data-timeline-status="${escape(status)}">
@@ -63,6 +73,7 @@ export function adminTimelinePage(config, items = activeWork) {
       <div class="admin-status-filters" role="group" aria-label="타임라인 상태 필터" hidden>${timelineFilters.map((status, i) => `<button type="button" data-timeline-filter="${status}" aria-pressed="${i === 0}" aria-controls="admin-timeline">${status}</button>`).join('')}</div>
       <p data-timeline-empty role="status" hidden>선택한 상태의 요청이 없습니다.</p>
       <div class="admin-table-wrap"><table id="admin-timeline" class="admin-timeline" role="table"><thead role="rowgroup"><tr role="row">${['시각(KST)', '요청', '반영 내용', '상태', '사유', '근거 URL'].map((label) => `<th role="columnheader" scope="col">${label}</th>`).join('')}</tr></thead><tbody role="rowgroup">${rows}</tbody></table></div>
+      ${officialEvidencePanel()}
       <section class="panel"><h2>과거 운영 기록</h2><p>${escape(initialDeployment.request)} · <strong>${escape(initialDeployment.status)}</strong> — ${escape(initialDeployment.reason)} ${escape(initialDeployment.reflection)}</p></section>
       <section class="panel"><h2>보류·다음 확인</h2><ul>${pending}</ul></section>`,
   });

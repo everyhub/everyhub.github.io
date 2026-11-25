@@ -1,4 +1,5 @@
 /* Runs the segmentation models off the main thread. Only receives pixel tensors; never touches the network except to load its own model files from the same origin. */
+const assetBase = new URL('./', self.location.href);
 importScripts(new URL('vendor/ort.wasm.min.js', assetBase).href);
 
 ort.env.wasm.wasmPaths = new URL('vendor/', assetBase).href;

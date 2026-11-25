@@ -50,7 +50,7 @@ export const auditItems = {
       ['최저임금', 'minimum-wage'], ['주휴수당', 'weekly-holiday-pay'], ['퇴직금', 'severance-pay'],
       ['실업급여', 'unemployment-pay'], ['육아휴직급여', 'parental-leave-pay'], ['4대보험', 'insurance-rates'], ['연차', 'annual-leave'],
     ].map(([name, id]) => tool(name + ' 공식 기준 계산·안내', id, '운영 폼·공식 자료 영역과 범위 검사')),
-    open('전 연도 전 항목 값 최신화', '공식 미발표 항목은 확정값으로 제공할 수 없고, 전 항목의 기관 원문 대조를 완료하지 않았습니다.', '부분'),
+    open('전 연도 전 항목 값 최신화', '확인한 수치의 원문은 관리 페이지에 기록했습니다. 일부 주거·노동·세금 기준 원문 대조와 미발표 항목 확인이 남았습니다.', '부분', [site + '/ops-7f3a9c2d/#official-value-evidence']),
   ],
   'site-verification': [
     verified('Google 및 네이버 소유 확인 메타 적용', '/', '운영 HTML에서 소유 확인 태그 두 개 확인(값은 공개 기록에 복제하지 않음)'),
@@ -319,6 +319,10 @@ export const auditItems = {
     open('첫 14:13 KST 실행 확인', '예약은 등록됐으며 실행 로그, 중복 여부, 배포 결과 확인 대기입니다.', '진행중', ['https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9']),
     open('첫 19:13 KST 실행 확인', '예약은 등록됐으며 첫 실제 실행 확인 대기입니다.', '진행중', ['https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9']),
     verified('뉴스 예약 이력 재조회 및 보완 실행 검증', repo + '/actions/runs/45525260475', '10:26 KST 기준 실제 예약은 #45515165966 한 건입니다(09:04:30 KST 생성, success). 별도 workflow_dispatch는 기사 112건, 피드 실패 0건, 빌드·배포 성공입니다.'),
+  ],
+  'official-values-browser-matrix': [
+    open('공개된 2026·2027년 공식 수치 전수 대조 및 불일치 수정', '간이세액표 7,117개 셀을 포함한 확인분의 기관 원문, 적용 기간 및 인용·표 근거를 기록했습니다. SH 공고는 반복 리디렉션, 고용24 안내는 연결 시간 초과였으며 일부 법령 조문과 공휴일·지원 일정 전체 대조도 남았습니다.', '부분', [site + '/ops-7f3a9c2d/#official-value-evidence']),
+    open('README 지원 범위와 다중 브라우저 기능·레이아웃 검증', '로컬 Chromium·Firefox·WebKit 각각 390·768·1024·1440px에서 420개 레이아웃·3,304개 검사, iPhone 15·Pixel 7 각각 105개 레이아웃·826개 검사에서 문제 0건입니다. 운영 감사와 OS 클립보드·실기기 검증은 별개입니다.', '부분', [repo + '/blob/main/README.md#배포-전-검수-체크리스트']),
   ],
   'daily-proposals-2026-11-25': [
     verified('미완료 승인 이슈 확인', repo + '/issues?q=is%3Aissue', '신규 제안 등록 전 저장소 이슈 API와 추천 데이터를 대조했습니다. #1·#2 완료, #3 거절로 모두 종료되어 구현 대상이 없습니다.'),

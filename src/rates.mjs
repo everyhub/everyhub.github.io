@@ -52,7 +52,7 @@ export const insurance2027Sources = [
 
 export const sources = [
   ['국민연금공단 · 국민연금 가입대상 및 보험료', 'https://nps.or.kr/pnsinfo/ntpsklg/getOHAF0095M0.do', '2026-01-01'],
-  ['보건복지부 · 2026년 상반기 국민연금 기준소득월액', 'https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000254486', '2025-07-01'],
+  ['보건복지부 · 2026년 상반기 국민연금 기준소득월액', 'https://www.law.go.kr/admRulLsInfoR.do?admRulSeq=2100000254486', '2025-07-01'],
   ['보건복지부 · 2026년 하반기 국민연금 기준소득월액', 'https://www.law.go.kr/admRulLsInfoR.do?admRulSeq=2100000274228', '2026-07-01'],
   ['국민건강보험공단 · 2026년 건강보험료율 및 장기요양보험료율', 'https://edi.nhis.or.kr/portal/images/popup/20251204_pop01longdesc.html', '2026-01-01'],
   ['국민건강보험공단 · 월별 건강보험료액 상한과 하한', 'https://www.nhis.or.kr/lm/lmxsrv/law/lawFullContent.do?SEQ=39', '2026-01-01'],

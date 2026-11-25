@@ -43,7 +43,7 @@ export PATH="$HOME/.nvm/versions/node/v24.22.2/bin:$PATH"
 npm test
 npm run build
 npm ci
-npx playwright install chromium
+npx playwright install chromium firefox webkit
 npm run audit
 python3 -m http.server 8080 --bind 127.0.0.1 --directory dist
 ```
@@ -53,12 +53,12 @@ python3 -m http.server 8080 --bind 127.0.0.1 --directory dist
 ## 배포 전 검수 체크리스트
 
 - [ ] 시작할 때 `npm run now -- start`, 단계가 바뀔 때 `npm run now -- step`, 종료할 때 `npm run now -- done`으로 관리 페이지의 작업 기록을 갱신합니다. 단계는 커밋·푸시 후 배포되면 보입니다.
-- [ ] `npm test`와 `npm run audit`를 실행합니다. 감사는 생성된 HTML 전체의 내부 링크·앵커를 검사합니다. 390·768·1024·1440px에서 페이지 구조, 머리글·본문 정렬, 가로 넘침, 이미지 깨짐과 주요 버튼·입력의 44px 높이를 점검합니다.
+- [ ] `npm test`와 `npm run audit`를 실행합니다. 데스크톱 Chromium·Firefox·WebKit(Playwright)은 각각 390·768·1024·1440px에서, 모바일 에뮬레이션은 iPhone 15(WebKit)와 Pixel 7(Chromium)의 기본 뷰포트에서 레이아웃과 기능을 점검합니다. 전체 HTML 내부 링크·앵커, 페이지 구조, 가로 넘침, 이미지와 주요 버튼·입력 높이를 검사합니다.
 - [ ] 네 너비에서 홈·분야·검색·계산기·개별 도구·주거·생활 정보·뉴스·사이트맵·관리 페이지의 캡처를 직접 봅니다. 반복 생성하는 연봉·시급·퇴직금·중위소득 상세는 낮은 값·대표 값·높은 값을 표본으로 확인합니다. 제목·본문 크기, 고립된 글자와 금액·단위 줄바꿈, 여백·대비·아이콘, 모바일 표, 메뉴 열기·닫기와 데스크톱 고정 메뉴, 푸터를 확인합니다. 수정한 화면은 다시 캡처해 비교합니다.
-- [ ] 390·1440px에서 모든 양식·도구의 정상·경계·오류 입력과 콘솔을 확인합니다. 입력 안내, 결과·다운로드, 복사·초기화·최근 도구·관련어 검색도 점검합니다. 사진·문서는 합성 파일만 사용합니다. 브라우저 감사는 쿼리 없는 동일 출처 GET/HEAD 외 요청을 차단하고 실패로 보고합니다.
+- [ ] 지원 범위의 각 너비·에뮬레이션에서 모든 양식·도구의 정상·경계·오류 입력과 콘솔을 확인합니다. 입력 안내, 결과·다운로드, 복사·초기화·최근 도구·관련어 검색도 점검합니다. 사진·문서는 합성 파일만 사용합니다. 브라우저 감사는 쿼리 없는 동일 출처 GET/HEAD 외 요청을 차단하고 실패로 보고합니다.
 - [ ] 배포 후 실제 운영 사이트에서 바뀐 동작을 다시 확인합니다. 모든 세부 요구의 운영 검사 결과와 HTTPS 근거 URL이 있어야 관리 타임라인에서 요청을 `완료`로 표시합니다. 확인하지 않은 브라우저·기기·입력이나 미해결 사항은 검증 범위와 별도로 기록합니다.
 
-설치된 Chromium은 `AUDIT_CHROMIUM_PATH`로, 캡처를 저장할 폴더는 `AUDIT_SCREENSHOTS`로 지정할 수 있습니다. 요청 경로·메서드는 `AUDIT_REPORT`에 기록하며 쿼리 값은 제외합니다. 뉴스 목록까지 보려면 운영 감사 또는 `NEWS_REFRESH=1 npm run audit`를 사용합니다(피드는 브라우저가 아니라 빌드에서 수집합니다).
+Linux에서 시스템 라이브러리가 없으면 `npx playwright install-deps chromium firefox webkit`로 준비합니다. 한 환경만 다시 검사하려면 `AUDIT_PROFILE=chromium|firefox|webkit|iphone|pixel` 중 하나를 지정하세요. Chromium 실행 파일은 `AUDIT_CHROMIUM_PATH`, 캡처 폴더는 `AUDIT_SCREENSHOTS`로 지정할 수 있습니다. `AUDIT_REPORT`는 매트릭스 실행에서 프로필별 JSON 파일을 만들며 쿼리 값은 제외합니다. Firefox·WebKit은 자동화가 OS 클립보드 권한을 부여할 수 없어 붙여 넣기·복사 값 검증에 메모리 클립보드를 사용합니다. 모바일 에뮬레이션은 실제 기기나 OS 클립보드 호환성을 보증하지 않습니다. 뉴스 목록까지 보려면 운영 감사 또는 `NEWS_REFRESH=1 npm run audit`를 사용합니다(피드는 브라우저가 아니라 빌드에서 수집합니다).
 
 ## 브라우저 도구의 개인정보와 배포 용량
 

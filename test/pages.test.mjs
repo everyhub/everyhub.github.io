@@ -11,6 +11,7 @@ import { newsSections } from '../src/news-config.mjs';
 import { utilityGroups } from '../src/utility-config.mjs';
 import { examplePages, medianPages, navigationGroups } from '../src/navigation.mjs';
 import { adminPath, adminTimelinePage, adminProposalsPath, adminProposalsPage } from '../src/admin-pages.mjs';
+import { officialValueEvidence } from '../src/official-value-evidence.mjs';
 import { adminTimeline, auditRequest, hasCompletionEvidence, renderRequirementsAudit, sortAdminTimeline } from '../src/admin-log.mjs';
 import { adminProposals, sortAdminProposals } from '../src/admin-proposals.mjs';
 
@@ -198,6 +199,19 @@ test('홈 레거시 연봉 링크와 연결되지 않은 작업 타임라인 페
   assert.match(admin, /class="admin-cell-label" aria-hidden="true">반영 내용<\/span>/);
   assert.match(admin, /src\/admin-log\.mjs/);
   assert.equal(navigationGroups.some(({ path }) => path === adminPath), false);
+});
+
+test('관리 페이지는 수치마다 적용 기간과 원문 근거를 표시한다', () => {
+  const html = adminTimelinePage(config);
+  const panel = html.match(/<section class="panel" id="official-value-evidence">(.*?)<\/section>/s)[1];
+  for (const entries of Object.values(officialValueEvidence)) for (const { label, url, applies, excerpt } of entries) {
+    assert.equal(new URL(url).protocol, 'https:');
+    assert.ok(label.trim() && applies.trim() && excerpt.trim());
+    assert.ok(panel.includes(label));
+    assert.ok(panel.includes(applies));
+    assert.ok(panel.includes(excerpt.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')));
+    assert.ok(panel.includes(url.replaceAll('&', '&amp;')));
+  }
 });
 
 test('타임라인은 진행 중인 항목 먼저, 각 그룹에서는 최신순으로 표시한다', () => {

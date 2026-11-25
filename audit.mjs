@@ -1,10 +1,10 @@
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { chromium } from 'playwright';
+import { chromium, devices, firefox, webkit } from 'playwright';
 import { adminTimeline, sortAdminTimeline } from './src/admin-log.mjs';
 import activeWork from './src/admin-now.json' with { type: 'json' };
 import { newsFeeds } from './src/news-config.mjs';
@@ -14,11 +14,36 @@ import { jpegWithGPS } from './test/photo-location-fixture.mjs';
 
 const dist = fileURLToPath(new URL('./dist', import.meta.url));
 const live = process.env.AUDIT_LIVE_URL && new URL(process.env.AUDIT_LIVE_URL);
-if (!live) {
+const profiles = {
+  chromium: { engine: chromium },
+  firefox: { engine: firefox },
+  webkit: { engine: webkit },
+  iphone: { engine: webkit, device: devices['iPhone 15'] },
+  pixel: { engine: chromium, device: devices['Pixel 7'] },
+};
+const profile = process.env.AUDIT_PROFILE;
+if (profile && !Object.hasOwn(profiles, profile)) throw new Error('Unknown AUDIT_PROFILE: ' + profile);
+if (!live && !process.env.AUDIT_REUSE_BUILD) {
   execFileSync(process.execPath, [fileURLToPath(new URL('./build.mjs', import.meta.url))], {
     stdio: 'inherit', env: { ...process.env, GITHUB_OUTPUT: '', NEWS_SKIP_UNCHANGED: '0', ADSENSE_CLIENT_ID: '', ADSENSE_SLOT_ID: '' },
   });
 }
+if (!profile) {
+  let failed = false;
+  for (const name of Object.keys(profiles)) {
+    const result = spawnSync(process.execPath, [fileURLToPath(import.meta.url)], {
+      stdio: 'inherit', env: {
+        ...process.env, AUDIT_PROFILE: name, AUDIT_REUSE_BUILD: '1',
+        AUDIT_REPORT: process.env.AUDIT_REPORT ? `${process.env.AUDIT_REPORT}.${name}.json` : '',
+      },
+    });
+    if (result.error) throw result.error;
+    if (result.status !== 0) failed = true;
+  }
+  process.exit(Number(failed));
+}
+const { engine, device } = profiles[profile];
+const widths = device ? [device.viewport.width] : [390, 768, 1024, 1440];
 const publicRoutes = live ? await liveInventory(live) : [];
 const inventory = live ? [...publicRoutes, '/ops-7f3a9c2d/', '/ops-7f3a9c2d/recommendations/', '/assets/background-removal/']
   : (await readdir(dist, { recursive: true })).filter((path) => /(^|\/)index\.html$/.test(path))
@@ -123,12 +148,14 @@ async function checkLinks(page, origin) {
   console.log(`Internal links: ${checked.size} targets from ${pages.size} HTML pages.`);
 }
 
-try {
-  if (!live) await new Promise((ready) => server.listen(0, '127.0.0.1', ready));
-  const origin = live ? live.origin : 'http://127.0.0.1:' + server.address().port;
-  browser = await chromium.launch({ executablePath: process.env.AUDIT_CHROMIUM_PATH });
-  const context = await browser.newContext({ serviceWorkers: 'block' });
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin });
+async function auditViewport(origin) {
+  const context = await browser.newContext({ viewport: { width, height: 850 }, ...device, serviceWorkers: 'block' });
+  if (engine === chromium) await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin });
+  else await context.addInitScript(() => {
+    let value = '';
+    Object.defineProperty(navigator.clipboard, 'readText', { value: async () => value });
+    Object.defineProperty(navigator.clipboard, 'writeText', { value: async (text) => { value = text; } });
+  });
   await context.addInitScript(() => {
     document.addEventListener('securitypolicyviolation', (event) => {
       console.error('CSP blocked ' + event.violatedDirective);
@@ -154,9 +181,9 @@ try {
     if (response.status() >= 400) issue(`HTTP ${response.status()}: ${new URL(response.url()).pathname}`);
   });
   const page = await context.newPage();
-  await checkLinks(page, origin);
+  if (width === widths[0]) await checkLinks(page, origin);
   await page.clock.setFixedTime(new Date('2026-05-24T15:05:00Z'));
-  page.on('pageerror', (error) => issue(error.message));
+  page.on('pageerror', (error) => issue('Page error: ' + (error.stack || error.message)));
   page.on('console', (message) => {
     if (message.type() === 'error') issue('Console: ' + message.text());
   });
@@ -178,8 +205,7 @@ try {
   const jpegFixture = { name: 'audit.jpg', mimeType: 'image/jpeg', buffer: jpegWithGPS(Buffer.from(jpeg, 'base64')) };
   const heicFixture = { name: 'audit.heic', mimeType: 'image/heic', buffer: await readFile(new URL('./test/sample.heic', import.meta.url)) };
 
-  for (width of [390, 768, 1024, 1440]) {
-    await page.setViewportSize({ width, height: 850 });
+  try {
     for (route of [...routes, ...detailTemplates]) {
       try {
         const response = await page.goto(origin + route, { waitUntil: 'load' });
@@ -245,12 +271,12 @@ try {
               heroWrap: getComputedStyle(intro).wordBreak === 'keep-all' && intro.textContent.includes('기능을\u00a0바로'),
             };
           });
-          if ((width === 1440 && home.desktopAlignment > 3) || (width === 390 && !home.mobileStack)) issue('Shortcut heading and search placement are misaligned');
+          if ((width === 1440 && home.desktopAlignment > 3) || (width < 768 && !home.mobileStack)) issue('Shortcut heading and search placement are misaligned');
           if (!home.plainCategory || !home.heroWrap) issue('Home card title or hero wrapping styles are incorrect');
         }
-        if (screenshotDir) await page.screenshot({ path: join(screenshotDir, `${width}-${route.split('/').filter(Boolean).join('_') || 'home'}.png`) });
+        if (screenshotDir) await page.screenshot({ path: join(screenshotDir, `${profile}-${width}-${route.split('/').filter(Boolean).join('_') || 'home'}.png`) });
         layouts++;
-        if (detailTemplates.includes(route) || width === 768 || width === 1024) continue;
+        if (detailTemplates.includes(route)) continue;
         if (route === '/') {
           const branding = await page.evaluate(() => ['.brand img', '.home-hero-art'].every((selector) => document.querySelector(selector)?.naturalWidth > 0));
           if (!branding) issue('Home branding image failed to load');
@@ -297,9 +323,10 @@ try {
           if (!await page.locator('[data-dashboard-card]').first().isVisible()) issue('Clearing search did not restore shortcut cards');
           if (await page.getByText('연봉 실수령액 계산기와 공식 계산 기준 보기', { exact: true }).count() ||
               await page.locator('main form[id="calculator"]').count()) issue('Standalone salary content remains on the home page');
-          if (width === 390) {
+          if (await page.locator('.nav-toggle').isVisible()) {
             const toggle = page.locator('.nav-toggle');
-            await toggle.click();
+            if (device) await toggle.tap();
+            else await toggle.click();
             if (await toggle.getAttribute('aria-expanded') !== 'true' || !await page.locator('.sidebar').isVisible()) issue('Mobile navigation did not open');
             await page.keyboard.press('Escape');
             if (await toggle.getAttribute('aria-expanded') !== 'false') issue('Mobile navigation did not close on Escape');
@@ -328,7 +355,8 @@ try {
             };
           });
           const is2026 = route.endsWith('/2026/');
-          if (calendar.months !== 12 || calendar.columns !== (width === 390 ? 1 : 3)) issue('Incorrect calendar layout');
+          const columns = width <= 544 ? 1 : width <= 1056 ? 2 : 3;
+          if (calendar.months !== 12 || calendar.columns !== columns) issue('Incorrect calendar layout');
           if (calendar.today !== (is2026 ? '2026-05-25' : null) || (is2026 && calendar.substitute !== '2026-05-25')) {
             issue('Incorrect Korean-time today or substitute holiday indicator');
           }
@@ -338,10 +366,18 @@ try {
           cases++;
         }
         if (route === '/ops-7f3a9c2d/') {
-          const activePanel = page.getByRole('region', { name: '지금 작업 중' });
+          const evidence = page.locator('#official-value-evidence');
+          const group = evidence.locator('details').first();
+          await group.locator('summary').click();
+          if (!await group.getByRole('link', { name: '기관 원문' }).first().isVisible() ||
+              !/2026-01-01/.test(await group.textContent()) || await overflow() > 1) {
+            issue('Official value evidence is missing or overflows');
+          }
+          cases++;
+          const activePanel = page.locator('section[aria-labelledby="admin-now-title"]');
           const titles = await activePanel.getByRole('heading', { level: 3 }).allTextContents();
           const activeTitles = [...activeWork].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).map(({ title }) => title);
-          if (!await activePanel.isVisible() || JSON.stringify(titles) !== JSON.stringify(activeTitles) ||
+          if (!await activePanel.locator('#admin-now-title').isVisible() || JSON.stringify(titles) !== JSON.stringify(activeTitles) ||
               (!activeWork.length && !await activePanel.getByText('현재 진행 중인 작업 없음', { exact: true }).isVisible())) {
             issue('Incorrect admin active work');
           }
@@ -704,16 +740,26 @@ try {
         }
         if (await overflow() > 1) issue('Page overflows horizontally after input');
       } catch (error) {
+        if (page.isClosed() || /(?:Target|Page) crashed/.test(error.message)) {
+          throw new Error(`${profile} at ${width}px ${route}: ${error.message}`, { cause: error });
+        }
         issue(error.message);
       }
     }
-  }
+  } finally { await context.close(); }
+}
+
+try {
+  if (!live) await new Promise((ready) => server.listen(0, '127.0.0.1', ready));
+  const origin = live ? live.origin : 'http://127.0.0.1:' + server.address().port;
+  browser = await engine.launch({ executablePath: engine === chromium ? process.env.AUDIT_CHROMIUM_PATH : undefined });
+  for (width of widths) await auditViewport(origin);
 } finally {
   await browser?.close();
   if (server.listening) await new Promise((done) => server.close(done));
   if (process.env.AUDIT_REPORT) await writeFile(process.env.AUDIT_REPORT, JSON.stringify({ requests, issues }, null, 2) + '\n');
 }
 
-console.log(`Browser audit: ${layouts} layouts at 4 widths; ${routes.length} pages × 2 functional viewports, ${forms} form runs, ${cases} cases, ${requests.length} HTTP requests, ${issues.length} issues.`);
+console.log(`Browser audit [${profile}]: ${layouts} layouts at ${widths.join('/')}px; ${routes.length} pages × ${widths.length} functional viewports, ${forms} form runs, ${cases} cases, ${requests.length} HTTP requests, ${issues.length} issues.`);
 for (const entry of issues) console.error(`${entry.width}px ${entry.route}: ${entry.message}`);
 process.exitCode = Number(issues.length > 0);

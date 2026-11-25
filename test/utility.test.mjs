@@ -65,7 +65,7 @@ test('공개 도구는 광고 없이 렌더링하고 편집기와 Worker를 같�
   const [editor, app, worker] = await Promise.all(['index.html', 'app.js', 'worker.js'].map((path) => readFile(new URL(path, entry), 'utf8')));
   assert.match(editor, /connect-src 'self'/);
   assert.match(editor, /name="robots" content="noindex"/);
-  assert.match(app, /new Blob\(/);
+  assert.match(app, /new Worker\(new URL\('worker\.js', assetBase\)\)/);
   assert.doesNotMatch(app, /serviceWorker|localStorage|sessionStorage|indexedDB|fetch\(/);
   assert.match(worker, /new URL\(MODELS\[name\].url, assetBase\)/);
 });
