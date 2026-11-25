@@ -119,27 +119,9 @@ function supportPage(config, section) {
     <p>다른 지원 제도는 <a href="https://www.gov.kr/portal/rcvfvrSvc/main">정부24 혜택알리미·보조금 안내</a>에서 확인하세요.</p></section>`);
 }
 
-function smishingPage(config, section) {
-  const protection = 'https://www.boho.or.kr/kr/subPage.do?menuNo=205116';
-  const police = 'https://ecrm.police.go.kr/minwon/main';
-  return detail(config, section, '../../', `<section class="panel"><h2>문자를 받았다면</h2>
-    <ol>
-      <li>문자나 메신저의 링크를 누르지 말고 앱을 설치하거나 개인정보를 입력하지 마세요.</li>
-      <li>택배사나 공공기관을 사칭한 것 같다면 메시지에 적힌 번호·링크 대신 해당 기관의 공식 앱이나 대표 번호로 확인하세요.</li>
-      <li>스미싱이 의심되면 카카오톡에서 직접 <strong>보호나라</strong> 채널을 검색해 <strong>스미싱 확인서비스</strong>를 여세요. <a href="${protection}">KISA 공식 안내</a>에 따라 메시지를 확인 서비스에 붙여 넣고 접수 결과를 확인하세요. 결과가 ‘주의’라면 안전하다는 뜻이 아닙니다.</li>
-    </ol>
-    <p class="note">이 페이지는 악성 여부를 판정하지 않으며 문자, 주소, 전화번호를 받지 않습니다.</p>
-    </section>
-    <section class="panel"><h2>이미 눌렀거나 피해가 의심된다면</h2>
-    <p>개인정보 입력이나 앱 설치를 멈추고 대응 방법은 KISA <a href="tel:118">118</a>에 상담하세요. 사이버범죄 피해 신고 절차는 <a href="${police}">경찰청 사이버범죄 신고시스템</a>에서 확인할 수 있습니다.</p>
-    </section>
-    ${refs([{ name: 'KISA 보호나라 · 스미싱 확인서비스 및 118 상담', url: protection },
-      { name: '경찰청 · 사이버범죄 신고시스템', url: police }])}`);
-}
-
 export function informationPages(config) {
   const root = '../';
-  const [holidays26, holidays27, tax, yearly, support, smishing] = informationSections;
+  const [holidays26, holidays27, tax, yearly, support] = informationSections;
   return [
     { path: 'info/', html: layout({
       config, root, path: 'info/', title: `생활 정보: 공휴일·신청 일정·임금 기준 | ${brand}`, description: infoIntro, localOnly: true,
@@ -152,6 +134,5 @@ export function informationPages(config) {
     taxPage(config, tax),
     ratesPage(config, yearly),
     supportPage(config, support),
-    smishingPage(config, smishing),
   ];
 }

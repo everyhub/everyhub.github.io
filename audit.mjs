@@ -444,14 +444,6 @@ async function auditViewport(origin) {
           if (await cards.count() < 3 || !await cards.first().getByText('왜 필요하나요?', { exact: true }).isVisible()) issue('Missing proposal detail');
           cases += 2;
         }
-        if (route === '/info/smishing-checklist/') {
-          const main = page.locator('main');
-          if (await main.locator('form, input, textarea').count() ||
-              !await main.getByRole('link', { name: 'KISA 공식 안내' }).isVisible() ||
-              !await main.locator('a[href="tel:118"]').isVisible() ||
-              !await main.getByRole('link', { name: '경찰청 사이버범죄 신고시스템' }).isVisible()) issue('Smishing guidance is missing an official path or requests user input');
-          cases++;
-        }
         if (route === '/news/korea/' || route === '/news/world/') {
           const articles = page.locator('[data-news-source]');
           if (await articles.count()) {

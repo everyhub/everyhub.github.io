@@ -178,15 +178,19 @@ test('11월 25일 추천의 상태와 범위는 해당 이슈에 연결된다', 
   assert.ok(converter.items.every(hasCompletionEvidence));
 });
 
-test('스미싱 안내는 입력 양식 없이 KISA 확인·상담과 경찰 신고를 구분한다', () => {
-  const pages = informationPages(config);
-  const guide = pages.find(({ path }) => path === 'info/smishing-checklist/').html;
-  assert.match(pages.find(({ path }) => path === 'info/').html, /href="\.\.\/info\/smishing-checklist\/"/);
-  assert.match(guide, /문자를 받았다면[^]*보호나라[^]*이미 눌렀거나 피해가 의심된다면/);
-  assert.match(guide, /href="https:\/\/www\.boho\.or\.kr\/kr\/subPage\.do\?menuNo=205116"/);
-  assert.match(guide, /href="tel:118"/);
-  assert.match(guide, /href="https:\/\/ecrm\.police\.go\.kr\/minwon\/main"/);
-  assert.doesNotMatch(guide.match(/<main\b[^]*?<\/main>/)[0], /<(?:form|input|textarea)\b/);
+test('새 선정 기준에서 추가하지 않은 후보는 해당 근거와 함께 남는다', () => {
+  const html = adminProposalsPage(config);
+  for (const [id, number, status] of [
+    ['smishing-checklist', 7, '거절'], ['http-status-codes', 8, '보류'], ['unicode-normalize', 9, '거절'],
+    ['supermoon-viewing', 10, '보류'], ['digital-tourism-card', 11, '보류'], ['uuid-v4', 12, '보류'],
+  ]) {
+    const proposal = adminProposals.find((entry) => entry.id === id);
+    const card = html.match(new RegExp(`id="proposal-${id}"[^]*?</article>`))?.[0];
+    assert.ok(card?.includes(`${status} · <time`), id);
+    assert.ok(card.includes(`href="https://github.com/everyhub/everyhub.github.io/issues/${number}"`), id);
+    assert.ok(proposal.decision && card.includes(proposal.decision), id);
+  }
+  assert.match(html, /최근 점검: 추가 없음/);
 });
 
 test('주거 사례 제목과 도입문은 금액과 원 단위를 함께 줄바꿈한다', () => {
@@ -390,7 +394,7 @@ test('월력요항 및 개정 법령에 따른 공휴일과 주 5일제 연휴�
   assert.ok(previous.holidays.some(({ date, name }) => date === '2026-07-17' && name === '제헌절'));
   assert.ok(next.holidays.some(({ date, name }) => date === '2027-07-19' && name === '대체공휴일(제헌절)'));
   const pages = informationPages(config);
-  assert.equal(pages.length, 7);
+  assert.equal(pages.length, 6);
   for (const { path, html } of pages) {
     assert.ok(html.includes(`href="${config.baseURL}${path}"`));
     assert.match(html, /"@type":"CollectionPage"/);

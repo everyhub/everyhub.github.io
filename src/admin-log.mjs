@@ -75,7 +75,9 @@ const requests = [
   { time: "2026-11-25 10:23", id: "remaining-work-review", request: "승인카드는 생성 시 받아볼수있는 알림이 있는지? … 그냥 지금대로두고 남은작업 마저해", status: "진행중", reflection: "알림 설정은 유지했습니다. 추천 예약 세 시간대와 뉴스 보완 갱신을 기록했고, 14:13·19:13 첫 실행은 각각 확인 대기입니다.", links: ["https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9","https://github.com/everyhub/everyhub.github.io/blob/main/docs/daily-proposals.md","https://github.com/everyhub/everyhub.github.io/actions/runs/45525260475"] },
   { time: "2026-11-25 10:40", id: "official-values-browser-matrix", request: "Check every published official value … across 2026 and 2027 … Define the browser support scope as Chromium, Firefox, and WebKit … plus … iPhone and Pixel", status: "부분", reflection: "노동·세금·주거 및 공휴일의 기관 원문·표 근거를 보강했습니다. cf59d3a 운영 배포의 Chromium·Firefox·WebKit 4개 너비 재감사와 로컬 모바일 에뮬레이션을 통과했습니다.", links: ["https://everyhub.github.io/ops-7f3a9c2d/#official-value-evidence","https://github.com/everyhub/everyhub.github.io/blob/main/README.md#배포-전-검수-체크리스트","https://github.com/everyhub/everyhub.github.io/actions/runs/45527730525","https://github.com/everyhub/everyhub.github.io/actions/runs/45528824434"] },
   { time: "2026-11-25 11:27", id: "qualitative-ux-review", request: "페이지 구조나 부자연스러운 어투 줄바꿈 등 페이지 보기좋은 상태 기능들 괜찮은지 버그는 없는지 uiux 잘 고민해줘봐", status: "부분", reflection: "390·1440px에서 템플릿과 도구의 전체 화면을 감수했습니다. 연봉 비교 표의 금액과 단위를 붙이고 관리 표의 근거 링크를 한 줄 이름으로 줄였습니다. 오류가 발생하면 이전 결과나 안내 문구를 복사하지 않도록 했습니다.", links: ["https://everyhub.github.io/salary/20000/","https://everyhub.github.io/ops-7f3a9c2d/#qualitative-ux-review","https://github.com/everyhub/everyhub.github.io/blob/main/README.md#배포-전-검수-체크리스트"] },
-  { time: "2026-11-25 22:46", id: "automatic-feature-selection", request: "승인 대신 자동 추가하되 개인에 맞춘 기능은 피하고, 필요성·최근 검색 수요·공식 근거가 있는 기능만 추가", status: "부분", reflection: "방문자 집계는 추가하지 않았습니다. 별도 승인 없이 회당 최대 1건만 선정하며, 적합한 후보가 없으면 유지보수를 우선하도록 절차를 바꿨습니다. 이번에는 스미싱 안내만 선정했습니다.", links: ["https://everyhub.github.io/ops-7f3a9c2d/recommendations/","https://everyhub.github.io/info/smishing-checklist/","https://github.com/everyhub/everyhub.github.io/blob/main/docs/daily-proposals.md"] },
+  { time: "2026-11-25 19:13", id: "daily-proposals-2026-11-25-evening", request: "19:13 추천 조사·승인 반영 및 Pages 배포 확인", status: "부분", reflection: "신규 제안 #10~#12와 기존 #5·#7·#9의 거절을 추천 탭에 배포하고 운영 카드와 검색 제외 설정을 확인했습니다. 당시 #8은 로컬 구현과 Chromium 검사까지만 진행했습니다.", reason: "이후 새 선정 기준에서 최근 검색 수요가 부족해 #8을 배포하지 않고 이슈를 종료했습니다.", links: ["https://github.com/everyhub/everyhub.github.io/actions/runs/45594658093","https://github.com/everyhub/everyhub.github.io/issues/8"] },
+  { time: "2026-11-25 19:13", id: "news-refresh-2026-11-25-evening", request: "뉴스 예약 및 보완 실행 확인", status: "부분", reflection: "17:21 KST 예약은 Pages 배포에 성공했습니다. 직전 30분에 성공한 예약이 없어 19:25 KST에 수동 보완했고 빌드가 성공했습니다. 같은 뉴스와 커밋이라 추가 배포는 생략됐습니다. 운영 스냅샷에서 14개 피드·112건을 확인했습니다.", reason: "Actions 원본 로그의 수집 건수와 피드 실패 건수, 30분 주기의 지속 여부는 미확인입니다.", links: ["https://github.com/everyhub/everyhub.github.io/actions/runs/45575503149","https://github.com/everyhub/everyhub.github.io/actions/runs/45594849070","https://everyhub.github.io/news/"] },
+  { time: "2026-11-25 22:46", id: "automatic-feature-selection", request: "승인 대신 자동 추가하되 개인에 맞춘 기능은 피하고, 필요성·최근 검색 수요·공식 근거가 있는 기능만 추가", status: "부분", reflection: "방문자 집계는 추가하지 않았습니다. 별도 승인 없이 회당 최대 1건만 선정하며, 적합한 후보가 없으면 유지보수를 우선하도록 절차를 바꿨습니다. 이번에는 신규 기능을 추가하지 않았습니다.", links: ["https://everyhub.github.io/ops-7f3a9c2d/recommendations/","https://github.com/everyhub/everyhub.github.io/blob/main/docs/daily-proposals.md"] },
 ];
 
 export function hasCompletionEvidence(item) {
@@ -153,11 +155,10 @@ export function renderRequirementsAudit(entries = adminTimeline) {
 }
 
 export const adminPending = [
-  '추천 조사: 14:13·19:13 KST 첫 실행 확인',
+  '자동 기능 점검: 새 기준에 따른 실제 예약 실행 확인',
   '추천 운영용 GitHub 토큰 만료일(2027-01-23) 전에 동일한 최소 권한으로 교체하고 연결 확인',
-  '별도 Refresh news 워크플로: 2026-11-25 10:26 KST 기준 예약 성공 1건, 보완 실행과 구분해 반복 여부 확인',
+  '별도 Refresh news 워크플로: 2026-11-25 09:04·17:21 KST 예약 성공 2건을 확인했으며 반복 주기는 미확인',
   '공식 고시 전인 2027년 구직급여 상한·일부 보험 상·하한·산재 요율·간이세액표 확인',
   'Google Search Console·네이버 서치어드바이저 색인과 sitemap 처리 결과 확인',
   'AdSense 승인·광고 정책·상업 운영 조건 확인',
-  '방문자 분석 도입 여부와 개인정보·동의·GitHub Pages 정책 검토',
 ];

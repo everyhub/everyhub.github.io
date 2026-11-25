@@ -1,10 +1,67 @@
 export const latestFeatureReview = {
   reviewedAt: "2026-11-25 22:46",
-  outcome: "스미싱 안내 1건 선정",
-  reason: "최근 30일 중 22일에 검색 지수가 표시된 스미싱 안내만 선정했습니다. 다른 후보는 검색 수요나 범용성이 충분하지 않아 추가하지 않았습니다.",
+  outcome: "추가 없음",
+  reason: "스미싱 안내는 기존 거절을 유지했습니다. 다른 후보는 기존 공식 안내로 확인할 수 있거나 최근 검색 수요·범용성의 근거가 부족해 추가하지 않았습니다.",
 };
 
 export const adminProposals = [
+  {
+    id: "supermoon-viewing",
+    title: "2026년 가장 큰 보름달·월출 확인 안내",
+    what: "12월 24일 가장 큰 보름달을 볼 때 달이 차는 시각과 지역별로 달이 뜨는 시각을 어디에서 확인할지 안내합니다.",
+    why: {
+      text: "2026-11-25 19시대 KST Google Trends 한국 급상승 검색 RSS에서 ‘슈퍼문’ 항목을 확인했습니다. 한국천문연구원은 12월 24일에 2026년 중 가장 큰 보름달을 볼 수 있다고 발표했습니다. 관측 장소의 월출 시각을 직접 확인할 수 있게 안내합니다.",
+      sources: [{ label: "Google Trends 한국 급상승 검색 RSS · 2026-11-25 확인", url: "https://trends.google.com/trending/rss?geo=KR" }]
+    },
+    officialSources: [
+      { label: "한국천문연구원 · 2026년도 주목할 천문현상", url: "https://www.kasi.re.kr/publication/post/newsMaterial/32192" },
+      { label: "한국천문연구원 · 월별 해·달 출몰시각", url: "https://astro.kasi.re.kr/kor/life/pageView/6" }
+    ],
+    scope: "생활 정보 /info/supermoon-viewing/ 한 페이지. 2026년 12월 24일 한국시간 날짜, 보름달이 되는 시각과 지역별 월출의 차이, 공식 조회 순서를 안내합니다.",
+    risks: "위치 권한 요청, 날씨 연동, 관측 가능 여부 예측, 미발표 연도 계산은 제외합니다. 지역별 실제 시각은 공식 조회를 안내합니다.",
+    createdAt: "2026-11-25 19:19",
+    status: "보류",
+    decision: "급상승 검색어와 공식 자료는 확인했지만, 한 차례 천문 현상은 기존 천문연구원 안내와 월출 조회로 확인할 수 있어 별도 페이지의 필요성이 충분하지 않습니다.",
+    issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/10"
+  },
+  {
+    id: "digital-tourism-card",
+    title: "디지털 관광주민증 발급·현장 사용 안내",
+    what: "발급 지역을 고르고 방문 전 혜택을 조회한 뒤 현장에서 공식 QR 안내를 따르는 순서를 정리합니다.",
+    why: {
+      text: "2026-11-24 제50회 국무회의는 디지털관광주민증 발급·활용 근거를 마련한 관광진흥법의 12월 3일 시행과 시행령 심의·의결 내용을 브리핑했습니다. 지역별 참여 시설과 사용 방법을 방문 전에 확인하는 데 도움이 됩니다. 국내 검색량은 확인하지 못했습니다.",
+      sources: [{ label: "대한민국 정책브리핑 · 제50회 국무회의", url: "https://www.korea.kr/briefing/stateCouncilView.do?newsId=148976402" }]
+    },
+    officialSources: [
+      { label: "한국관광공사 · 디지털 관광주민증 서비스 소개", url: "https://korean.visitkorea.or.kr/dgtourcard/biz/svcIntro/svcIntro.do" },
+      { label: "한국관광공사 · 디지털 관광주민증 공식 조회", url: "https://korean.visitkorea.or.kr/dgtourcard/" }
+    ],
+    scope: "생활 정보 /info/digital-tourism-card/ 한 페이지. 발급과 현장 사용 순서, 해당 지역·시설·혜택을 확인하는 공식 링크를 제공합니다.",
+    risks: "회원 로그인·대리 발급·QR 생성·시설 목록 복제를 제외합니다. 혜택이나 할인율은 보장하지 않으며 구현 시 공포 원문과 시행일을 재확인합니다.",
+    createdAt: "2026-11-25 19:19",
+    status: "보류",
+    decision: "공식 조회가 이미 제공되며, 별도 안내를 추가할 만큼 최근 검색 수요는 확인하지 못했습니다.",
+    issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/11"
+  },
+  {
+    id: "uuid-v4",
+    title: "UUID v4 생성·형식 검사",
+    what: "UUID v4를 브라우저에서 한 개 또는 소량 생성·복사하고, 붙여 넣은 문자열의 형식·버전·변형 비트를 검사합니다.",
+    why: {
+      text: "2026-11-25 KST에 확인한 uuidjs/uuid 공개 저장소의 별은 15,345개로 개발자 관심의 간접 지표입니다. 테스트용 식별자를 복사하거나 기존 값이 v4 형식인지 확인할 수 있습니다. 국내 검색량이나 실제 이용자 수는 확인하지 못했습니다.",
+      sources: [{ label: "uuidjs/uuid 공식 저장소 · 공개 별 집계", url: "https://github.com/uuidjs/uuid" }]
+    },
+    officialSources: [
+      { label: "IETF · RFC 9562 §5.4 UUIDv4", url: "https://www.rfc-editor.org/rfc/rfc9562.html#section-5.4" },
+      { label: "W3C · Web Cryptography Level 2 randomUUID", url: "https://www.w3.org/TR/webcrypto-2/#Crypto-method-randomUUID" }
+    ],
+    scope: "개발 도구 /tools/uuid-v4/ 한 페이지. 보안 컨텍스트에서 Web Crypto로 최대 20개까지 생성하고 한 줄씩 복사하거나 UUID v4 형식을 검사합니다.",
+    risks: "다른 UUID 버전, 고유성 보장, 인증 토큰 용도, 외부 전송, 브라우저 저장은 제외합니다.",
+    createdAt: "2026-11-25 19:19",
+    status: "보류",
+    decision: "저장소 별 수는 최근 검색 수요를 보여 주지 않으며, 개발 테스트 중심의 도구입니다.",
+    issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/12"
+  },
   {
     id: "smishing-checklist",
     title: "스미싱 의심 문자 확인·신고 체크리스트",
@@ -17,11 +74,11 @@ export const adminProposals = [
       { label: "KISA 보호나라 · 스미싱 확인서비스 및 118 상담", url: "https://www.boho.or.kr/kr/subPage.do?menuNo=205116" },
       { label: "경찰청 · 사이버범죄 신고시스템", url: "https://ecrm.police.go.kr/minwon/main" }
     ],
-    scope: "생활 정보에 /info/smishing-checklist/ 안내 1페이지를 제공합니다.",
+    scope: "검토 범위는 생활 정보의 /info/smishing-checklist/ 안내 1페이지였습니다.",
     risks: "사이트가 악성 여부를 판정하거나 링크·문자·번호를 수집하지 않습니다.",
     createdAt: "2026-11-25 09:43",
-    status: "진행중",
-    decision: "대상이 넓고 최근 검색 수요와 KISA·경찰청 공식 안내를 확인해 이번에 한 건만 선정했습니다.",
+    status: "거절",
+    decision: "최근 수요와 공식 근거는 확인했지만 저장소 관리자의 기존 거절 결정을 유지합니다.",
     issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/7"
   },
   {
@@ -58,8 +115,8 @@ export const adminProposals = [
     scope: "개발 도구에 /tools/unicode-normalize/ 비교·변환 화면 1페이지를 추가합니다.",
     risks: "NFC·NFD만 지원하며, 파일명 일괄 변경·파일 업로드·입력 저장은 하지 않습니다.",
     createdAt: "2026-11-25 09:43",
-    status: "보류",
-    decision: "문자열 정규화가 필요한 상황에 한정되며 최근 검색 수요가 뚜렷하지 않았습니다.",
+    status: "거절",
+    decision: "기존 거절 결정을 유지합니다. 문자열 정규화가 필요한 상황에 한정되며 최근 검색 수요도 뚜렷하지 않았습니다.",
     issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/9"
   },
   {
