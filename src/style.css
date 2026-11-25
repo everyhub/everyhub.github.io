@@ -148,6 +148,8 @@ button:hover, .button:hover { background: #04523e; }
 .utility-download[hidden] { display: none; }
 .utility-result { display: block; white-space: pre-wrap; overflow-wrap: anywhere; font-weight: 700; }
 .utility-result:not(:empty) { margin-top: .8rem; }
+[data-utility="csv-json-converter"] .utility-result { max-height: 24rem; overflow: auto; }
+[data-utility="csv-json-converter"] [name="protect"] { margin-top: .8rem; }
 .utility-preview:not([hidden]) { display: block; max-width: 100%; height: auto; margin: .75rem 0; border: 1px solid var(--line); }
 .passport-preview { width: min(100%, 15rem); }
 .ladder-preview { width: min(100%, 22rem); }

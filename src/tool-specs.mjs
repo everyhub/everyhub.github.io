@@ -62,6 +62,7 @@ export const shortcutKeywords = {
   'random-picker': ['뽑기', '제비뽑기', '랜덤'],
   'ladder-draw': ['사다리', '뽑기', '랜덤'],
   'json-formatter': ['JSON 포맷', 'JSON 검사', '들여쓰기'],
+  'csv-json-converter': ['CSV 변환', 'JSON 표', 'TSV', '스프레드시트'],
   'text-encoding': ['디코딩', '인코딩', 'URL 변환'],
   'qr-generator': ['큐알', 'QR 생성', '큐알코드'],
   'password-generator': ['비번', '암호 생성'],

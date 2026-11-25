@@ -2,6 +2,7 @@ import { informationSources as calendar } from './information.mjs';
 import { dateRange } from './utility.mjs';
 import { worldTimeRange } from './utility-extra.mjs';
 import { lunarSolarRange, lunarSources } from './lunar-calendar.mjs';
+import { maxTableBytes } from './csv-json.mjs';
 
 const source = (name, url) => ({ name, url });
 const area = (name, label, attributes = '') => `<label>${label}<textarea name="${name}" rows="5" ${attributes}></textarea></label>`;
@@ -91,6 +92,20 @@ export const extraUtilityForms = {
     '인원과 결과는 몇 개 넣나요?', '두 목록 모두 2~8개로 개수를 맞추고 참가자 이름은 서로 다르게 쓰세요. 같은 결과는 여러 줄에 입력해도 됩니다.'),
   'json-formatter': form(text() + select('mode', '출력 형식', [['pretty', '2칸 들여쓰기'], ['compact', '공백 줄이기']]) + button('JSON 정리'),
     '입력한 값이 그대로 유지되나요?', '브라우저의 JSON 파서를 사용합니다. 매우 큰 정수는 정밀도를 잃을 수 있고 중복 키는 마지막 값만 남으므로 이런 데이터에는 사용하지 마세요.'),
+  'csv-json-converter': form(
+    grid(select('direction', '변환 방향', [['csv-to-json', 'CSV → JSON'], ['json-to-csv', 'JSON → CSV']]),
+      select('delimiter', 'CSV 구분자', [['comma', '쉼표 (,)'], ['tab', '탭 (TSV)'], ['semicolon', '세미콜론 (;)']])) +
+    input('file', 'UTF-8 파일 선택', 'type="file" accept=".csv,.tsv,.json,.txt"') +
+    '<p class="note">파일을 선택하거나 아래에 직접 붙여 넣으세요. 한 번에 최대 2MB를 변환하며, 파일과 입력값은 서버로 보내지 않습니다.</p>' +
+    area('text', '변환할 데이터', `maxlength="${maxTableBytes}" spellcheck="false"`) +
+    '<button type="button" data-table-paste>붙여 넣기</button> <button type="button" data-table-example>예시 넣기</button>' +
+    input('protect', 'CSV 수식 실행 방지', 'type="checkbox" checked disabled') +
+    '<p class="note">기본 설정은 수식처럼 보이는 문자열 앞에 작은따옴표를 붙입니다. 원문이 꼭 필요하고 입력을 신뢰할 수 있을 때만 끄세요. 모든 스프레드시트의 동작을 보장하지는 않습니다.</p>' +
+    button('변환') + download + '<p class="note" role="status"></p>',
+    '어떤 데이터가 변환되나요?',
+    'CSV 첫 행은 비어 있지 않은 고유한 열 이름이어야 합니다. 값은 문자열로 유지합니다. JSON은 키가 같은 평면 객체 배열만 지원하며 null은 빈 칸이 됩니다. JSON의 중복 키는 피하고 정밀도가 중요한 수치는 문자열로 입력하세요. 최대 2만 행·200개 열, 결과 JSON 8MB를 지원하며 XLSX는 지원하지 않습니다.',
+    [source('RFC 4180 · CSV 레코드와 따옴표 처리', 'https://www.rfc-editor.org/rfc/rfc4180'),
+      source('RFC 8259 · JSON 데이터 형식', 'https://www.rfc-editor.org/rfc/rfc8259')]),
   'text-encoding': form(text() + select('mode', '인코딩 방식', [['base64-encode', 'UTF-8 → Base64'], ['base64-decode', 'Base64 → UTF-8'],
     ['url-encode', 'URL 구성요소 인코딩'], ['url-decode', 'URL 구성요소 디코딩']]) + button('변환'),
     'Base64가 암호화인가요?', '아닙니다. 누구나 복원할 수 있는 인코딩입니다. URL 변환은 URL 전체가 아닌 쿼리 값 같은 구성요소에 사용하세요.'),

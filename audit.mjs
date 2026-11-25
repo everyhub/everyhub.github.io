@@ -437,6 +437,65 @@ try {
         const form = page.locator('main form');
         if (!await form.count()) continue;
         forms++;
+        if (route === '/tools/csv-json-converter/') {
+          const start = requests.length;
+          const text = form.locator('[name="text"]');
+          const mode = form.locator('[name="direction"]');
+          const delimiter = form.locator('[name="delimiter"]');
+          const output = form.locator('output');
+          const submit = form.locator('[type="submit"]');
+          const save = form.locator('.utility-download');
+          const copy = form.locator('.convenience-copy');
+          await context.setOffline(true);
+          try {
+            await page.evaluate(() => navigator.clipboard.writeText('이름;번호\n하나;001'));
+            await form.getByRole('button', { name: '붙여 넣기' }).click();
+            await page.waitForFunction(() => document.querySelector('[name="text"]').value.includes('001'));
+            await delimiter.selectOption('semicolon');
+            await submit.click();
+            if (JSON.parse(await output.textContent())[0].번호 !== '001') issue('CSV paste did not preserve string cells');
+
+            const fixture = '\uFEFF이름,메모\r\n하나,"첫 줄, ""인용""\r\n둘째 줄"\r\n';
+            await delimiter.selectOption('comma');
+            await form.locator('[name="file"]').setInputFiles({ name: 'audit.csv', mimeType: 'text/csv', buffer: Buffer.from(fixture) });
+            await form.getByText('파일을 읽었습니다.', { exact: false }).waitFor();
+            await submit.click();
+            const json = await output.textContent();
+            if (JSON.parse(json)[0].메모 !== '첫 줄, "인용"\r\n둘째 줄') issue('CSV file lost escaping or embedded CRLF');
+            const downloaded = page.waitForEvent('download');
+            await save.click();
+            const file = await downloaded;
+            if (file.suggestedFilename() !== 'converted.json' || await readFile(await file.path(), 'utf8') !== json) issue('JSON download did not match result');
+            await copy.click();
+            if (await page.evaluate(() => navigator.clipboard.readText()) !== json) issue('Copy did not preserve the JSON result');
+
+            await mode.selectOption('json-to-csv');
+            await delimiter.selectOption('tab');
+            await text.fill('[{"명":"=1+1","번호":"007"}]');
+            await submit.click();
+            const tsv = "명\t번호\r\n'=1+1\t007\r\n";
+            if (await output.textContent() !== tsv) issue('JSON export lost tab separator, formula protection, or final line break');
+            const waiting = page.waitForEvent('download');
+            await save.click();
+            const exported = await waiting;
+            if (exported.suggestedFilename() !== 'converted.tsv' || await readFile(await exported.path(), 'utf8') !== tsv) issue('TSV download did not match result');
+            await form.locator('[name="protect"]').uncheck();
+            await submit.click();
+            if (!(await output.textContent()).includes('\t007\r\n') || (await output.textContent()).includes("'=1+1")) issue('Disabling protection did not preserve the original string');
+
+            await text.fill('[{"한글":[]}]');
+            await submit.click();
+            await form.getByText('중첩 객체나 배열은 변환할 수 없습니다.', { exact: true }).waitFor();
+            if (await save.isVisible() || !await copy.isDisabled()) issue('Invalid input left a copyable or downloadable result');
+            await form.locator('[name="file"]').setInputFiles({ name: 'invalid.csv', mimeType: 'text/csv', buffer: Buffer.from([0xff, 0xff]) });
+            await form.getByText('UTF-8 파일을 읽을 수 없습니다.', { exact: false }).waitFor();
+            await form.getByRole('button', { name: '입력 초기화', exact: true }).click();
+            if (await text.inputValue() || await output.textContent() || await save.isVisible() || await mode.inputValue() !== 'csv-to-json') issue('Converter did not reset cleanly');
+            if (requests.length !== start) issue('CSV/JSON paste, file read, conversion, copy, or download made a network request');
+            cases += 9;
+          } finally { await context.setOffline(false); }
+          continue;
+        }
         if (route === '/tools/photo-location/') {
           const start = requests.length;
           await context.setOffline(true);

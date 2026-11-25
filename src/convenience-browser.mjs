@@ -80,7 +80,10 @@ function addCopyButton() {
   if (!result) return;
   const button = document.createElement('button');
   button.type = 'button'; button.className = 'convenience-copy'; button.textContent = '결과 복사';
-  const resultText = () => (result.value ?? result.innerText).trim();
+  const resultText = () => {
+    const text = result.value ?? result.innerText;
+    return result.hasAttribute('data-copy-exact') ? text : text.trim();
+  };
   const sync = () => { button.disabled = !resultText(); };
   sync();
   new MutationObserver(sync).observe(result, { childList: true, characterData: true, subtree: true });

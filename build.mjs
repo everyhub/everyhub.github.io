@@ -46,7 +46,7 @@ await Promise.all(['style.css', 'browser.mjs', 'calculator.mjs', 'display.mjs', 
   'labor-browser.mjs', 'labor.mjs', 'labor-rates.mjs', 'tool-specs.mjs',
   'guide-specs.mjs', 'guides.mjs', 'guide-rates.mjs', 'housing-specs.mjs', 'housing.mjs', 'housing-rates.mjs',
   'navigation-browser.mjs', 'convenience-browser.mjs', 'shortcut-search.mjs', 'news-browser.mjs', 'information.mjs', 'information-browser.mjs', 'utility.mjs', 'utility-extra.mjs', 'utility-browser.mjs', 'utility-files.mjs', 'lunar-calendar.mjs']
-  .concat(['photo-location.mjs', 'photo-location-browser.mjs', 'admin-browser.mjs'])
+  .concat(['photo-location.mjs', 'photo-location-browser.mjs', 'admin-browser.mjs', 'csv-json.mjs', 'csv-json-browser.mjs'])
   .map((name) => copyFile(join(source, name), join(dist, 'assets', name))));
 await cp(join(source, 'background-removal'), join(dist, 'assets', 'background-removal'), { recursive: true });
 await cp(join(source, 'utility-vendor'), join(dist, 'assets', 'utility-vendor'), { recursive: true });

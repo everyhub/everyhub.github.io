@@ -86,15 +86,17 @@ export function utilityPages(config) {
     const id = path.split('/')[1];
     const { html, faq, sources } = forms[id] ?? extraUtilityForms[id];
     const embedded = id === 'background-removal';
+    const tableConverter = id === 'csv-json-converter';
     const parent = utilityGroups.find((item) => item.name === group);
     const main = `<p class="eyebrow"><a href="${root}tools/">도구</a> · <a href="${root}${parent.path}">${group}</a></p><h1>${name}</h1><p class="intro">${description}</p>
     ${embedded ? html : `<section class="panel"><form data-utility="${id}">${html}
-      <output class="utility-result" aria-live="polite"></output></form></section>`}
+      <output class="utility-result"${tableConverter ? ' data-copy-exact aria-live="off"' : ' aria-live="polite"'}></output></form></section>`}
     ${sources ? `<section class="panel"><h2>공식 자료</h2>${sourcesHTML(sources)}</section>` : ''}
     ${faqHTML(faq)}`;
     return { path, html: layout({
       config, root, path, description, title: `${name} | ${brand}`, application: name, faq, localOnly: true,
-      script: embedded ? undefined : id === 'photo-location' ? 'photo-location-browser.mjs' : 'utility-browser.mjs', main,
+      script: embedded ? undefined : id === 'photo-location' ? 'photo-location-browser.mjs'
+        : tableConverter ? 'csv-json-browser.mjs' : 'utility-browser.mjs', main,
     }) };
   })];
 }
