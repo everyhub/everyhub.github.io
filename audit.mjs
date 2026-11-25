@@ -338,7 +338,9 @@ async function auditViewport(origin) {
           const schedules = await main.locator('time').evaluateAll((nodes) => nodes.map((time) => time.dateTime));
           if (schedules.join() !== '2026-12-01,2026-06-15,2026-12-31,2026-08-07,2026-12-31' ||
               await main.locator('.support-schedule > li').count() !== 4 ||
-              !await main.getByRole('link', { name: '고용24 상시 신청 안내' }).isVisible()) issue('Missing official support application dates or notice');
+              !await main.getByRole('link', { name: '국가법령정보센터 · 취업지원 신청 근거' }).isVisible() ||
+              !await main.getByRole('link', { name: '국민취업지원제도 접수처' }).isVisible() ||
+              !await main.getByText('접수 일정은 신청처에서 확인', { exact: true }).isVisible()) issue('Missing official support application dates or notice');
           cases++;
         }
         if (route === '/news/korea/' && !await page.getByRole('link', { name: '우아한형제들 기술블로그 원문' }).isVisible()) {
