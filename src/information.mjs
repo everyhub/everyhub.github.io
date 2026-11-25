@@ -24,8 +24,8 @@ export const supportApplications = [
   },
   {
     name: '국민취업지원제도',
-    details: '일반 신청은 연중 가능합니다. 지원 유형별 자격과 별도 모집의 접수 조건은 고용24에서 확인하세요.',
-    agency: '고용24 상시 신청 안내', notice: 'https://m.work24.go.kr/cm/c/a/0130/selectBbttInfo.do?bbsClCd=VJQMx%2Fa2p6AfqLQqwR8sSQ%3D%3D&ntceStno=39',
+    details: '일반 신청의 접수 여부와 지원 유형별 자격·별도 모집 일정은 고용24에서 확인하세요.',
+    agency: '국가법령정보센터 · 취업지원 신청 근거', notice: 'https://www.law.go.kr/LSW/lsLinkProc.do?joNo=000800&lsClsCd=L&lsNm=구직자취업촉진및생활안정지원에관한법률&mode=11',
     apply: 'https://www.work24.go.kr/cm/c/f/1100/selecSystInfo.do?systClId=SC00000274&systId=SI00000316',
   },
 ];

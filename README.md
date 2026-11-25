@@ -103,12 +103,16 @@ Linux에서 시스템 라이브러리가 없으면 `npx playwright install-deps 
 - 뉴스의 출처 보기는 `#source-geeknews` 같은 주소로 공유할 수 있습니다. 우아한형제들 기술블로그는 수집 환경에서 공식 피드가 접근을 허용하지 않아 원문 링크만 제공합니다.
 
 - 조직 사이트 기본 URL은 `https://everyhub.github.io/`입니다. 저장소의 **Settings → Pages → Build and deployment → Source**는 **GitHub Actions**입니다. CI는 Pages의 URL을 사용하므로 하위 경로도 지원합니다. 운영 URL을 덮어쓸 때만 **Settings → Secrets and variables → Actions → Variables**의 `SITE_URL`을 설정합니다.
-- 권한이 있으면 변경 파일만 명시해 커밋하고 `git push origin main`을 실행하세요. 프록시 쓰기 권한이 없고 이미 승인·주입된 토큰이 있다면 터미널 기록·명령 인자에 토큰을 넣지 않는 아래 방법을 사용합니다. `T`는 환경변수로만 주입하고, 값을 출력하지 마세요. 셸 추적(`set -x`)과 HTTP/Git 트레이스를 켜지 않습니다.
+- 권한이 있으면 변경 파일만 명시해 커밋하고 `git push origin main`을 실행하세요. 프록시에 쓰기 권한이 없으면 승인·주입된 `EVERYHUB_GITHUB_TOKEN`으로 GitHub에 직접 푸시합니다. 이 명령에서만 전역·시스템 설정을 무시해 프록시 URL 재작성을 피합니다. 토큰과 헤더를 출력하거나 셸 추적(`set -x`)·HTTP/Git 트레이스를 켜지 마세요.
 
 ```sh
-git -c credential.helper= \
-  -c 'credential.helper=!f() { [ "$1" != get ] || printf "password=%s\n" "$T"; }; f' \
-  push https://x-access-token@github.com/everyhub/everyhub.github.io.git main
+(
+  : "${EVERYHUB_GITHUB_TOKEN:?EVERYHUB_GITHUB_TOKEN is not set}"
+  export EVERYHUB_PUSH_HEADER="Authorization: Basic $(printf 'x-access-token:%s' "$EVERYHUB_GITHUB_TOKEN" | base64 | tr -d '\n')"
+  GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 \
+    git --config-env=http.extraheader=EVERYHUB_PUSH_HEADER \
+    push https://github.com/everyhub/everyhub.github.io.git main
+)
 ```
 
 - `main` 푸시, 매월 1일 03:17 UTC, 기본 수동 실행은 전체 빌드·배포합니다. [Refresh news](https://github.com/everyhub/everyhub.github.io/actions/workflows/news.yml)는 정각을 피해 UTC 매시 07·37분에 공통 Pages 워크플로를 호출합니다. 예약이 누락되면 **Refresh news → Run workflow**로 수동 실행할 수 있습니다(기존 **Deploy to GitHub Pages → Run workflow → news_only**도 동작합니다). 뉴스 실행은 게시물이나 배포 대상 커밋이 달라진 경우에만 배포합니다. 예약 시각은 목표이며 GitHub가 실행을 지연하거나 누락할 수 있습니다. 수동 실행 성공과 예약 실행 확인은 별개입니다. 겹치는 Pages 실행은 최신 실행이 앞선 실행을 취소합니다.

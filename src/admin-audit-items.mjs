@@ -50,7 +50,7 @@ export const auditItems = {
       ['최저임금', 'minimum-wage'], ['주휴수당', 'weekly-holiday-pay'], ['퇴직금', 'severance-pay'],
       ['실업급여', 'unemployment-pay'], ['육아휴직급여', 'parental-leave-pay'], ['4대보험', 'insurance-rates'], ['연차', 'annual-leave'],
     ].map(([name, id]) => tool(name + ' 공식 기준 계산·안내', id, '운영 폼·공식 자료 영역과 범위 검사')),
-    open('전 연도 전 항목 값 최신화', '확인한 수치의 원문은 관리 페이지에 기록했습니다. 일부 주거·노동·세금 기준 원문 대조와 미발표 항목 확인이 남았습니다.', '부분', [site + '/ops-7f3a9c2d/#official-value-evidence']),
+    open('전 연도 전 항목 값 최신화', '노동·세금·주거 법령과 공휴일 대조를 관리 페이지에 기록했습니다. SH 개별 모집공고의 전환이율·한도와 미발표 공식 수치는 별도 확인이 필요합니다.', '부분', [site + '/ops-7f3a9c2d/#official-value-evidence']),
   ],
   'site-verification': [
     verified('Google 및 네이버 소유 확인 메타 적용', '/', '운영 HTML에서 소유 확인 태그 두 개 확인(값은 공개 기록에 복제하지 않음)'),
@@ -321,8 +321,9 @@ export const auditItems = {
     verified('뉴스 예약 이력 재조회 및 보완 실행 검증', repo + '/actions/runs/45525260475', '10:26 KST 기준 실제 예약은 #45515165966 한 건입니다(09:04:30 KST 생성, success). 별도 workflow_dispatch는 기사 112건, 피드 실패 0건, 빌드·배포 성공입니다.'),
   ],
   'official-values-browser-matrix': [
-    open('공개된 2026·2027년 공식 수치 전수 대조 및 불일치 수정', '간이세액표 7,117개 셀을 포함한 확인분의 기관 원문, 적용 기간 및 인용·표 근거를 기록했습니다. SH 공고는 반복 리디렉션, 고용24 안내는 연결 시간 초과였으며 일부 법령 조문과 공휴일·지원 일정 전체 대조도 남았습니다.', '부분', [site + '/ops-7f3a9c2d/#official-value-evidence']),
-    open('README 지원 범위와 다중 브라우저 기능·레이아웃 검증', '로컬 Chromium·Firefox·WebKit 각각 390·768·1024·1440px에서 420개 레이아웃·3,304개 검사, iPhone 15·Pixel 7 각각 105개 레이아웃·826개 검사에서 문제 0건입니다. 운영 감사와 OS 클립보드·실기기 검증은 별개입니다.', '부분', [repo + '/blob/main/README.md#배포-전-검수-체크리스트']),
+    open('공개된 2026·2027년 공식 수치 전수 대조 및 불일치 수정', '노동·세금·주거 법령과 2026년 22일·2027년 24일 공휴일의 원문 근거를 추가했습니다. SH 청년창업인·신혼신생아Ⅱ 공고 본문과 첨부는 반복 리디렉션되고 서울주거포털과 일반 법령에서는 해당 공고의 전환이율·한도를 확인할 수 없었습니다.', '부분', [site + '/ops-7f3a9c2d/#official-value-evidence', 'https://housing.seoul.go.kr/site/main/home']),
+    verified('운영 Chromium·Firefox·WebKit 4개 너비 기능·레이아웃', repo + '/actions/runs/45527730525', '1aa3344 배포의 운영 감사에서 각 엔진 390·768·1024·1440px, 420개 레이아웃·3,316개 검사, 문제 0건입니다. iPhone 15·Pixel 7 에뮬레이션은 각각 로컬 105개 레이아웃·826개 검사에서 문제 0건이었으며 실제 기기·OS 클립보드 검증은 아닙니다.'),
+    open('국민취업지원제도 접수 기간', '고용24 원문은 연결 시간 초과였고 대체 출처인 구직자취업촉진법 제8조는 신청 근거만 규정합니다. 연중 접수 단정은 삭제하고 신청처에서 확인하도록 안내합니다.', '부분', [site + '/info/support-calendar/']),
   ],
   'daily-proposals-2026-11-25': [
     verified('미완료 승인 이슈 확인', repo + '/issues?q=is%3Aissue', '신규 제안 등록 전 저장소 이슈 API와 추천 데이터를 대조했습니다. #1·#2 완료, #3 거절로 모두 종료되어 구현 대상이 없습니다.'),

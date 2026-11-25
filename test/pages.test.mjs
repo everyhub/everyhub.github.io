@@ -346,7 +346,7 @@ test('정부 지원금 일정에 접수 날짜와 개별 공식 공고를 표시
   const html = pages.find(({ path }) => path === 'info/support-calendar/').html;
   assert.match(html, /datetime="2026-12-01"[\s\S]*https:\/\/www\.nts\.go\.kr\//);
   assert.match(html, /datetime="2026-06-15"[\s\S]*datetime="2026-12-31"[\s\S]*https:\/\/www\.bokjiro\.go\.kr\//);
-  assert.match(html, /연중 상시 신청[\s\S]*https:\/\/www\.work24\.go\.kr\//);
+  assert.match(html, /접수 일정은 신청처에서 확인[\s\S]*https:\/\/www\.law\.go\.kr\/[\s\S]*https:\/\/www\.work24\.go\.kr\//);
   assert.match(pages.find(({ path }) => path === 'info/').html, /href="\.\.\/info\/support-calendar\/"/);
 });
 

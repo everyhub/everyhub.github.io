@@ -114,7 +114,7 @@ function supportPage(config, section) {
   return detail(config, section, '../../', `<section class="panel"><h2>공식 신청 일정</h2>
     <p class="note">2026년 11월 25일 기준입니다. 공고에서 확인한 주요 전국 제도만 모았으며 지역별·개인별 지원을 모두 포함하지 않습니다. 접수 중단·마감 시각과 자격 요건은 신청 전 공고에서 다시 확인하세요.</p>
     <ol class="support-schedule">${supportApplications.map(({ name, deadline, start, details, agency, notice, apply }) => `<li><h3>${name}</h3><p>
-      ${start ? `${fullDate(start)} ~ ${fullDate(deadline)}` : deadline ? `${fullDate(deadline)}까지` : '연중 상시 신청'}</p>
+      ${start ? `${fullDate(start)} ~ ${fullDate(deadline)}` : deadline ? `${fullDate(deadline)}까지` : '접수 일정은 신청처에서 확인'}</p>
       <p>${details}</p><p><a href="${escape(notice)}">${agency}</a> · <a href="${escape(apply)}">${name} 접수처</a></p></li>`).join('')}</ol>
     <p>다른 지원 제도는 <a href="https://www.gov.kr/portal/rcvfvrSvc/main">정부24 혜택알리미·보조금 안내</a>에서 확인하세요.</p></section>`);
 }
