@@ -323,6 +323,7 @@ export const auditItems = {
   'official-values-browser-matrix': [
     open('공개된 2026·2027년 공식 수치 전수 대조 및 불일치 수정', '노동·세금·주거 법령과 2026년 22일·2027년 24일 공휴일의 원문 근거를 추가했습니다. SH 청년창업인·신혼신생아Ⅱ 공고 본문과 첨부는 반복 리디렉션되고 서울주거포털과 일반 법령에서는 해당 공고의 전환이율·한도를 확인할 수 없었습니다.', '부분', [site + '/ops-7f3a9c2d/#official-value-evidence', 'https://housing.seoul.go.kr/site/main/home']),
     verified('운영 Chromium·Firefox·WebKit 4개 너비 기능·레이아웃', repo + '/actions/runs/45527730525', '1aa3344 배포의 운영 감사에서 각 엔진 390·768·1024·1440px, 420개 레이아웃·3,316개 검사, 문제 0건입니다. iPhone 15·Pixel 7 에뮬레이션은 각각 로컬 105개 레이아웃·826개 검사에서 문제 0건이었으며 실제 기기·OS 클립보드 검증은 아닙니다.'),
+    verified('cf59d3a 운영 배포의 브라우저 재감사', repo + '/actions/runs/45528824434', '요청을 직렬 처리하고 HTTP 429 대기·재시도를 적용한 운영 감사에서 Chromium·Firefox·WebKit 각각 390·768·1024·1440px, 420개 레이아웃·3,316개 검사, 문제 0건입니다. 각 엔진에서 내부 링크 250개를 확인했습니다.'),
     open('국민취업지원제도 접수 기간', '고용24 원문은 연결 시간 초과였고 대체 출처인 구직자취업촉진법 제8조는 신청 근거만 규정합니다. 연중 접수 단정은 삭제하고 신청처에서 확인하도록 안내합니다.', '부분', [site + '/info/support-calendar/']),
   ],
   'daily-proposals-2026-11-25': [
