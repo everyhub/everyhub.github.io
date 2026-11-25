@@ -278,19 +278,19 @@ export function salaryPage(config, salary, index) {
     description: `${year}년 ${name}의 예상 실수령액은 월평균 ${won(monthly.net)}, 연간 ${won(annual.net)}입니다. 보험료·세금 공제 내역과 인접 연봉의 월 실수령액을 비교하세요.`,
     path: salaryPath(salary), root, faq, payroll: true,
     main: `<p class="eyebrow">${year}년 연봉별 급여</p><h1>${name} 실수령액</h1>
-      <p class="intro">세전 월평균 ${won(monthly.gross)}에서 월평균 ${won(monthly.deductions)}이 공제됩니다. 세전 연봉의 약 ${takeHomeRate}%가 통장에 들어오는 셈입니다.</p>
+      <p class="intro">세전 월평균 ${won(monthly.gross)}에서 월평균 ${won(monthly.deductions)}을 뗍니다. 세전 연봉 대비 실수령액은 약 <span class="amount">${takeHomeRate}%입니다.</span></p>
       ${highlight(amounts)}
       <p class="note">${assumptions}</p>
       <p><a class="button" href="${root}?salary=${salary}#calculator">이 연봉으로 직접 계산</a></p>
       <section class="panel" aria-labelledby="deductions"><h2 id="deductions">${name} 보험료와 세금</h2>${deductionTable(amounts)}</section>
       ${ad(config)}
       <section class="panel" aria-labelledby="compare"><h2 id="compare">가까운 연봉과 비교</h2>
-        <table><caption>동일한 조건의 월평균 실수령액 비교 (단위: 원)</caption>
+        <table class="example-amounts"><caption>동일한 조건의 월평균 실수령액 비교 (단위: 원)</caption>
           <thead><tr><th scope="col">세전 연봉</th><th scope="col">월평균</th><th scope="col">현재 대비</th></tr></thead>
           <tbody>${neighbors.map((neighbor) => {
             const net = modeled.get(neighbor).monthly.net;
             const delta = net - monthly.net;
-            return `<tr><th scope="row">${neighbor === salary ? `<strong>${salaryName(neighbor)}</strong>` : pageLink(neighbor, root)}</th><td>${won(net)}</td><td>${delta ? `${delta > 0 ? '+' : '−'}${won(Math.abs(delta))}` : '—'}</td></tr>`;
+            return `<tr><th scope="row" class="amount">${neighbor === salary ? `<strong>${salaryName(neighbor)}</strong>` : pageLink(neighbor, root)}</th><td class="amount">${won(net)}</td><td class="amount">${delta ? `${delta > 0 ? '+' : '−'}${won(Math.abs(delta))}` : '—'}</td></tr>`;
           }).join('')}</tbody>
         </table><p><a href="${root}${salaryCalculatorPath}#salary-index">다른 연봉 구간 보기</a></p>
       </section>

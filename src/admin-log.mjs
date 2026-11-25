@@ -74,7 +74,7 @@ const requests = [
   { time: "2026-11-25 10:00", id: "csv-json-converter", request: "#4 has the 승인 label … implement the CSV·JSON 변환기 … check again how many news.yml schedule runs exist since 09:04 KST", status: "완료", reflection: "CSV·JSON 변환기를 브라우저 전용으로 배포·검증하고 이슈 #4에 결과를 남겨 완료 종료했습니다. 뉴스 예약은 2026-11-25 10:00 KST 조회에서 09:04 KST 이후 성공 1건입니다.", links: ["https://everyhub.github.io/tools/csv-json-converter/","https://github.com/everyhub/everyhub.github.io/issues/4#issuecomment-7149108445","https://github.com/everyhub/everyhub.github.io/actions/runs/45521833543","https://github.com/everyhub/everyhub.github.io/actions/runs/45515165966"] },
   { time: "2026-11-25 10:23", id: "remaining-work-review", request: "승인카드는 생성 시 받아볼수있는 알림이 있는지? … 그냥 지금대로두고 남은작업 마저해", status: "진행중", reflection: "알림 설정은 유지했습니다. 추천 예약 세 시간대와 뉴스 보완 갱신을 기록했고, 14:13·19:13 첫 실행은 각각 확인 대기입니다.", links: ["https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9","https://github.com/everyhub/everyhub.github.io/blob/main/docs/daily-proposals.md","https://github.com/everyhub/everyhub.github.io/actions/runs/45525260475"] },
   { time: "2026-11-25 10:40", id: "official-values-browser-matrix", request: "Check every published official value … across 2026 and 2027 … Define the browser support scope as Chromium, Firefox, and WebKit … plus … iPhone and Pixel", status: "부분", reflection: "노동·세금·주거 및 공휴일의 기관 원문·표 근거를 보강했습니다. cf59d3a 운영 배포의 Chromium·Firefox·WebKit 4개 너비 재감사와 로컬 모바일 에뮬레이션을 통과했습니다.", links: ["https://everyhub.github.io/ops-7f3a9c2d/#official-value-evidence","https://github.com/everyhub/everyhub.github.io/blob/main/README.md#배포-전-검수-체크리스트","https://github.com/everyhub/everyhub.github.io/actions/runs/45527730525","https://github.com/everyhub/everyhub.github.io/actions/runs/45528824434"] },
-  { time: "2026-11-25 11:27", id: "qualitative-ux-review", request: "페이지 구조나 부자연스러운 어투 줄바꿈 등 페이지 보기좋은 상태 기능들 괜찮은지 버그는 없는지 uiux 잘 고민해줘봐", status: "부분", reflection: "개별 도구와 페이지 유형을 모바일·데스크톱에서 점검했습니다. 입력을 먼저 배치하고, 금액 줄바꿈과 체크박스를 개선했으며, 잘못된 입력에서 이전 결과나 오류를 복사하지 못하도록 수정했습니다.", links: ["https://everyhub.github.io/tools/salary-calculator/","https://everyhub.github.io/tools/json-formatter/","https://github.com/everyhub/everyhub.github.io/blob/main/README.md#배포-전-검수-체크리스트"] },
+  { time: "2026-11-25 11:27", id: "qualitative-ux-review", request: "페이지 구조나 부자연스러운 어투 줄바꿈 등 페이지 보기좋은 상태 기능들 괜찮은지 버그는 없는지 uiux 잘 고민해줘봐", status: "부분", reflection: "390·1440px에서 템플릿과 도구의 전체 화면을 감수했습니다. 연봉 비교 표의 금액과 단위를 붙이고 관리 표의 근거 링크를 한 줄 이름으로 줄였습니다. 오류가 발생하면 이전 결과나 안내 문구를 복사하지 않도록 했습니다.", links: ["https://everyhub.github.io/salary/20000/","https://everyhub.github.io/ops-7f3a9c2d/#qualitative-ux-review","https://github.com/everyhub/everyhub.github.io/blob/main/README.md#배포-전-검수-체크리스트"] },
 ];
 
 export function hasCompletionEvidence(item) {
@@ -108,10 +108,27 @@ export function sortAdminTimeline(entries) {
 }
 
 export function auditEvidenceLabel(url) {
-  const { hostname, pathname, search, hash } = new URL(url);
-  const run = pathname.match(/\/actions\/runs\/(\d+)/);
-  if (run) return `Actions #${run[1]}`;
-  return hostname === 'everyhub.github.io' ? pathname + search + hash : hostname + (pathname === '/' ? '' : pathname);
+  const { hostname, pathname, hash } = new URL(url);
+  if (hostname === 'github.com') {
+    const run = pathname.match(/\/actions\/runs\/(\d+)/);
+    if (run) return `Actions #${run[1]}`;
+    const issue = pathname.match(/\/issues\/(\d+)/);
+    if (issue) return `이슈 #${issue[1]}`;
+    if (pathname.includes('/blob/')) return 'GitHub 문서';
+    return 'GitHub 근거';
+  }
+  if (hostname === 'everyhub.github.io') {
+    if (pathname === '/') return hash ? '홈 바로가기' : '운영 홈';
+    if (pathname.startsWith('/ops-7f3a9c2d/')) return '관리 근거';
+    if (pathname.startsWith('/sitemap')) return '사이트맵';
+    return '운영 근거';
+  }
+  if (hostname.endsWith('.naver.com')) return '네이버 근거';
+  if (hostname.endsWith('.google.com')) return 'Google 근거';
+  if (hostname === 'app.devin.ai') return 'Devin 근거';
+  if (hostname === 'housing.seoul.go.kr') return '서울시 근거';
+  if (hostname === 'techblog.woowahan.com') return '우아한형제들';
+  return '외부 근거';
 }
 
 export function renderRequirementsAudit(entries = adminTimeline) {

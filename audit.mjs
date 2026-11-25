@@ -49,8 +49,9 @@ const inventory = live ? [...publicRoutes, '/ops-7f3a9c2d/', '/ops-7f3a9c2d/reco
   : (await readdir(dist, { recursive: true })).filter((path) => /(^|\/)index\.html$/.test(path))
     .map((path) => '/' + path.replace(/index\.html$/, ''));
 const routes = inventory.filter((path) => !/^\/(salary|hourly|severance|median-income)\/\d+\//.test(path)).sort();
-const detailTemplates = ['/salary/2000/', '/salary/4000/', '/salary/20000/', '/hourly/10320/', '/hourly/12000/', '/hourly/30000/',
-  '/severance/2400/', '/severance/4000/', '/severance/15000/', '/median-income/2026/1/', '/median-income/2026/4/', '/median-income/2027/7/'];
+const detailTemplates = ['/salary/2000/', '/salary/4000/', '/salary/20000/', '/hourly/10000/', '/hourly/10320/', '/hourly/12000/', '/hourly/30000/',
+  '/severance/2400/', '/severance/4000/', '/severance/15000/', '/median-income/2026/1/', '/median-income/2026/4/', '/median-income/2026/7/',
+  '/median-income/2027/1/', '/median-income/2027/7/'];
 const screenshotDir = process.env.AUDIT_SCREENSHOTS;
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript',
   '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
@@ -413,6 +414,12 @@ async function auditViewport(origin) {
           if (!await list.isVisible() || await overflow() > 1 || (width === 1440 && (await list.boundingBox()).width < 360)) {
             issue('Admin audit details are hidden, cramped or overflow');
           }
+          const brokenLinks = await page.locator('.admin-evidence-links a:visible').evaluateAll((links) => links.some((link) => {
+            const range = document.createRange();
+            range.selectNodeContents(link);
+            return range.getClientRects().length !== 1 || link.textContent.includes('/');
+          }));
+          if (brokenLinks) issue('Admin evidence is not displayed as short, single-line labels');
           const filters = page.getByRole('group', { name: '타임라인 상태 필터' });
           for (const status of ['진행중', '부분', '미확인', '완료', '제외', '전체']) {
             const button = filters.getByRole('button', { name: status, exact: true });

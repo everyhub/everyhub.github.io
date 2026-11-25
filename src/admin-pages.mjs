@@ -46,7 +46,8 @@ function officialEvidencePanel() {
 }
 
 export function adminTimelinePage(config, items = activeWork) {
-  const linkList = (links) => links.length ? `<ul class="foot-list">${links.map((link) => `<li><a href="${escape(link)}">${escape(auditEvidenceLabel(link))}</a></li>`).join('')}</ul>` : '—';
+  const linkList = (links) => links.length ? `<ul class="foot-list admin-evidence-links">${links.map((link) =>
+    `<li><a href="${escape(link)}" title="${escape(link)}">${escape(auditEvidenceLabel(link))}</a></li>`).join('')}</ul>` : '—';
   const rows = sortAdminTimeline(adminTimeline).map(({ id, time, request, reflection, status, reason, links, items }) => `<tr role="row" id="${escape(id)}" data-timeline-status="${escape(status)}">
     <th role="rowheader" scope="row"><time datetime="${escape(time.replace(' ', 'T') + '+09:00')}">${escape(time)}</time></th>
     <td role="cell"><span class="admin-cell-label" aria-hidden="true">요청</span>${escape(request)}</td>

@@ -12,7 +12,7 @@ import { utilityGroups } from '../src/utility-config.mjs';
 import { examplePages, medianPages, navigationGroups } from '../src/navigation.mjs';
 import { adminPath, adminTimelinePage, adminProposalsPath, adminProposalsPage } from '../src/admin-pages.mjs';
 import { officialValueEvidence } from '../src/official-value-evidence.mjs';
-import { adminTimeline, auditRequest, hasCompletionEvidence, renderRequirementsAudit, sortAdminTimeline } from '../src/admin-log.mjs';
+import { adminTimeline, auditEvidenceLabel, auditRequest, hasCompletionEvidence, renderRequirementsAudit, sortAdminTimeline } from '../src/admin-log.mjs';
 import { adminProposals, sortAdminProposals } from '../src/admin-proposals.mjs';
 
 const config = { baseURL: 'https://example.com/salary-calc/' };
@@ -39,6 +39,7 @@ test('연봉 상세의 공제 내역, 인접 연봉 링크, canonical과 FAQ', (
   assert.match(page, /href="\.\.\/\.\.\/salary\/4100\/"/);
   assert.match(page, /href="\.\.\/\.\.\/\?salary=4000#calculator"/);
   assert.match(page, /data-amount="localTax"/);
+  assert.match(page, /<section[^>]+aria-labelledby="compare">[\s\S]+?<table class="example-amounts">[\s\S]+?<td class="amount">[\d,]+원<\/td>/);
   assert.match(page, /"@type":"FAQPage"/);
 });
 
@@ -262,6 +263,19 @@ test('추천 예약 등록과 추가 슬롯의 첫 실행은 별도로 추적한
   assert.deepEqual(review.items.filter(({ status }) => status === '진행중').map(({ requirement }) => requirement),
     ['첫 14:13 KST 실행 확인', '첫 19:13 KST 실행 확인']);
   assert.equal(rows.get('news-cadence').status, '부분');
+});
+
+test('관리 근거는 원본 링크를 유지하면서 짧은 이름을 표시한다', () => {
+  const cases = [
+    ['https://github.com/everyhub/everyhub.github.io/blob/main/README.md#checklist', 'GitHub 문서'],
+    ['https://github.com/everyhub/everyhub.github.io/actions/runs/45533656953', 'Actions #45533656953'],
+    ['https://everyhub.github.io/tools/salary-calculator/#salary-index', '운영 근거'],
+    ['https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9', 'Devin 근거'],
+  ];
+  for (const [url, label] of cases) assert.equal(auditEvidenceLabel(url), label);
+  const [url, label] = cases[1];
+  assert.ok(adminTimelinePage(config).includes(`href="${url}" title="${url}">${label}</a>`));
+  assert.ok(renderRequirementsAudit().includes(`[${label}](<${url}>)`));
 });
 
 test('운영 검사의 설명·근거가 빠지거나 세부 항목이 남아 있으면 완료로 표시하지 않는다', () => {

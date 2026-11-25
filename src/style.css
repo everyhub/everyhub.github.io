@@ -167,7 +167,7 @@ th { text-align: left; }
 td, thead th:not(:first-child) { text-align: right; }
 thead th, tfoot th, tfoot td { font-weight: 760; }
 tfoot { color: var(--accent); }
-.example-amounts .amount { white-space: nowrap; }
+.example-amounts .amount, .intro .amount { white-space: nowrap; }
 td[data-amount] { white-space: nowrap; }
 .housing-mobile-label { display: none; }
 @media (max-width: 34rem) {
@@ -255,6 +255,7 @@ summary { cursor: pointer; padding: .5rem 0; font-weight: 700; }
 .admin-audit-items { margin-block: var(--space-2); padding-inline-start: var(--space-4); }
 .admin-audit-items > li + li { margin-top: var(--space-3); }
 .admin-audit-items p { margin-block: var(--space-1); }
+.admin-evidence-links a { white-space: nowrap; }
 .admin-cell-label { display: none; }
 @media (max-width: 72rem) {
   .admin-timeline, .admin-timeline tbody, .admin-timeline tr, .admin-timeline td, .admin-timeline tbody th { display: block; }
