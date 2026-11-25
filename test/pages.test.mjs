@@ -239,6 +239,17 @@ test('관리 요청과 Markdown 감사 내보내기는 같은 순서·상태·�
   }
 });
 
+test('추천 예약 등록과 추가 슬롯의 첫 실행은 별도로 추적한다', () => {
+  const rows = new Map(adminTimeline.map((entry) => [entry.id, entry]));
+  assert.equal(rows.get('daily-choice').status, '완료');
+  assert.equal(rows.get('site-proposal-news-review').status, '완료');
+  const review = rows.get('remaining-work-review');
+  assert.equal(review.status, '진행중');
+  assert.deepEqual(review.items.filter(({ status }) => status === '진행중').map(({ requirement }) => requirement),
+    ['첫 14:13 KST 실행 확인', '첫 19:13 KST 실행 확인']);
+  assert.equal(rows.get('news-cadence').status, '부분');
+});
+
 test('운영 검사의 설명·근거가 빠지거나 세부 항목이 남아 있으면 완료로 표시하지 않는다', () => {
   const entry = { id: 'test', request: '예시', status: '완료', links: [] };
   const done = { status: '완료', requirement: '확인', evidence: '운영 폼 검사', links: ['https://example.com/'] };

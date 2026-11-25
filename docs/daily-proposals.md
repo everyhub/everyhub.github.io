@@ -1,8 +1,8 @@
 # 에브리허브 페이지 추천과 승인 반영
 
-매일 **09:13 KST**에 실행하는 운영 절차입니다. **2026-11-25** 첫 Devin 예약 실행에서 승인 조회와 신규 제안 3건을 등록했고 [Pages 배포](https://github.com/everyhub/everyhub.github.io/actions/runs/45517359629)와 추천 탭 반영을 확인했습니다. 네이버 데이터랩 비교 수치는 미확인입니다. 예약 등록과 실제 실행의 성공을 구분합니다. 실행이 겹치지 않도록 이전 실행이 진행 중이면 새로 시작하지 않습니다.
+매일 **09:13·14:13·19:13 KST**에 실행하는 운영 절차입니다. **2026-11-25** 첫 09:13 Devin 예약 실행에서 승인 이슈를 조회하고 신규 제안 3건을 등록했으며 [Pages 배포](https://github.com/everyhub/everyhub.github.io/actions/runs/45517359629)와 추천 탭 반영을 확인했습니다. **14:13·19:13은 등록 확인 · 첫 실행 확인 대기**입니다. 예약 등록과 실제 실행의 성공을 구분하며, 이전 실행이 진행 중이면 새로 시작하지 않습니다.
 
-추천 조사와 승인 건 확인은 하루 여러 번 실행하는 것을 목표로 합니다. 추가 슬롯(예: **13:13·18:13 KST**)은 Devin에서 별도로 등록한 뒤 실제 실행 기록을 확인해야 합니다. 그 전에는 09:13 외 시간을 예약됐다고 표시하지 않습니다. 추가 실행도 같은 승인·중복 방지·운영 검증 절차를 따릅니다. 새 근거가 없으면 목표 건수를 채우려고 중복 제안을 만들지 않습니다.
+세 시간대에 같은 승인·중복 방지·운영 검증 절차를 적용합니다. 자동화의 조사 허용 목록에 `search.naver.com`, `ssl.pstatic.net`, `www.google.com`, `helpline.kdca.go.kr`이 등록돼 있습니다. 허용 목록은 실제 접속이나 검색 수치 확인 성공을 보장하지 않습니다. 새 근거가 없으면 목표 건수를 채우려고 중복 제안을 만들지 않습니다.
 
 ## 1. 작업 준비
 
@@ -36,7 +36,7 @@ git_auth clone https://github.com:443/everyhub/everyhub.github.io.git
 
 ## 3. 새 추천 조사 및 등록
 
-1. 네이버 데이터랩, Google Trends, 국내 공개 검색 동향·인기 웹 도구, 기관의 정책 공고를 조사합니다. 조회 지역·기간·날짜와 근거 URL을 기록합니다. 상대 지수는 절대 검색량으로 설명하지 않으며, 조회하지 못한 수치는 적지 않습니다.
+1. 네이버 데이터랩, Google Trends, 국내 공개 검색 동향·인기 웹 도구, 기관의 정책 공고를 조사합니다. 네이버 데스크톱 검색어 트렌드가 열리지 않으면 [공식 모바일 조회](https://m.datalab.naver.com/trendSearch.naver)에서 주제어와 실제 검색어를 각각 입력하고 결과 링크와 기간을 기록합니다. 상대 지수는 절대 검색량으로 설명하지 않으며, 조회하지 못한 수치는 적지 않습니다.
 2. 근거와 사용자 이점이 명확한 **3~5건을 목표**로 합니다. 기존 도구, 열린/닫힌 제안 이슈, 이미 거절된 주제를 대조합니다. 중복을 빼고 출처가 부족하면 적게 등록하더라도 채우기 위해 만들지 않습니다.
 3. 각 후보에 실제 GitHub 이슈를 하나씩 만들고 `제안`을 붙입니다. 무엇을 추가할지, 왜 유용한지, 동향 근거와 공식 출처, 예상 주소·작업 범위, 위험·제외 조건을 한국어로 적습니다. 제안만으로 구현하지 않습니다.
 4. 같은 정보를 `src/admin-proposals.mjs`에 추가합니다. `id`는 안정적인 소문자 식별자, `createdAt`은 KST `YYYY-MM-DD HH:mm`, `title`·`what`·`scope`·`risks`는 한국어 문자열, `why`는 `{ text, sources: [{ label, url }] }`, `officialSources`는 `[{ label, url }]`, `issueUrl`은 해당 저장소 이슈의 실제 URL입니다. `status`는 `제안`, `승인됨`, `진행중`, `완료`, `보류`, `거절` 중 하나를 사용합니다. 이슈 생성이 실패하면 가짜 URL이나 제안을 등록하지 않습니다.
@@ -45,4 +45,9 @@ git_auth clone https://github.com:443/everyhub/everyhub.github.io.git
 
 - 데이터만 바뀐 경우에도 [README의 배포 전 검수 체크리스트](../README.md#배포-전-검수-체크리스트)를 적용합니다. `npm test`와 `npm run audit`로 내부 링크·앵커, 콘솔, 동일 출처 요청, 정상·경계·오류 입력과 복사·초기화·최근 도구·검색을 검사합니다. 390·768·1024·1440px 캡처에서 페이지 구성·정렬·줄바꿈·글자 크기·여백·색상·아이콘·표·메뉴·푸터를 직접 확인하고, 고친 화면은 다시 캡처합니다. 반복 상세는 범위를 대표하는 값을 확인합니다.
 - 커밋·푸시 후 GitHub Actions의 실제 종료 상태, 추천 탭 응답과 `noindex,nofollow`, 카드 내용, 연결된 실제 이슈를 확인합니다. 각 세부 요구의 운영 확인과 HTTPS 근거가 없으면 완료로 표시하지 않습니다. 끝날 때 `npm run now -- done`으로 실행 기록을 지웁니다. 공개 메뉴·HTML/XML 사이트맵·robots.txt에는 관리자 경로를 추가하지 않습니다.
-- `gh api 'repos/everyhub/everyhub.github.io/actions/workflows/news.yml/runs?event=schedule&per_page=5'`로 뉴스 예약 실행을 확인합니다. 2026-11-25 09:04 KST에 시작한 [실제 예약 실행](https://github.com/everyhub/everyhub.github.io/actions/runs/45515165966)은 빌드·배포에 성공했으나 카카오 피드 시간 초과로 그 출처는 캐시를 유지했습니다. 앞으로도 시간·결론·피드 실패 수·배포 여부를 기록합니다. 예약 실행이 밀려 수동 갱신이 필요하고 다른 뉴스 실행이 진행 중이지 않다면 `gh workflow run news.yml -R everyhub/everyhub.github.io --ref main`을 사용합니다. 수동 실행은 예약 성공의 근거가 아닙니다.
+
+## 5. 뉴스 예약 누락 시 보완 갱신
+
+- 매 실행의 마지막 Pages 배포가 끝난 뒤, 추천 변경이 없었더라도 `gh run list -R everyhub/everyhub.github.io --workflow news.yml --event schedule --limit 5`로 최근 예약을 확인합니다. 직전 30분에 성공한 예약이 없고 뉴스·Pages 실행도 진행 중이지 않으면 `gh workflow run news.yml -R everyhub/everyhub.github.io --ref main`으로 보완 실행합니다. 실행 중인 뉴스·Pages 작업이 있으면 종료를 확인한 뒤 다시 판단합니다.
+- `gh run list -R everyhub/everyhub.github.io --workflow news.yml --event workflow_dispatch --limit 5 --json databaseId,createdAt,status,conclusion,url`에서 방금 요청한 실행 ID를 찾아 `gh run watch <실행 ID> -R everyhub/everyhub.github.io --exit-status`로 종료를 확인합니다. 빌드 로그의 뉴스 건수·피드 실패 수와 배포 성공 여부를 기록합니다. 내용이 바뀌지 않아 배포가 생략됐다면 로그로 확인하고, 배포했다면 운영 뉴스 페이지를 확인합니다. 실패나 조회 불가도 기록하며, 수동 실행은 예약 성공으로 세지 않습니다.
+- 이 절차는 하루 세 번 점검하는 보완 수단이며, 30분 갱신을 보장하지 않습니다.

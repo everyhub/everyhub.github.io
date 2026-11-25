@@ -66,6 +66,7 @@ export const auditItems = {
   ],
   'year-2027': [
     verified('공개된 2026·2027 항목 구분', '/info/yearly-rates/', '연도별 비교표와 공식 근거 섹션을 확인'),
+    tool('확인 가능한 2027년 보험료율과 상반기 국민연금 기준소득월액', 'insurance-rates', '2026-11-25 보건복지부의 건강보험 총 7.19%, 건강보험료 대비 장기요양 13.90% 결정 및 고시 제2026-31호의 2027년 6월분까지 41만~659만 원을 운영 비교 페이지와 대조했습니다.'),
     open('미확정 2027 항목 자동 추정 없이 갱신', '고용노동부의 구직급여·출산휴가 상한과 업종별 산재 요율, 공단의 하반기 연금·건강보험 상하한, 국세청의 근로소득 간이세액표 확정 원문이 필요합니다. 행정예고는 적용하지 않습니다.', '부분', [site + '/info/yearly-rates/', repo + '/blob/main/README.md']),
   ],
   'korean-wording': [
@@ -88,7 +89,8 @@ export const auditItems = {
   'news-cadence': [
     verified('별도 뉴스 작업 수동 실행 경로', repo + '/actions/runs/45426475348', 'workflow_dispatch의 build 및 deploy 성공'),
     verified('실제 뉴스 예약 실행과 배포', repo + '/actions/runs/45515165966', '2026-11-25 09:04 KST 시작, event=schedule, refresh / build·refresh / deploy 모두 success'),
-    open('권장 주기 30분의 지속 실행', '2026-11-25 10:00 KST 재조회까지 09:04 KST 이후 예약 성공 1건만 확인했습니다. 반복 실행 기록이 필요합니다.', '미확인', [repo + '/actions/workflows/news.yml']),
+    verified('추천 실행에 연결한 뉴스 보완 갱신 절차', repo + '/actions/runs/45525260475', '2026-11-25 10:22 KST workflow_dispatch에서 112건을 수집했고 피드 실패 0건, 빌드·배포 성공을 확인했습니다. 같은 확인 절차를 추천 운영 문서에 기록했습니다.'),
+    open('권장 주기 30분의 지속 실행', '2026-11-25 10:26 KST 재조회까지 09:04 KST 이후 예약 성공 1건만 확인했습니다. 보완 실행은 예약 건수에서 제외하며, 반복 실행 기록이 필요합니다.', '미확인', [repo + '/actions/workflows/news.yml']),
   ],
   'non-calculators': [
     verified('계산기 외 생활정보 허브', '/info/', '공휴일, 세무 일정, 연도별 기준 안내 링크 확인'),
@@ -251,19 +253,19 @@ export const auditItems = {
   ],
   'proposals-feature': [
     verified('관리 페이지 추천 탭과 초기 제안 3건', '/ops-7f3a9c2d/recommendations/', '운영 카드와 실제 GitHub 이슈 링크 검사'),
-    open('검색 수요와 트렌드를 조사한 정기 후보 갱신', '자동화는 등록했으나 최초 일일 실행과 검색 추세 근거를 관찰하지 않았습니다.', '진행중'),
+    verified('공개 검색 동향을 조사한 첫 정기 후보 갱신', repo + '/actions/runs/45517359629', '2026-11-25 09:13 KST 첫 조사에서 한국 Google Trends 공개 표본과 정책 공고를 검토했고 제안 #4~#6 운영 반영을 확인했습니다. 네이버 비교 수치는 별도 행에서 추적합니다.'),
   ],
   'proposal-approval': [
     verified('각 제안의 무엇·왜·출처·범위·제외 조건', '/ops-7f3a9c2d/recommendations/', '세 카드에서 항목과 승인·거절 안내 확인'),
     verified('GitHub 이슈를 통한 승인 검토 링크', '/ops-7f3a9c2d/recommendations/', '승인 버튼이 실제 해당 이슈를 여는지 검증'),
-    verified('승인된 실제 제안 반영과 결과 기록', repo + '/issues/2', '사용자가 직접 승인한 #1·#2는 일일 실행을 기다리지 않고 운영 검사 후 댓글을 남겨 종료했습니다. 정기 자동 실행 자체는 별도 행에서 추적합니다.'),
+    verified('승인된 실제 제안 반영과 결과 기록', repo + '/issues/4#issuecomment-7149108445', '사용자가 승인한 #1·#2·#4를 운영 검사 후 댓글을 남겨 종료했습니다. 정기 승인 확인 실행은 별도 행에서 추적합니다.'),
   ],
   'timeline-order': [
     verified('진행중 먼저, 그룹 안에서 최신순', '/ops-7f3a9c2d/', '문서 로드 후 모든 행의 순서와 날짜 비교'),
   ],
   'daily-choice': [
     verified('09:13 KST 매일 일일 자동화 등록', 'https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9', '사용자가 등록과 실행 시각을 확인했으며 첫 실행 결과는 별도 항목에서 추적'),
-    open('첫 실제 실행 검증', '2026-11-25 09:13 KST 예정. 실행 결과는 아직 확인되지 않았습니다.', '진행중'),
+    verified('첫 09:13 실행과 결과 검증', repo + '/actions/runs/45517359629', '2026-11-25 첫 추천 조사에서 제안 #4~#6 등록, 빌드·배포 성공 및 운영 추천 탭 반영 확인.'),
   ],
   'issues-permissions': [
     verified('제안·승인·거절 라벨', repo + '/labels', 'GitHub API로 세 라벨 존재 확인'),
@@ -299,7 +301,7 @@ export const auditItems = {
   'site-proposal-news-review': [
     verified('전체 화면과 주요 도구 재검수', '/sitemap/', '390·768·1024·1440px에서 104개 경로의 캡처 416장을 이전 검수 증거와 비교하고 차이 영역과 주요 화면을 육안 확인했습니다. 114회 양식 실행, 1,640개 검사, 동일 출처 요청 5,549건에서 문제 0건을 기록했습니다. 반복 상세는 표본입니다.'),
     verified('새 추천 후보 3건 검색 및 운영 등록', '/ops-7f3a9c2d/recommendations/', '기존 제안과 중복을 확인하고 스미싱 신고 안내, HTTP 상태 코드 찾기, NFC·NFD 비교 제안 #7~#9의 공식 출처와 범위를 기록했습니다. 390·768·1024·1440px에서 세 카드와 이슈 링크를 확인했습니다. 국내 검색량을 확인하지 못해 수치를 적지 않았습니다.'),
-    open('하루 여러 번 추천 조사와 승인 실행', '09:13 KST 실행은 확인했습니다. 추가 슬롯은 Devin에서 등록하고 실행 결과와 중복 방지를 확인해야 합니다.', '진행중', [repo + '/blob/main/docs/daily-proposals.md']),
+    verified('하루 여러 번 추천 조사와 승인 확인 예약 등록', 'https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9', '09:13·14:13·19:13 KST 등록을 확인했습니다. 09:13 첫 실행 검증과 14:13·19:13 실행 확인 대기는 별도로 기록합니다.'),
     verified('실제 뉴스 예약과 카카오 수집 복구 확인', repo + '/actions/runs/45515165966', '09:04 KST 예약 빌드·배포 성공. 해당 실행에서 카카오 요청이 시간 초과되어 캐시를 사용했고, 한 번 재시도하도록 고친 배포 #45520510235는 112건과 피드 실패 0건을 기록했습니다.'),
     verified('국내 공식 RSS와 사용 조건 확인 및 과기정통부 추가', '/news/korea/#source-msit', '원문 공공누리 제1유형 표기와 출처를 확인한 보도자료 제목·원문 8건이 네 너비에서 필터로 표시됩니다. 네이버·언론사·정책브리핑 검토 결과와 제외 사유는 README에 기록했습니다.'),
   ],
@@ -311,10 +313,17 @@ export const auditItems = {
     verified('승인 이슈에 결과 댓글을 남기고 완료 종료', repo + '/issues/4#issuecomment-7149108445', '운영 검증 후 검사 결과와 배포 링크를 댓글로 남기고 이슈를 완료로 닫았습니다.'),
     verified('09:04 KST 이후 news.yml 예약 실행 재조회', repo + '/actions/runs/45515165966', '2026-11-25 10:00 KST Actions API에서 event=schedule 및 09:04 KST 이후로 조회한 결과 1건입니다. #45515165966은 09:04:30 KST에 생성되어 성공했습니다. 수동 실행은 제외했고 30분 반복은 미확인입니다.'),
   ],
+  'remaining-work-review': [
+    verified('별도 승인 카드 알림을 추가하지 않고 기존 방식 유지', '/ops-7f3a9c2d/recommendations/', '추천 카드는 기존 관리 탭과 GitHub 이슈를 계속 사용합니다. 사이트와 계정 알림 설정은 변경하지 않았습니다.'),
+    verified('세 시간대와 조사 도메인 허용 목록 기록', 'https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9', '09:13·14:13·19:13 KST 및 search.naver.com, ssl.pstatic.net, www.google.com, helpline.kdca.go.kr 등록을 운영 절차에 기록했습니다. 허용과 실제 조회 성공은 별개입니다.'),
+    open('첫 14:13 KST 실행 확인', '예약은 등록됐으며 실행 로그, 중복 여부, 배포 결과 확인 대기입니다.', '진행중', ['https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9']),
+    open('첫 19:13 KST 실행 확인', '예약은 등록됐으며 첫 실제 실행 확인 대기입니다.', '진행중', ['https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9']),
+    verified('뉴스 예약 이력 재조회 및 보완 실행 검증', repo + '/actions/runs/45525260475', '10:26 KST 기준 실제 예약은 #45515165966 한 건입니다(09:04:30 KST 생성, success). 별도 workflow_dispatch는 기사 112건, 피드 실패 0건, 빌드·배포 성공입니다.'),
+  ],
   'daily-proposals-2026-11-25': [
     verified('미완료 승인 이슈 확인', repo + '/issues?q=is%3Aissue', '신규 제안 등록 전 저장소 이슈 API와 추천 데이터를 대조했습니다. #1·#2 완료, #3 거절로 모두 종료되어 구현 대상이 없습니다.'),
     verified('국내 검색 동향의 공개 표본과 정책 공고 조사', 'https://trends.google.com/trending?geo=KR', '2026-11-25 KST에 한국 Google Trends 최신 RSS 표본(07:40~08:10 KST)과 네이버 데이터랩 공개 화면, 대한민국 정책브리핑 공고를 확인했습니다. 표본을 국내 키워드별 검색량으로 해석하지 않았습니다.'),
-    open('네이버 데이터랩 키워드 비교 수치', '공개 화면은 응답했지만 조회에 필요한 ssl.pstatic.net 스크립트는 DNS에서 실패했습니다. 네이버 상대 지수와 국내 키워드별 검색량을 기재하지 않았습니다.', '미확인', ['https://datalab.naver.com/']),
+    verified('네이버 데이터랩 후보 키워드 비교 수치 재조회', 'https://datalab.naver.com/keyword/trendResult.naver?hashKey=N_5811b2d66f4a46a789f67beafd635709', '첫 실행에서는 조회하지 못했으나 2026-11-25 공식 모바일 양식과 XLSX로 10-24~11-24 일간·전체 범위의 최고 상대 지수(CSV 변환 0, 난임휴직 100, 희귀질환 지원 1.8315)를 확인했습니다. 0은 절대 검색량이 0이라는 뜻이 아닙니다.'),
     ...[4, 5, 6].map((id) => verified(`신규 이슈 #${id}에 제안 등록`, repo + '/issues/' + id, 'GitHub API의 HTTP 201 응답, 실제 이슈 주소와 제안 라벨을 확인했습니다.')),
     verified('뉴스 실제 예약 실행·배포 확인', repo + '/actions/runs/45515165966', '2026-11-25 09:04 KST 시작, schedule 실행의 build와 deploy가 모두 성공했습니다.'),
     verified('GitHub Pages 배포 및 공개 대표 주소 확인', repo + '/actions/runs/45517359629', 'c321c2f의 build·deploy가 success. 운영 홈·연봉 계산기·뉴스·sitemap.xml HTTP 200 확인'),
@@ -330,7 +339,7 @@ export const auditItems = {
     tool('공식 X 가중치 지원', 'character-count', '9216f93 운영에서 X 일반 게시글의 글자 수 결과를 390·1440px에서 확인'),
     verified('공식 기관 지원금·신청 일정', '/info/support-calendar/', '9216f93 운영에서 복지로·국세청 신청 날짜 및 고용24 상시 접수 확인'),
     verified('우아한형제들 접근 대안', '/news/korea/', '운영 국내 IT 출처 섹션에 공식 기술블로그 원문 연결 확인; 자동 피드는 발행처 접근 허용 필요'),
-    open('나머지 검증과 외부 조건', '공식 뉴스 피드 접근, 일일 자동화 첫 실행, 계정 권한, 미발표 공식 자료와 일부 원문 대조가 남았습니다. 각 사유는 개별 요청에서 확인할 수 있습니다.', '진행중', [site + '/ops-7f3a9c2d/']),
+    open('나머지 검증과 외부 조건', '공식 뉴스 피드 접근, 추가 14:13·19:13 예약 첫 실행, 계정 권한, 미발표 공식 자료와 일부 원문 대조가 남았습니다. 각 사유는 개별 요청에서 확인할 수 있습니다.', '진행중', [site + '/ops-7f3a9c2d/']),
   ],
   'site-review-checklist': [
     verified('전체 개별 템플릿과 반복 상세 표본의 네 너비 화면 점검', '/sitemap/', '104개 경로의 390·768·1024·1440px 캡처 416장과 대표 푸터를 확인했습니다. 주거 금액 단위, 관리 표 상태, 홈·검색과 누끼 조작부 높이를 고쳤습니다.'),

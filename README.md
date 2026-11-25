@@ -21,7 +21,7 @@
 | `src/pages.mjs`, `src/labor-pages.mjs` | 공통 레이아웃/메타데이터, 홈·연봉별 상세, 분야·계산기·예시·HTML 사이트맵 템플릿 |
 | `src/navigation.mjs`, `src/navigation-browser.mjs`, `src/style.css` | 왼쪽 메뉴 트리, 모바일 접기/펼치기, 스타일 |
 | `src/admin-log.mjs`, `src/admin-pages.mjs` | 연결하지 않은 noindex 작업 요청 타임라인과 다음 작업용 요청 기록 |
-| `src/admin-proposals.mjs`, [추천 운영 절차](docs/daily-proposals.md) | 추천 탭 데이터, GitHub 이슈 승인과 하루 여러 번의 조사·반영 계획 |
+| `src/admin-proposals.mjs`, [추천 운영 절차](docs/daily-proposals.md) | 추천 탭 데이터, GitHub 이슈 승인과 하루 세 번의 조사·반영 예약 |
 | `src/calculator.mjs`, `src/rates.mjs`, `src/withholding-table.mjs` | 연봉 실수령액, 국민연금·건강보험 등 보험료, 공식 근로소득 간이세액표 |
 | `src/labor.mjs`, `src/labor-rates.mjs`, `src/tool-specs.mjs` | 최저임금·퇴직·실업·육아·근로시간 계산, 공식 근거 및 브라우저 폼 정의 |
 | `src/guides.mjs`, `src/guide-rates.mjs`, `src/guide-specs.mjs` | 추가 세금·복지·주거·근로 계산, 공식 근거 및 폼 정의 |
@@ -69,7 +69,7 @@ python3 -m http.server 8080 --bind 127.0.0.1 --directory dist
 - 모든 작업 세션과 자동화 실행은 시작할 때 `npm run now -- start "작업명" "현재 단계"`, 단계가 바뀌면 `npm run now -- step "작업명" "새 단계"`를 실행하세요. 끝날 때는 성공·실패와 관계없이 `npm run now -- done "작업명"`으로 자신의 항목을 지웁니다. 각 변경은 `src/admin-now.json`을 커밋·푸시한 뒤 Pages가 배포하면 관리 페이지의 **지금 작업 중**에 표시됩니다. 요청의 완료 여부는 별도로 작업 타임라인에 기록하고, 상태 필터로 확인합니다.
 - 모든 사용자 요청과 답변에서 약속한 항목을 `src/admin-audit-items.mjs`에 각각 기록하세요. 각 세부 항목을 운영 사이트에서 실제 사용하여 성공한 검사·화면과 근거 URL을 남긴 뒤에만 완료로 표시합니다. 검증하지 못하거나 반영하지 못한 항목에는 구체적인 사유·남은 일을 쓰고, 하위 항목이 하나라도 완료가 아니면 상위 요청을 종료하지 않습니다.
 - 운영 사이트에서도 동일한 브라우저 검사를 하려면 `AUDIT_LIVE_URL=https://everyhub.github.io npm run audit`를 실행합니다. 관리 타임라인과 동일한 표는 `node --input-type=module -e "import { renderRequirementsAudit } from './src/admin-log.mjs'; process.stdout.write(renderRequirementsAudit())" > "$HOME/everyhub-requirements-audit.md"`로 내보냅니다.
-- 관리 페이지의 추천은 GitHub 이슈에서만 승인·거절합니다. [일일 추천 운영 절차](docs/daily-proposals.md)는 매일 09:13 KST에 실행하도록 등록됐습니다. 2026-11-25 첫 조사에서 미완료 승인 건이 없어 기존 기능은 바꾸지 않았으며, [CSV·JSON 변환기](https://github.com/everyhub/everyhub.github.io/issues/4), [국가·지방공무원 난임휴직 준비 체크리스트](https://github.com/everyhub/everyhub.github.io/issues/5), [국가관리대상 희귀질환 지원 확인 순서](https://github.com/everyhub/everyhub.github.io/issues/6)를 승인 대기 제안으로 등록했습니다. 운영용 토큰은 **2027-01-23** 만료 전에 같은 최소 권한으로 교체합니다.
+- 관리 페이지의 추천은 GitHub 이슈에서만 승인·거절합니다. [추천 운영 절차](docs/daily-proposals.md)는 매일 **09:13·14:13·19:13 KST**에 실행하도록 등록됐습니다. 2026-11-25 첫 09:13 실행을 확인했고 14:13·19:13은 첫 실행 확인 대기입니다. 첫 조사에서 등록한 [CSV·JSON 변환기 #4](https://github.com/everyhub/everyhub.github.io/issues/4)는 승인 후 배포·완료했고, [난임휴직 체크리스트 #5](https://github.com/everyhub/everyhub.github.io/issues/5)와 [희귀질환 지원 확인 순서 #6](https://github.com/everyhub/everyhub.github.io/issues/6)는 제안입니다. 운영용 토큰은 **2027-01-23** 만료 전에 같은 최소 권한으로 교체합니다.
 - 홈에는 카드 오른쪽 위 전체보기, 바로가기 검색과 최근 본 도구를 제공합니다. 바로가기는 이름뿐 아니라 ‘나이’, ‘집’, ‘퇴사’, ‘ㅇㅂ’ 같은 관련어·초성과 한 글자 오타(세 글자부터)도 찾습니다. 동의어 목록은 `src/tool-specs.mjs`의 `shortcutKeywords`에서 관리합니다. 검색어는 전송·저장하지 않으며, `/`로 검색창에 이동하고 화살표와 Enter로 결과를 열 수 있습니다. 계산기에는 금액의 쉼표 표기와 입력 초기화·결과 복사, 긴 페이지에는 맨 위로 버튼이 있습니다. 최근 도구 주소와 일부 도구의 비민감 설정만 해당 브라우저의 `localStorage`에 저장합니다. 연봉·텍스트·파일·비밀번호 결과는 저장하지 않습니다. 방문자 분석은 연결하지 않았습니다.
 - 사진·PDF·텍스트는 브라우저 메모리에서만 처리합니다. PDF·QR의 라이브러리는 동일 출처의 정적 자산으로 제공하며, 저장은 사용자가 Blob 다운로드를 눌렀을 때만 이뤄집니다. 파일 테스트에는 실제 문서가 아닌 직접 만든 작은 PDF·이미지를 사용합니다.
 - 글자 수 도구에서 X 일반 게시글을 선택하면 공식 `twitter-text` 가중치를 적용합니다. 근무일수는 생활 정보의 2026·2027년 공식 공휴일 데이터를 재사용합니다. 여권 사진은 외교부 권장 온라인 규격으로 자를 뿐, 심사를 보장하지 않습니다.
@@ -112,7 +112,7 @@ git -c credential.helper= \
 ```
 
 - `main` 푸시, 매월 1일 03:17 UTC, 기본 수동 실행은 전체 빌드·배포합니다. [Refresh news](https://github.com/everyhub/everyhub.github.io/actions/workflows/news.yml)는 정각을 피해 UTC 매시 07·37분에 공통 Pages 워크플로를 호출합니다. 예약이 누락되면 **Refresh news → Run workflow**로 수동 실행할 수 있습니다(기존 **Deploy to GitHub Pages → Run workflow → news_only**도 동작합니다). 뉴스 실행은 게시물이나 배포 대상 커밋이 달라진 경우에만 배포합니다. 예약 시각은 목표이며 GitHub가 실행을 지연하거나 누락할 수 있습니다. 수동 실행 성공과 예약 실행 확인은 별개입니다. 겹치는 Pages 실행은 최신 실행이 앞선 실행을 취소합니다.
-- 2026-11-25 09:04 KST에 시작한 [Refresh news 예약 실행](https://github.com/everyhub/everyhub.github.io/actions/runs/45515165966)은 빌드와 Pages 배포에 성공했습니다. 예약 성공 1건을 확인했으며, 이후 주기의 지속 실행 여부는 계속 확인합니다.
+- 2026-11-25 09:04 KST에 시작한 [Refresh news 예약 실행](https://github.com/everyhub/everyhub.github.io/actions/runs/45515165966)은 빌드와 Pages 배포에 성공했습니다. 추천 자동화는 매 실행마다 최근 뉴스 예약을 확인하고, 성공한 예약이 없으면 [보완 갱신 절차](docs/daily-proposals.md#5-뉴스-예약-누락-시-보완-갱신)를 따릅니다.
 - 피드가 실패하면 운영 `news-data.json`의 해당 피드 마지막 정상 목록을 사용합니다. 새 피드에 이전 데이터가 없으면 다른 피드를 배포하면서 출처 링크를 표시합니다. 이전 스냅샷이 404가 아닌 오류로 읽히지 않으면 기존 사이트를 보존하도록 빌드를 중단합니다. 수집 오류와 건수는 Actions 로그를 확인하세요.
 - 배포 후 Actions에서 **Deploy to GitHub Pages**의 결과와 커밋을 확인하고 운영 홈·대표 계산기·새 페이지·`sitemap.xml`을 HTTP로 확인합니다. 예약 실행에서 ‘소식 변경 없음’으로 배포 작업이 건너뛰어지는 것은 정상입니다.
 
