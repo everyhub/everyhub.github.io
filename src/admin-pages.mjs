@@ -1,7 +1,7 @@
 import { layout } from './pages.mjs';
 import { brand } from './tool-specs.mjs';
 import { adminPending, adminTimeline, auditEvidenceLabel, initialDeployment, sortAdminTimeline } from './admin-log.mjs';
-import { adminProposals, sortAdminProposals } from './admin-proposals.mjs';
+import { adminProposals, latestFeatureReview, sortAdminProposals } from './admin-proposals.mjs';
 import { officialValueEvidence } from './official-value-evidence.mjs';
 import activeWork from './admin-now.json' with { type: 'json' };
 
@@ -86,8 +86,8 @@ function proposalSources(sources) {
   return items.length ? `<ul>${items.join('')}</ul>` : '';
 }
 
-export function adminProposalsPage(config, proposals = adminProposals) {
-  const cards = sortAdminProposals(proposals).map(({ id, createdAt, title, what, why, officialSources, scope, risks, status, issueUrl }) => {
+export function adminProposalsPage(config, proposals = adminProposals, review = latestFeatureReview) {
+  const cards = sortAdminProposals(proposals).map(({ id, createdAt, title, what, why, officialSources, scope, risks, status, issueUrl, decision, result }) => {
     const issue = /^https:\/\/github\.com\/everyhub\/everyhub\.github\.io\/issues\/[1-9]\d*$/.test(issueUrl);
     return `<article class="panel proposal-card" id="proposal-${escape(id)}">
       <p class="eyebrow">${escape(status)} · <time datetime="${escape(createdAt.replace(' ', 'T') + '+09:00')}">${escape(createdAt)} KST</time></p>
@@ -98,9 +98,10 @@ export function adminProposalsPage(config, proposals = adminProposals) {
         <dt>공식 자료</dt><dd>${proposalSources(officialSources) || '해당 없음'}</dd>
         <dt>작업 범위·예상 페이지</dt><dd>${escape(scope)}</dd>
         <dt>위험·제외 조건</dt><dd>${escape(risks)}</dd>
+        ${decision ? `<dt>선정·제외 사유</dt><dd>${escape(decision)}</dd>` : ''}
+        ${result?.url?.startsWith('https://everyhub.github.io/') ? `<dt>반영 결과</dt><dd><a href="${escape(result.url)}">${escape(result.label)}</a></dd>` : ''}
       </dl>
-      ${issue && status === '제안' ? `<p><a class="button" href="${escape(issueUrl)}" aria-label="${escape(title)} 승인 검토 (GitHub)">승인 <span aria-hidden="true">↗</span></a></p>
-      <p class="note">권한이 있는 GitHub 계정으로 이슈에 <strong>승인</strong> 라벨을 달거나 <strong>승인</strong> 댓글을 남겨 주세요. 일일 자동 실행에서 승인된 항목을 검토하도록 등록했습니다. 거절하려면 <strong>거절</strong> 라벨을 달아 주세요.</p>` : issue ? `<p><a href="${escape(issueUrl)}">GitHub 이슈 보기</a></p>` : ''}
+      ${issue ? `<p><a href="${escape(issueUrl)}">이전 GitHub 기록</a></p>` : ''}
     </article>`;
   }).join('');
   return layout({
@@ -109,8 +110,10 @@ export function adminProposalsPage(config, proposals = adminProposals) {
     localOnly: true, robots: 'noindex,nofollow',
     main: `<h1>페이지 추가 추천</h1>
       ${adminTabs('../../', adminProposalsPath)}
-      <p class="intro">검색 동향과 공식 자료를 바탕으로 어떤 페이지를 추가할지 제안합니다. 승인이나 거절은 권한이 있는 GitHub 계정에서 처리합니다.</p>
-      <p class="note"><strong>등록됨 · 첫 실행 확인</strong> — 매일 09:13 KST, 첫 실행일 2026-11-25. 배포 검증 결과는 작업 타임라인에 기록합니다.</p>
+      <p class="intro">여러 사람에게 필요한 기능인지, 최근 검색 수요가 있는지, 공식 자료로 구현할 수 있는지 확인합니다. 세 조건을 모두 충족해야 별도 승인 없이 한 번에 최대 1건을 추가합니다.</p>
+      <p class="note">등록된 점검 시각은 매일 09:13·14:13·19:13 KST입니다. 적합한 후보가 없으면 버그 수정, 공식 수치 갱신, 사용성 개선을 우선합니다.</p>
+      <section class="panel" id="latest-feature-review"><h2>최근 점검: ${escape(review.outcome)}</h2>
+        <p><time datetime="${escape(review.reviewedAt.replace(' ', 'T') + '+09:00')}">${escape(review.reviewedAt)} KST</time> · ${escape(review.reason)}</p></section>
       ${cards || '<p class="panel">등록된 제안이 없습니다. 조사 결과가 등록되면 이곳에 표시됩니다.</p>'}`,
   });
 }

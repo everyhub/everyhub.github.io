@@ -438,10 +438,19 @@ async function auditViewport(origin) {
           cases += 3;
         }
         if (route === '/ops-7f3a9c2d/recommendations/') {
-          if (!await page.getByText('등록됨 · 첫 실행 확인', { exact: true }).isVisible()) issue('Daily Devin status missing');
+          if (!await page.getByText(/한 번에 최대 1건/).isVisible() ||
+              !await page.getByRole('heading', { name: /^최근 점검:/ }).isVisible()) issue('Automatic feature selection criteria or review outcome missing');
           const cards = page.locator('.proposal-card');
           if (await cards.count() < 3 || !await cards.first().getByText('왜 필요하나요?', { exact: true }).isVisible()) issue('Missing proposal detail');
           cases += 2;
+        }
+        if (route === '/info/smishing-checklist/') {
+          const main = page.locator('main');
+          if (await main.locator('form, input, textarea').count() ||
+              !await main.getByRole('link', { name: 'KISA 공식 안내' }).isVisible() ||
+              !await main.locator('a[href="tel:118"]').isVisible() ||
+              !await main.getByRole('link', { name: '경찰청 사이버범죄 신고시스템' }).isVisible()) issue('Smishing guidance is missing an official path or requests user input');
+          cases++;
         }
         if (route === '/news/korea/' || route === '/news/world/') {
           const articles = page.locator('[data-news-source]');

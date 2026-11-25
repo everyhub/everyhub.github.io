@@ -21,7 +21,7 @@
 | `src/pages.mjs`, `src/labor-pages.mjs` | 공통 레이아웃/메타데이터, 홈·연봉별 상세, 분야·계산기·예시·HTML 사이트맵 템플릿 |
 | `src/navigation.mjs`, `src/navigation-browser.mjs`, `src/style.css` | 왼쪽 메뉴 트리, 모바일 접기/펼치기, 스타일 |
 | `src/admin-log.mjs`, `src/admin-pages.mjs` | 연결하지 않은 noindex 작업 요청 타임라인과 다음 작업용 요청 기록 |
-| `src/admin-proposals.mjs`, [추천 운영 절차](docs/daily-proposals.md) | 추천 탭 데이터, GitHub 이슈 승인과 하루 세 번의 조사·반영 예약 |
+| `src/admin-proposals.mjs`, [추천 운영 절차](docs/daily-proposals.md) | 하루 세 번의 자동 기능 조사·반영 절차와 관리 탭 결과 기록 |
 | `src/calculator.mjs`, `src/rates.mjs`, `src/withholding-table.mjs` | 연봉 실수령액, 국민연금·건강보험 등 보험료, 공식 근로소득 간이세액표 |
 | `src/labor.mjs`, `src/labor-rates.mjs`, `src/tool-specs.mjs` | 최저임금·퇴직·실업·육아·근로시간 계산, 공식 근거 및 브라우저 폼 정의 |
 | `src/guides.mjs`, `src/guide-rates.mjs`, `src/guide-specs.mjs` | 추가 세금·복지·주거·근로 계산, 공식 근거 및 폼 정의 |
@@ -71,7 +71,7 @@ Linux에서 시스템 라이브러리가 없으면 `npx playwright install-deps 
 - 모든 작업 세션과 자동화 실행은 시작할 때 `npm run now -- start "작업명" "현재 단계"`, 단계가 바뀌면 `npm run now -- step "작업명" "새 단계"`를 실행하세요. 끝날 때는 성공·실패와 관계없이 `npm run now -- done "작업명"`으로 자신의 항목을 지웁니다. 각 변경은 `src/admin-now.json`을 커밋·푸시한 뒤 Pages가 배포하면 관리 페이지의 **지금 작업 중**에 표시됩니다. 요청의 완료 여부는 별도로 작업 타임라인에 기록하고, 상태 필터로 확인합니다.
 - 모든 사용자 요청과 답변에서 약속한 항목을 `src/admin-audit-items.mjs`에 각각 기록하세요. 각 세부 항목을 운영 사이트에서 실제 사용하여 성공한 검사·화면과 근거 URL을 남긴 뒤에만 완료로 표시합니다. 검증하지 못하거나 반영하지 못한 항목에는 구체적인 사유·남은 일을 쓰고, 하위 항목이 하나라도 완료가 아니면 상위 요청을 종료하지 않습니다.
 - 운영 사이트에서도 동일한 브라우저 검사를 하려면 `AUDIT_LIVE_URL=https://everyhub.github.io npm run audit`를 실행합니다. 관리 타임라인과 동일한 표는 `node --input-type=module -e "import { renderRequirementsAudit } from './src/admin-log.mjs'; process.stdout.write(renderRequirementsAudit())" > "$HOME/everyhub-requirements-audit.md"`로 내보냅니다.
-- 관리 페이지의 추천은 GitHub 이슈에서만 승인·거절합니다. [추천 운영 절차](docs/daily-proposals.md)는 매일 **09:13·14:13·19:13 KST**에 실행하도록 등록됐습니다. 2026-11-25 첫 09:13 실행을 확인했고 14:13·19:13은 첫 실행 확인 대기입니다. 첫 조사에서 등록한 [CSV·JSON 변환기 #4](https://github.com/everyhub/everyhub.github.io/issues/4)는 승인 후 배포·완료했고, [난임휴직 체크리스트 #5](https://github.com/everyhub/everyhub.github.io/issues/5)와 [희귀질환 지원 확인 순서 #6](https://github.com/everyhub/everyhub.github.io/issues/6)는 제안입니다. 운영용 토큰은 **2027-01-23** 만료 전에 같은 최소 권한으로 교체합니다.
+- [자동 기능 점검 절차](docs/daily-proposals.md): 조사 → 선정 → 구현 → 감사 → 배포 → 관리 페이지 기록. 별도 승인 없이, **뚜렷한 필요성과 범용성·최근 검색 수요·공식 근거**를 모두 갖춘 기능만 회당 **최대 1건** 추가합니다. 해당 후보가 없으면 **추가 없음**과 이유를 남기고 버그 수정·공식 수치 갱신·UX 개선을 우선합니다. 브라우저 전용 도구의 외부 요청은 0건이어야 하고 배포 전 감사를 통과해야 합니다. 매일 **09:13·14:13·19:13 KST**에 등록된 실행은 기능 추가 의무가 아닙니다. 방문자 집계나 추적은 추가하지 않습니다.
 - 홈에는 카드 오른쪽 위 전체보기, 바로가기 검색과 최근 본 도구를 제공합니다. 바로가기는 이름뿐 아니라 ‘나이’, ‘집’, ‘퇴사’, ‘ㅇㅂ’ 같은 관련어·초성과 한 글자 오타(세 글자부터)도 찾습니다. 동의어 목록은 `src/tool-specs.mjs`의 `shortcutKeywords`에서 관리합니다. 검색어는 전송·저장하지 않으며, `/`로 검색창에 이동하고 화살표와 Enter로 결과를 열 수 있습니다. 계산기에는 금액의 쉼표 표기와 입력 초기화·결과 복사, 긴 페이지에는 맨 위로 버튼이 있습니다. 최근 도구 주소와 일부 도구의 비민감 설정만 해당 브라우저의 `localStorage`에 저장합니다. 연봉·텍스트·파일·비밀번호 결과는 저장하지 않습니다. 방문자 분석은 연결하지 않았습니다.
 - 사진·PDF·텍스트는 브라우저 메모리에서만 처리합니다. PDF·QR의 라이브러리는 동일 출처의 정적 자산으로 제공하며, 저장은 사용자가 Blob 다운로드를 눌렀을 때만 이뤄집니다. 파일 테스트에는 실제 문서가 아닌 직접 만든 작은 PDF·이미지를 사용합니다.
 - 글자 수 도구에서 X 일반 게시글을 선택하면 공식 `twitter-text` 가중치를 적용합니다. 근무일수는 생활 정보의 2026·2027년 공식 공휴일 데이터를 재사용합니다. 여권 사진은 외교부 권장 온라인 규격으로 자를 뿐, 심사를 보장하지 않습니다.

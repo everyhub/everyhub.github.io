@@ -168,7 +168,7 @@ test('11월 25일 추천의 상태와 범위는 해당 이슈에 연결된다', 
   ]) {
     const card = proposals.match(new RegExp(`id="proposal-${id}"[^]*?</article>`))?.[0];
     assert.ok(card, id);
-    assert.ok(card.includes(`${number === 4 ? '완료' : '제안'} · <time datetime="2026-11-25T09:16+09:00"`), id);
+    assert.ok(card.includes(`${number === 4 ? '완료' : '제외'} · <time datetime="2026-11-25T09:16+09:00"`), id);
     assert.ok(card.includes(`href="https://github.com/everyhub/everyhub.github.io/issues/${number}"`), id);
     assert.ok(card.includes(`/${id}/`), id);
   }
@@ -176,6 +176,17 @@ test('11월 25일 추천의 상태와 범위는 해당 이슈에 연결된다', 
   assert.equal(converter.status, '완료');
   assert.equal(converter.items.length, 6);
   assert.ok(converter.items.every(hasCompletionEvidence));
+});
+
+test('스미싱 안내는 입력 양식 없이 KISA 확인·상담과 경찰 신고를 구분한다', () => {
+  const pages = informationPages(config);
+  const guide = pages.find(({ path }) => path === 'info/smishing-checklist/').html;
+  assert.match(pages.find(({ path }) => path === 'info/').html, /href="\.\.\/info\/smishing-checklist\/"/);
+  assert.match(guide, /문자를 받았다면[^]*보호나라[^]*이미 눌렀거나 피해가 의심된다면/);
+  assert.match(guide, /href="https:\/\/www\.boho\.or\.kr\/kr\/subPage\.do\?menuNo=205116"/);
+  assert.match(guide, /href="tel:118"/);
+  assert.match(guide, /href="https:\/\/ecrm\.police\.go\.kr\/minwon\/main"/);
+  assert.doesNotMatch(guide.match(/<main\b[^]*?<\/main>/)[0], /<(?:form|input|textarea)\b/);
 });
 
 test('주거 사례 제목과 도입문은 금액과 원 단위를 함께 줄바꿈한다', () => {
@@ -288,7 +299,7 @@ test('운영 검사의 설명·근거가 빠지거나 세부 항목이 남아 �
   }
 });
 
-test('추천 탭은 검토할 제안을 먼저 보여 주고 승인은 해당 GitHub 이슈로 연결한다', () => {
+test('추천 탭은 진행 중인 작업과 선정 결과를 표시하고 이슈는 과거 기록으로만 링크한다', () => {
   const template = {
     title: '예시', what: '안내 페이지', why: { text: '공식 신청 안내', sources: [] },
     officialSources: [], scope: '안내 1페이지', risks: '신청 대행 제외',
@@ -299,18 +310,24 @@ test('추천 탭은 검토할 제안을 먼저 보여 주고 승인은 해당 Gi
     { ...template, id: 'older', createdAt: '2026-11-24 20:00', status: '제안', issueUrl: 'https://github.com/everyhub/everyhub.github.io/issues/10' },
     { ...template, id: 'active', createdAt: '2026-11-25 00:00', status: '진행중' },
     { ...template, id: 'newer', createdAt: '2026-11-24 23:00', status: '제안', issueUrl: 'https://github.com/other/repo/issues/1' },
-    { ...template, id: 'approved', createdAt: '2026-11-25 01:00', status: '승인됨' },
+    { ...template, id: 'deferred', createdAt: '2026-11-25 01:00', status: '보류', decision: '최근 검색 수요 미확인' },
   ];
   assert.deepEqual(sortAdminProposals(entries).map(({ id }) => id),
-    ['newer', 'older', 'approved', 'active', 'done']);
-  const html = adminProposalsPage(config, entries);
+    ['active', 'deferred', 'newer', 'older', 'done']);
+  const html = adminProposalsPage(config, entries, {
+    reviewedAt: '2026-11-25 02:00', outcome: '추가 없음', reason: '충족하는 후보 없음',
+  });
   assert.deepEqual([...html.matchAll(/id="proposal-([^"]+)"/g)].map(([, id]) => id),
-    ['newer', 'older', 'approved', 'active', 'done']);
+    ['active', 'deferred', 'newer', 'older', 'done']);
   assert.match(adminTimelinePage(config), new RegExp(`href="../${adminProposalsPath}">추천</a>`));
   assert.match(html, /name="robots" content="noindex,nofollow"/);
   assert.match(html, /추천<\/a>/);
   assert.match(html, /무엇을 추가하나요\?[^]*왜 필요하나요\?[^]*공식 자료[^]*작업 범위·예상 페이지[^]*위험·제외 조건/);
-  assert.match(html, /class="button" href="https:\/\/github\.com\/everyhub\/everyhub\.github\.io\/issues\/10"/);
+  assert.match(html, /href="https:\/\/github\.com\/everyhub\/everyhub\.github\.io\/issues\/10">이전 GitHub 기록/);
+  assert.match(html, /최근 점검: 추가 없음/);
+  assert.match(html, /한 번에 최대 1건/);
+  assert.match(html, /최근 검색 수요 미확인/);
+  assert.doesNotMatch(html, /승인 검토|승인<\/strong> 라벨/);
   assert.doesNotMatch(html, /github\.com\/other\/repo/);
   assert.match(adminProposalsPage(config, []), /등록된 제안이 없습니다/);
 });
@@ -373,7 +390,7 @@ test('월력요항 및 개정 법령에 따른 공휴일과 주 5일제 연휴�
   assert.ok(previous.holidays.some(({ date, name }) => date === '2026-07-17' && name === '제헌절'));
   assert.ok(next.holidays.some(({ date, name }) => date === '2027-07-19' && name === '대체공휴일(제헌절)'));
   const pages = informationPages(config);
-  assert.equal(pages.length, 6);
+  assert.equal(pages.length, 7);
   for (const { path, html } of pages) {
     assert.ok(html.includes(`href="${config.baseURL}${path}"`));
     assert.match(html, /"@type":"CollectionPage"/);

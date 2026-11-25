@@ -1,17 +1,27 @@
+export const latestFeatureReview = {
+  reviewedAt: "2026-11-25 22:46",
+  outcome: "스미싱 안내 1건 선정",
+  reason: "최근 30일 중 22일에 검색 지수가 표시된 스미싱 안내만 선정했습니다. 다른 후보는 검색 수요나 범용성이 충분하지 않아 추가하지 않았습니다.",
+};
+
 export const adminProposals = [
   {
     id: "smishing-checklist",
     title: "스미싱 의심 문자 확인·신고 체크리스트",
     what: "문자 링크를 누르지 않고 발신기관에 확인하는 순서, KISA 공식 확인과 118 상담 경로를 정리합니다.",
     why: {
-      text: "의심 문자에서 바로 개인정보를 입력하는 일을 피하고 공식 채널로 이동하는 데 도움이 됩니다. 2026-11-25 KST에 KISA 확인 서비스를 확인했습니다. 국내 검색량과 급상승 순위는 확인하지 않았습니다.",
-      sources: [{ label: "KISA 보호나라 스미싱 확인 서비스", url: "https://www.boho.or.kr/kr/subPage.do?menuNo=205116" }]
+      text: "누구나 의심 문자를 받을 수 있습니다. 네이버 데이터랩의 2026-08-24~11-24 일간 조회에서 ‘스미싱 신고, 스미싱 확인’ 묶음은 마지막 30일 중 22일에 양의 상대 지수를 보였습니다. 절대 검색량은 아닙니다.",
+      sources: [{ label: "네이버 데이터랩 · 3개 주제 비교", url: "https://m.datalab.naver.com/trendResult.naver?hashKey=N_3d488555bfb1fa10dea9a4f369641ba1" }]
     },
-    officialSources: [{ label: "KISA 118 상담 안내", url: "https://www.kisa.or.kr/118" }],
-    scope: "생활 정보에 /info/smishing-checklist/ 안내 1페이지를 추가합니다.",
+    officialSources: [
+      { label: "KISA 보호나라 · 스미싱 확인서비스 및 118 상담", url: "https://www.boho.or.kr/kr/subPage.do?menuNo=205116" },
+      { label: "경찰청 · 사이버범죄 신고시스템", url: "https://ecrm.police.go.kr/minwon/main" }
+    ],
+    scope: "생활 정보에 /info/smishing-checklist/ 안내 1페이지를 제공합니다.",
     risks: "사이트가 악성 여부를 판정하거나 링크·문자·번호를 수집하지 않습니다.",
     createdAt: "2026-11-25 09:43",
-    status: "제안",
+    status: "진행중",
+    decision: "대상이 넓고 최근 검색 수요와 KISA·경찰청 공식 안내를 확인해 이번에 한 건만 선정했습니다.",
     issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/7"
   },
   {
@@ -19,14 +29,18 @@ export const adminProposals = [
     title: "HTTP 상태 코드 빠른 찾기",
     what: "상태 번호 또는 한국어 키워드로 등록된 HTTP 상태 코드를 찾고 IANA에서 연결한 표준을 엽니다.",
     why: {
-      text: "404·429·503의 차이를 사이트나 API 점검 중에 확인할 수 있습니다. 2026-11-25 KST에 IANA 등록부를 확인했습니다. 국내 검색량은 미확인입니다.",
-      sources: [{ label: "IANA HTTP 상태 코드 등록부", url: "https://www.iana.org/assignments/http-status-codes" }]
+      text: "404·429·503의 차이를 점검할 때 유용하지만, ‘HTTP 상태 코드, HTTP 오류 코드’ 묶음은 동일한 네이버 데이터랩 조회에서 마지막 30일 중 하루만 양의 상대 지수를 보였습니다.",
+      sources: [{ label: "네이버 데이터랩 · 3개 주제 비교", url: "https://m.datalab.naver.com/trendResult.naver?hashKey=N_3d488555bfb1fa10dea9a4f369641ba1" }]
     },
-    officialSources: [{ label: "RFC 9110 상태 코드", url: "https://www.rfc-editor.org/rfc/rfc9110.html#name-status-codes" }],
+    officialSources: [
+      { label: "IANA HTTP 상태 코드 등록부", url: "https://www.iana.org/assignments/http-status-codes" },
+      { label: "RFC 9110 상태 코드", url: "https://www.rfc-editor.org/rfc/rfc9110.html#name-status-codes" }
+    ],
     scope: "개발 도구에 /tools/http-status-codes/ 조회 화면 1페이지를 추가합니다.",
     risks: "조회값을 전송하지 않으며 URL에 요청을 보내는 상태 검사 기능은 제공하지 않습니다.",
     createdAt: "2026-11-25 09:43",
-    status: "제안",
+    status: "보류",
+    decision: "기존 등록부로 조회할 수 있고 별도 도구를 추가할 만큼 최근 검색 수요가 뚜렷하지 않았습니다.",
     issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/8"
   },
   {
@@ -34,14 +48,18 @@ export const adminProposals = [
     title: "유니코드 NFC·NFD 비교·변환기",
     what: "같은 문자열의 NFC·NFD 형태를 브라우저에서 비교·복사하고 코드 포인트 차이를 확인합니다.",
     why: {
-      text: "겉보기에는 같은 한글 파일명이나 텍스트가 서로 다르게 저장돼 검색·비교가 어긋날 때 원인을 확인할 수 있습니다. 2026-11-25 KST에 Unicode 표준을 확인했습니다. 국내 검색량은 미확인입니다.",
-      sources: [{ label: "Unicode UAX #15 정규화 표준", url: "https://unicode.org/reports/tr15/" }]
+      text: "겉보기에는 같은 문자열의 저장 형식을 비교할 때 유용하지만, ‘유니코드 정규화, NFC NFD’ 묶음은 동일한 네이버 데이터랩 조회에서 마지막 30일에 양의 상대 지수가 표시되지 않았습니다.",
+      sources: [{ label: "네이버 데이터랩 · 3개 주제 비교", url: "https://m.datalab.naver.com/trendResult.naver?hashKey=N_3d488555bfb1fa10dea9a4f369641ba1" }]
     },
-    officialSources: [{ label: "ECMAScript 문자열 정규화", url: "https://tc39.es/ecma262/multipage/text-processing.html#sec-string.prototype.normalize" }],
+    officialSources: [
+      { label: "Unicode UAX #15 정규화 표준", url: "https://unicode.org/reports/tr15/" },
+      { label: "ECMAScript 문자열 정규화", url: "https://tc39.es/ecma262/multipage/text-processing.html#sec-string.prototype.normalize" }
+    ],
     scope: "개발 도구에 /tools/unicode-normalize/ 비교·변환 화면 1페이지를 추가합니다.",
     risks: "NFC·NFD만 지원하며, 파일명 일괄 변경·파일 업로드·입력 저장은 하지 않습니다.",
     createdAt: "2026-11-25 09:43",
-    status: "제안",
+    status: "보류",
+    decision: "문자열 정규화가 필요한 상황에 한정되며 최근 검색 수요가 뚜렷하지 않았습니다.",
     issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/9"
   },
   {
@@ -99,7 +117,8 @@ export const adminProposals = [
     scope: "임신·출산·육아 분야 /info/civil-service-fertility-leave/ 1페이지. 국가·지방 적용 근거를 나누고 시행일·신청 전 확인 항목·공식 문의 경로를 안내합니다. 체크리스트는 화면에서만 표시합니다.",
     risks: "민간 근로자 제도와 합쳐 설명하지 않으며 개인 자격·급여·승인 결과를 판단하지 않습니다. 공포된 시행 조문과 최신 지침을 구현 때 다시 확인하고 미공개 서류나 기준은 추정하지 않습니다. 치료 이력은 받지 않습니다.",
     createdAt: "2026-11-25 09:16",
-    status: "제안",
+    status: "제외",
+    decision: "범용성 부족: 특정 직군에서 특정 사유로 휴직하려는 경우에만 해당합니다.",
     issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/5"
   },
   {
@@ -128,7 +147,8 @@ export const adminProposals = [
     scope: "생활정보 /info/rare-disease-support-checklist/ 1페이지와 지원금 일정 안내에서 링크 1개. 각 단계에서 확인해야 할 기관·절차·문의 경로를 구분합니다.",
     risks: "진단, 치료 조언, 개인별 자격 판정, 질환명·진료기록 입력과 신청 대행은 제외합니다. 신규 지정의 적용 시점이나 비용은 원문이 확인되지 않으면 표시하지 않으며, 조회처가 연결되는지 구현 전에 다시 검증합니다.",
     createdAt: "2026-11-25 09:16",
-    status: "제안",
+    status: "제외",
+    decision: "범용성 부족: 국가관리대상 희귀질환 지원을 확인하는 특정 상황에 한정됩니다.",
     issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/6"
   },
   {
@@ -224,7 +244,7 @@ export const adminProposals = [
   }
 ];
 
-const priority = { 제안: 0, 승인됨: 1, 진행중: 1 };
+const priority = { 진행중: 0, 제안: 1, 보류: 1 };
 
 export function sortAdminProposals(entries) {
   return entries.toReversed().sort((a, b) =>
