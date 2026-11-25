@@ -359,9 +359,10 @@ export const auditItems = {
     verified('이후 배포의 문구·사용성 검수 기준 기록', repo + '/blob/b68e3ed/README.md#배포-전-검수-체크리스트', '공개 README에 첫 화면부터 푸터까지의 템플릿·도구 감수, 반복 페이지의 변형과 값 범위, 문구·줄바꿈·키보드·오류 결과 복사 기준을 기록했습니다.'),
   ],
   'automatic-feature-selection': [
-    open('필요성·최근 검색 수요·공식 근거를 모두 확인하고 회당 최대 1건, 없으면 유지보수', 'README·운영 절차·관리 추천에 반영했으며 운영 확인이 남았습니다.', '부분', [repo + '/blob/main/docs/daily-proposals.md']),
-    open('방문자 집계·추적 추가 안 함', 'GitHub Pages 기본 기능으로 집계하지 않으며 별도 서비스를 도입하지 않았습니다. 운영 확인이 남았습니다.', '부분', [site + '/']),
-    open('이슈 #5~#9 사유 기록 및 종료', '범용성·수요 부족 또는 기존 거절로 신규 기능을 추가하지 않고 종료했습니다. 운영 추천 카드 대조가 남았습니다.', '부분', [repo + '/issues?q=is%3Aissue+is%3Aclosed']),
+    verified('필요성·최근 검색 수요·공식 근거를 모두 확인하고 회당 최대 1건, 없으면 유지보수', '/ops-7f3a9c2d/recommendations/#latest-feature-review', 'README와 운영 절차의 공개 버전을 대조했습니다. 60a10a1 배포의 운영 추천 탭을 390·1440px에서 열어 세 기준, 회당 최대 1건, 유지보수 우선, 승인 버튼 제거 및 이번 결과인 추가 없음을 확인했습니다.'),
+    verified('방문자 집계·추적 추가 안 함', '/', '변경에 집계·추적 코드를 도입하지 않았습니다. 60a10a1 운영 홈·관리 타임라인·추천 탭을 390·1440px에서 열었을 때 외부 요청은 0건이었습니다.'),
+    { ...verified('이슈 #5~#9 사유 기록 및 종료', '/ops-7f3a9c2d/recommendations/', 'GitHub API에서 다섯 이슈가 사유 댓글과 함께 not_planned로 닫힌 것을 확인했습니다. 60a10a1 운영 추천 탭의 390·1440px에서 각 카드와 사유가 보이는 것을 확인했습니다. #7은 최근 수요와 공식 근거가 있지만 기존 거절을 유지했습니다.'),
+      links: [site + '/ops-7f3a9c2d/recommendations/', ...[5, 6, 7, 8, 9].map((id) => repo + '/issues/' + id)] },
     open('정기 Devin 실행에 새 절차 적용 확인', '저장소 운영 절차를 갱신했습니다. 예약 정의가 이를 따르는지 또는 새 정책으로 실행된 기록은 확인하지 못했습니다.', '미확인', ['https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9']),
   ],
   'admin-active-work': [
