@@ -1,6 +1,8 @@
-# 하루 한 번: 에브리허브 페이지 추천과 승인 반영
+# 에브리허브 페이지 추천과 승인 반영
 
 매일 **09:13 KST**에 실행하는 운영 절차입니다. **2026-11-25** 첫 Devin 예약 실행에서 승인 조회와 신규 제안 3건을 등록했고 [Pages 배포](https://github.com/everyhub/everyhub.github.io/actions/runs/45517359629)와 추천 탭 반영을 확인했습니다. 네이버 데이터랩 비교 수치는 미확인입니다. 예약 등록과 실제 실행의 성공을 구분합니다. 실행이 겹치지 않도록 이전 실행이 진행 중이면 새로 시작하지 않습니다.
+
+추천 조사와 승인 건 확인은 하루 여러 번 실행하는 것을 목표로 합니다. 추가 슬롯(예: **13:13·18:13 KST**)은 Devin에서 별도로 등록한 뒤 실제 실행 기록을 확인해야 합니다. 그 전에는 09:13 외 시간을 예약됐다고 표시하지 않습니다. 추가 실행도 같은 승인·중복 방지·운영 검증 절차를 따릅니다. 새 근거가 없으면 목표 건수를 채우려고 중복 제안을 만들지 않습니다.
 
 ## 1. 작업 준비
 
@@ -43,4 +45,4 @@ git_auth clone https://github.com:443/everyhub/everyhub.github.io.git
 
 - 데이터만 바뀐 경우에도 [README의 배포 전 검수 체크리스트](../README.md#배포-전-검수-체크리스트)를 적용합니다. `npm test`와 `npm run audit`로 내부 링크·앵커, 콘솔, 동일 출처 요청, 정상·경계·오류 입력과 복사·초기화·최근 도구·검색을 검사합니다. 390·768·1024·1440px 캡처에서 페이지 구성·정렬·줄바꿈·글자 크기·여백·색상·아이콘·표·메뉴·푸터를 직접 확인하고, 고친 화면은 다시 캡처합니다. 반복 상세는 범위를 대표하는 값을 확인합니다.
 - 커밋·푸시 후 GitHub Actions의 실제 종료 상태, 추천 탭 응답과 `noindex,nofollow`, 카드 내용, 연결된 실제 이슈를 확인합니다. 각 세부 요구의 운영 확인과 HTTPS 근거가 없으면 완료로 표시하지 않습니다. 끝날 때 `npm run now -- done`으로 실행 기록을 지웁니다. 공개 메뉴·HTML/XML 사이트맵·robots.txt에는 관리자 경로를 추가하지 않습니다.
-- `gh api 'repos/everyhub/everyhub.github.io/actions/runs?event=schedule&per_page=5'`로 뉴스 예약 실행도 확인합니다. `schedule`의 시간·결론·배포 여부를 기록하고, 기록이 없으면 `미확인`으로 남깁니다. `workflow_dispatch` 실행은 예약 성공의 근거가 아닙니다.
+- `gh api 'repos/everyhub/everyhub.github.io/actions/workflows/news.yml/runs?event=schedule&per_page=5'`로 뉴스 예약 실행을 확인합니다. 2026-11-25 09:04 KST에 시작한 [실제 예약 실행](https://github.com/everyhub/everyhub.github.io/actions/runs/45515165966)은 빌드·배포에 성공했으나 카카오 피드 시간 초과로 그 출처는 캐시를 유지했습니다. 앞으로도 시간·결론·피드 실패 수·배포 여부를 기록합니다. 예약 실행이 밀려 수동 갱신이 필요하고 다른 뉴스 실행이 진행 중이지 않다면 `gh workflow run news.yml -R everyhub/everyhub.github.io --ref main`을 사용합니다. 수동 실행은 예약 성공의 근거가 아닙니다.

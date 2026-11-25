@@ -27,35 +27,58 @@ function normalize(item) {
   }
 }
 
-export function parseFeed(xml) {
+export function parseFeed(xml, { dateOnly = false, limit = 8 } = {}) {
   if (!/<(?:rss|feed)\b/i.test(xml)) throw new Error('지원하는 RSS/Atom 문서가 아닙니다.');
   const items = [...xml.matchAll(/<(item|entry)\b[^>]*>([\s\S]*?)<\/\1>/gi)].slice(0, 30);
   const results = items.map(([, type, entry]) => {
     const atom = type.toLowerCase() === 'entry';
     const anchor = atom ? [...entry.matchAll(/<link\b[^>]*>/gi)].find(([tag]) => !/\brel\s*=/.test(tag) || /\brel\s*=\s*["']alternate["']/i.test(tag))?.[0] : null;
     const href = atom ? anchor?.match(/\bhref\s*=\s*["']([^"']+)["']/i)?.[1] ?? '' : field(entry, 'link');
+    const pubDate = plain(atom ? field(entry, 'published') || field(entry, 'updated') : field(entry, 'pubDate') || field(entry, 'dc:date'));
+    const calendarDate = dateOnly && pubDate.match(/^(\d{4})\.(\d{2})\.(\d{2})$/);
     return normalize({
       title: plain(field(entry, 'title')),
       url: decode(unwrap(href)).trim(),
-      date: plain(atom ? field(entry, 'published') || field(entry, 'updated') : field(entry, 'pubDate') || field(entry, 'dc:date')),
-      summary: excerpt(plain(field(entry, atom ? 'summary' : 'description'))),
+      date: dateOnly ? (calendarDate ? `${calendarDate.slice(1).join('-')}T00:00:00+09:00` : '') : pubDate,
+      summary: dateOnly ? '' : excerpt(plain(field(entry, atom ? 'summary' : 'description'))),
     });
   }).filter(Boolean);
   if (!results.length) throw new Error('사용 가능한 게시물이 없습니다.');
-  return [...new Map(results.map((item) => [item.url, item])).values()].slice(0, 8);
+  return [...new Map(results.map((item) => [item.url, item])).values()].slice(0, limit);
 }
 
 async function request(url, fetcher) {
   return fetcher(url, { signal: AbortSignal.timeout(10_000), headers: { 'User-Agent': 'Everyhub-Public-Feed-Reader/1.0' } });
 }
 
+async function msitPressReleases(body, fetcher) {
+  const candidates = parseFeed(body, { dateOnly: true, limit: 12 });
+  const checked = await Promise.all(candidates.map(async (item) => {
+    const url = new URL(item.url);
+    if (url.origin !== 'https://www.msit.go.kr' || url.pathname !== '/bbs/view.do' ||
+        url.searchParams.get('bbsSeqNo') !== '94' || !/^\d+$/.test(url.searchParams.get('nttSeqNo') ?? '')) return null;
+    const response = await request(url, fetcher);
+    if (!response.ok) throw new Error(`공공누리 원문 확인 HTTP ${response.status}`);
+    if (response.url && new URL(response.url).origin !== url.origin) return null;
+    const html = await response.text();
+    return /<div class=["']open_mark["']>\s*<img\b[^>]*\bsrc=["']\/images\/user\/nuri-img01\.jpg["']/i.test(html) ? item : null;
+  }));
+  return checked.filter(Boolean).slice(0, 8);
+}
+
 async function fetchFeed(feed, fetcher) {
-  const response = await request(feed.url, fetcher);
+  let response;
+  try {
+    response = await request(feed.url, fetcher);
+  } catch (error) {
+    if (error.name !== 'TimeoutError') throw error;
+    response = await request(feed.url, fetcher);
+  }
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   if (feed.format !== 'hn') {
     const body = await response.text();
     if (body.length > 2_000_000) throw new Error('RSS 응답이 너무 큽니다.');
-    return parseFeed(body);
+    return feed.format === 'msit' ? msitPressReleases(body, fetcher) : parseFeed(body);
   }
   const ids = (await response.json()).filter(Number.isSafeInteger).slice(0, 12);
   const results = await Promise.all(ids.map(async (id) => {

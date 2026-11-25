@@ -1,5 +1,50 @@
 export const adminProposals = [
   {
+    id: "smishing-checklist",
+    title: "스미싱 의심 문자 확인·신고 체크리스트",
+    what: "문자 링크를 누르지 않고 발신기관에 확인하는 순서, KISA 공식 확인과 118 상담 경로를 정리합니다.",
+    why: {
+      text: "의심 문자에서 바로 개인정보를 입력하는 일을 피하고 공식 채널로 이동하는 데 도움이 됩니다. 2026-11-25 KST에 KISA 확인 서비스를 확인했습니다. 국내 검색량과 급상승 순위는 확인하지 않았습니다.",
+      sources: [{ label: "KISA 보호나라 스미싱 확인 서비스", url: "https://www.boho.or.kr/kr/subPage.do?menuNo=205116" }]
+    },
+    officialSources: [{ label: "KISA 118 상담 안내", url: "https://www.kisa.or.kr/118" }],
+    scope: "생활 정보에 /info/smishing-checklist/ 안내 1페이지를 추가합니다.",
+    risks: "사이트가 악성 여부를 판정하거나 링크·문자·번호를 수집하지 않습니다.",
+    createdAt: "2026-11-25 09:43",
+    status: "제안",
+    issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/7"
+  },
+  {
+    id: "http-status-codes",
+    title: "HTTP 상태 코드 빠른 찾기",
+    what: "상태 번호 또는 한국어 키워드로 등록된 HTTP 상태 코드를 찾고 IANA에서 연결한 표준을 엽니다.",
+    why: {
+      text: "404·429·503의 차이를 사이트나 API 점검 중에 확인할 수 있습니다. 2026-11-25 KST에 IANA 등록부를 확인했습니다. 국내 검색량은 미확인입니다.",
+      sources: [{ label: "IANA HTTP 상태 코드 등록부", url: "https://www.iana.org/assignments/http-status-codes" }]
+    },
+    officialSources: [{ label: "RFC 9110 상태 코드", url: "https://www.rfc-editor.org/rfc/rfc9110.html#name-status-codes" }],
+    scope: "개발 도구에 /tools/http-status-codes/ 조회 화면 1페이지를 추가합니다.",
+    risks: "조회값을 전송하지 않으며 URL에 요청을 보내는 상태 검사 기능은 제공하지 않습니다.",
+    createdAt: "2026-11-25 09:43",
+    status: "제안",
+    issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/8"
+  },
+  {
+    id: "unicode-normalize",
+    title: "유니코드 NFC·NFD 비교·변환기",
+    what: "같은 문자열의 NFC·NFD 형태를 브라우저에서 비교·복사하고 코드 포인트 차이를 확인합니다.",
+    why: {
+      text: "겉보기에는 같은 한글 파일명이나 텍스트가 서로 다르게 저장돼 검색·비교가 어긋날 때 원인을 확인할 수 있습니다. 2026-11-25 KST에 Unicode 표준을 확인했습니다. 국내 검색량은 미확인입니다.",
+      sources: [{ label: "Unicode UAX #15 정규화 표준", url: "https://unicode.org/reports/tr15/" }]
+    },
+    officialSources: [{ label: "ECMAScript 문자열 정규화", url: "https://tc39.es/ecma262/multipage/text-processing.html#sec-string.prototype.normalize" }],
+    scope: "개발 도구에 /tools/unicode-normalize/ 비교·변환 화면 1페이지를 추가합니다.",
+    risks: "NFC·NFD만 지원하며, 파일명 일괄 변경·파일 업로드·입력 저장은 하지 않습니다.",
+    createdAt: "2026-11-25 09:43",
+    status: "제안",
+    issueUrl: "https://github.com/everyhub/everyhub.github.io/issues/9"
+  },
+  {
     id: "csv-json-converter",
     title: "CSV·JSON 변환기",
     what: "표 데이터를 CSV와 JSON 객체 배열 사이에서 양방향으로 바꾸고, 결과를 내려받을 수 있는 브라우저 도구를 제안합니다.",

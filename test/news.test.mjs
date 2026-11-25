@@ -33,6 +33,37 @@ test('동일한 피드는 변경 없음, 실패한 피드는 캐시 유지, 바�
   assert.deepEqual(changed.feeds.outage, [item]);
 });
 
+test('과기정통부 보도자료는 원문에서 공공누리 1유형을 확인한 제목과 날짜만 제공한다', async () => {
+  const msit = { ...feed, format: 'msit' };
+  const article = 'https://www.msit.go.kr/bbs/view.do?bbsSeqNo=94&nttSeqNo=';
+  const entry = (url) => rss.match(/<item>.*?<\/item>/s)[0]
+    .replace(/<link>.*?<\/link>/, `<link>${url.replaceAll('&', '&amp;')}</link>`)
+    .replace(/<pubDate>.*?<\/pubDate>/, '<pubDate>2026.11.24</pubDate>');
+  const called = [];
+  const result = await refreshNews({}, { feeds: [msit], fetcher: (url) => {
+    called.push(String(url));
+    if (url === msit.url) return new Response(`<rss><channel>${entry(article + 1)}${entry(article + 2)}${entry(item.url)}</channel></rss>`);
+    return new Response(`<div class="open_mark"><img src='/images/user/nuri-img0${String(url).endsWith('1') ? '1' : '2'}.jpg'></div>`);
+  } });
+  assert.deepEqual(called, [msit.url, article + 1, article + 2]);
+  assert.deepEqual(result.failures, []);
+  assert.deepEqual(result.feeds.test, [{ ...item, url: article + 1, date: '2026-11-23T15:00:00.000Z', summary: '' }]);
+  const { html } = newsPages({ baseURL: 'https://example.com/' }, { msit: result.feeds.test }).find(({ path }) => path === 'news/korea/');
+  assert.match(html, /과학기술정보통신부 · <time[^>]*>2026\. 11\. 24\.<\/time>/);
+  assert.doesNotMatch(html, /짧은 소개|전문 제외/);
+});
+
+test('피드 요청 시간이 초과되면 한 번 다시 시도한다', async () => {
+  let calls = 0;
+  const result = await refreshNews({}, { feeds: [feed], fetcher: () => {
+    if (!calls++) throw new DOMException('time limit', 'TimeoutError');
+    return new Response(rss);
+  } });
+  assert.equal(calls, 2);
+  assert.deepEqual(result.failures, []);
+  assert.deepEqual(result.feeds.test, [item]);
+});
+
 test('Hacker News 공식 API 인기순과 글 링크를 사용하고 본문을 제외한다', async () => {
   const hn = { id: 'hn', url: 'https://hacker-news.firebaseio.com/v0/topstories.json', format: 'hn' };
   const bodies = {

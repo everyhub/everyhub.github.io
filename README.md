@@ -21,7 +21,7 @@
 | `src/pages.mjs`, `src/labor-pages.mjs` | 공통 레이아웃/메타데이터, 홈·연봉별 상세, 분야·계산기·예시·HTML 사이트맵 템플릿 |
 | `src/navigation.mjs`, `src/navigation-browser.mjs`, `src/style.css` | 왼쪽 메뉴 트리, 모바일 접기/펼치기, 스타일 |
 | `src/admin-log.mjs`, `src/admin-pages.mjs` | 연결하지 않은 noindex 작업 요청 타임라인과 다음 작업용 요청 기록 |
-| `src/admin-proposals.mjs`, [일일 추천 운영 절차](docs/daily-proposals.md) | 추천 탭 데이터, GitHub 이슈 승인과 하루 한 번 조사·반영 절차 |
+| `src/admin-proposals.mjs`, [추천 운영 절차](docs/daily-proposals.md) | 추천 탭 데이터, GitHub 이슈 승인과 하루 여러 번의 조사·반영 계획 |
 | `src/calculator.mjs`, `src/rates.mjs`, `src/withholding-table.mjs` | 연봉 실수령액, 국민연금·건강보험 등 보험료, 공식 근로소득 간이세액표 |
 | `src/labor.mjs`, `src/labor-rates.mjs`, `src/tool-specs.mjs` | 최저임금·퇴직·실업·육아·근로시간 계산, 공식 근거 및 브라우저 폼 정의 |
 | `src/guides.mjs`, `src/guide-rates.mjs`, `src/guide-specs.mjs` | 추가 세금·복지·주거·근로 계산, 공식 근거 및 폼 정의 |
@@ -82,12 +82,15 @@ python3 -m http.server 8080 --bind 127.0.0.1 --directory dist
 
 ## 데이터 갱신
 
+- **국내 뉴스 출처 검토:** [과기정통부 공식 RSS](https://www.msit.go.kr/user/rss/rss.do?bbsSeqNo=94)는 원문에 공공누리 제1유형을 표시한 글의 제목과 링크만 싣습니다. [정책브리핑](https://www.korea.kr/etc/noticeView.do?newsId=132038885)은 2026년 7월 1일 RSS를 종료했습니다. [연합뉴스 RSS](https://www.yna.co.kr/rss/index)는 사업 목적 사용에 사전 서면 허가가 필요하고, [전자신문 이용약관](https://info.etnews.com/sub_3_4.html)은 상업적 활용을 제한합니다. 블로터·IT조선·Google News KR의 경우 응답하는 피드는 확인했으나 상업 사이트에서 제3자 기사 소개를 재게시할 권한을 확인하지 못했습니다. ZDNet Korea·디지털데일리·아이뉴스24도 사용 가능한 공식 피드와 재게시 조건을 모두 확인하지 못해 보류합니다.
+- **네이버 뉴스:** [뉴스 검색 API](https://developers.naver.com/docs/serviceapi/search/news/news.md)는 앱 등록 후 Client ID와 Client Secret이 필요한 키워드 검색입니다. 뉴스 홈 편집 목록을 제공한다는 근거는 없습니다. [API 이용약관](https://developers.naver.com/products/terms/)상 명시 범위 밖 캐시·가공·배포는 제한되므로 키만으로 정적 스냅샷에 저장하지 않습니다. 적용하려면 허용된 저장·표시 방식 확인과 서버 측 인증이 필요합니다.
+
 - **급여·보험료:** 공단 및 법령 원문과 `src/rates.mjs`를 대조합니다. 국민연금 기준소득월액 상·하한은 7월에 별도 확인합니다. 법령 별표 2가 바뀌면 `src/withholding-table.mjs`의 월 과세급여 구간, 가족 1~11명 세액, 1,000만 원 초과 산식, 자녀 공제를 함께 점검합니다. 2026년 1~2월과 3월 이후의 표 숫자 및 고액 산식은 동일하고 자녀 공제액은 다릅니다.
 - **근로·세금·복지:** `src/labor-rates.mjs`와 `src/guide-rates.mjs`에 연결된 최저임금위원회, 고용노동부·고용24, 국가법령정보센터, 국세청, 보건복지부 등 공식 자료를 확인합니다. 기준 중위소득은 고시의 가구별 금액과 급여별 선정 비율을 함께 대조합니다. 값과 적용일을 기록하고 회귀 테스트를 추가합니다.
 - **주거·전월세:** LH·SH 공고의 적용일·유형·양방향 전환율과 동·호별 한도를 확인해 `src/housing-rates.mjs`를 갱신합니다. LH 국민임대·행복주택 한도는 지금도 개별 공고의 차액을 입력하며, SH 자동 한도는 인용한 공고의 예시입니다. HUG는 모바일 공시 범위, HF는 일반전세지킴보증 기본 요율, SGI는 공식 견적 요율 직접 입력입니다. 전세·구입자금 대출은 기금의 공시 범위와 상품 한도를 확인하고 우대 후 금리는 직접 입력합니다. 중개보수는 서울 주택, 취득세는 개인 유상매매에 한정합니다. 다른 시도 확대와 SGI 자동 요율은 공식 원문을 검증한 뒤 추가합니다.
 - **생활 정보:** `src/information.mjs`의 공휴일은 우주항공청 월력요항·한국천문연구원 자료와 개정 법령을 대조합니다. 임시 지정이나 공휴일 변경 시 두 연도 페이지를 확인합니다. 세무일정 안내는 정기 법정 기간과 해당 월에 실제 적용되는 국세청 공지를 구분합니다.
 - 공휴일 페이지는 같은 공식 날짜 목록에서 12개월 달력, 공휴일·대체공휴일 표시와 3일 이상 연휴 구간을 만듭니다. 기존 목록은 유지합니다. 오늘 표시는 브라우저에서 한국시간으로 계산하고 연도는 링크로 전환합니다. 세금 신고는 월별 일정, 임금·보험료는 모바일에서도 읽을 수 있는 비교표로 표시합니다. 생활 정보 페이지는 외부 스크립트를 요청하지 않습니다.
-- **IT·AI 소식:** 발행처의 공개 RSS·Atom 또는 공식 API만 사용합니다. 국내 IT는 긱뉴스(GeekNews)를 먼저 보여 주며 네이버 D2·카카오테크·토스 기술 블로그를 함께 제공합니다. 해외 IT는 GitHub Changelog·Mozilla·LY Corporation, AI 모델·이슈는 OpenAI·Hugging Face·Google DeepMind, 핫이슈는 Hacker News를 담습니다. 분야 안에서 출처별로 골라 볼 수 있습니다. 원문 제목·출처·시간·링크와 피드가 제공하는 짧은 소개만 표시합니다. 전문·이미지·댓글은 싣지 않고, 해당 발행처의 이용 정책을 확인합니다. 정책브리핑 RSS는 2026년 7월 1일 종료되어 연결하지 않습니다.
+- **IT·AI 소식:** 발행처의 공개 RSS·Atom 또는 공식 API만 사용합니다. 국내 IT는 긱뉴스(GeekNews)를 먼저 보여 주며 네이버 D2·카카오테크·토스·당근 기술 블로그와 과학기술정보통신부 보도자료를 함께 제공합니다. 해외 IT는 GitHub Changelog·Mozilla·LY Corporation·Engineering at Meta, AI 모델·이슈는 OpenAI·Hugging Face·Google DeepMind, 핫이슈는 Hacker News를 담습니다. 분야 안에서 출처별로 골라 볼 수 있습니다. 원문 제목·출처·날짜·링크와 피드가 제공하는 짧은 소개만 표시하며, 전문·이미지·댓글은 싣지 않습니다.
 
 - `/info/support-calendar/`는 복지로·국세청·고용24에서 기간이나 상시 접수를 확인한 주요 제도를 안내합니다. 일정 추가·변경 시 확인일, 공식 공고와 접수처를 함께 갱신합니다.
 
