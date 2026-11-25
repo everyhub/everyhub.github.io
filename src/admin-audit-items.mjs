@@ -294,7 +294,7 @@ export const auditItems = {
   'automation-correction': [
     verified('관리 페이지의 등록됨 · 첫 실행 확인 대기 표기', '/ops-7f3a9c2d/recommendations/', 'f09b795 배포에서 추천 탭과 타임라인 한국어 문구 확인'),
     verified('09:13 KST 및 첫 실행 예정 운영 문서', repo + '/blob/main/docs/daily-proposals.md', 'f09b795 운영 문서와 예약 상태 동기화'),
-    open('첫 실행 결과의 운영 확인', '2026-11-25 예약으로 시작해 승인 조회와 제안 이슈 등록을 했으며 운영 배포 검증은 진행 중입니다.', '진행중'),
+    verified('첫 실행 결과의 운영 확인', repo + '/actions/runs/45517359629', '2026-11-25 일일 추천 첫 예약 실행의 제안 등록, Pages build·deploy와 운영 추천 탭 표시 확인'),
   ],
   'daily-proposals-2026-11-25': [
     verified('미완료 승인 이슈 확인', repo + '/issues?q=is%3Aissue', '신규 제안 등록 전 저장소 이슈 API와 추천 데이터를 대조했습니다. #1·#2 완료, #3 거절로 모두 종료되어 구현 대상이 없습니다.'),
@@ -302,7 +302,8 @@ export const auditItems = {
     open('네이버 데이터랩 키워드 비교 수치', '공개 화면은 응답했지만 조회에 필요한 ssl.pstatic.net 스크립트는 DNS에서 실패했습니다. 네이버 상대 지수와 국내 키워드별 검색량을 기재하지 않았습니다.', '미확인', ['https://datalab.naver.com/']),
     ...[4, 5, 6].map((id) => verified(`신규 이슈 #${id}에 제안 등록`, repo + '/issues/' + id, 'GitHub API의 HTTP 201 응답, 실제 이슈 주소와 제안 라벨을 확인했습니다.')),
     verified('뉴스 실제 예약 실행·배포 확인', repo + '/actions/runs/45515165966', '2026-11-25 09:04 KST 시작, schedule 실행의 build와 deploy가 모두 성공했습니다.'),
-    open('Pages 배포와 추천 탭 운영 검증', '로컬 체크 이후 실제 Actions 실행과 추천 카드의 내용·이슈 링크·noindex를 확인합니다.', '진행중'),
+    verified('GitHub Pages 배포 및 공개 대표 주소 확인', repo + '/actions/runs/45517359629', 'c321c2f의 build·deploy가 success. 운영 홈·연봉 계산기·뉴스·sitemap.xml HTTP 200 확인'),
+    verified('추천 탭 운영 검증', '/ops-7f3a9c2d/recommendations/', '390·768·1024·1440px에서 카드 3건의 내용·출처와 실제 GitHub 이슈 연결, noindex,nofollow를 확인했습니다. 운영 공개 홈·XML 사이트맵·robots.txt에 관리 주소가 없음을 확인했습니다.'),
   ],
   'strict-audit': [
     verified('이전 요청과 약속을 분리하고 확인된 누락 기능 수정', '/ops-7f3a9c2d/', '관리 화면의 세부 상태 및 음양력·증명사진·SNS·사다리·추가 뉴스 출처 운영 검사'),
