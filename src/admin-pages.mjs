@@ -110,7 +110,7 @@ export function adminProposalsPage(config, proposals = adminProposals) {
     main: `<h1>페이지 추가 추천</h1>
       ${adminTabs('../../', adminProposalsPath)}
       <p class="intro">검색 동향과 공식 자료를 바탕으로 어떤 페이지를 추가할지 제안합니다. 승인이나 거절은 권한이 있는 GitHub 계정에서 처리합니다.</p>
-      <p class="note"><strong>등록됨 · 첫 실행 확인</strong> — 매일 09:13 KST, 첫 실행일 2026-11-25. 배포 검증 결과는 작업 타임라인에 기록합니다.</p>
+      <p class="note"><strong>등록됨 · 첫 실행 확인</strong> — 2026-11-25에 09:13·14:13·19:13 KST 예약 세션이 시작됐습니다. 각 실행의 배포·검증 결과는 작업 타임라인에서 확인하세요.</p>
       ${cards || '<p class="panel">등록된 제안이 없습니다. 조사 결과가 등록되면 이곳에 표시됩니다.</p>'}`,
   });
 }

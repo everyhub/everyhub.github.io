@@ -168,7 +168,8 @@ test('11월 25일 추천의 상태와 범위는 해당 이슈에 연결된다', 
   ]) {
     const card = proposals.match(new RegExp(`id="proposal-${id}"[^]*?</article>`))?.[0];
     assert.ok(card, id);
-    assert.ok(card.includes(`${number === 4 ? '완료' : '제안'} · <time datetime="2026-11-25T09:16+09:00"`), id);
+    const expectedStatus = { 4: '완료', 5: '거절', 6: '제안' }[number];
+    assert.ok(card.includes(`${expectedStatus} · <time datetime="2026-11-25T09:16+09:00"`), id);
     assert.ok(card.includes(`href="https://github.com/everyhub/everyhub.github.io/issues/${number}"`), id);
     assert.ok(card.includes(`/${id}/`), id);
   }

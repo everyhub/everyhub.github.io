@@ -368,6 +368,18 @@ export const auditItems = {
     ...[1, 2, 3].map((id) => verified(`이슈 #${id} 결과 댓글과 종료`, repo + '/issues/' + id, id === 3 ? '거절 라벨에 따라 구현하지 않고 결과 댓글 후 종료' : '운영 확인 결과와 배포 링크를 댓글로 남겨 종료')),
     verified('한국어 표현과 390·1440px 템플릿 편집 감수', '/sitemap/', '템플릿 본문·양식 도움말·오류 문구와 96개 경로의 두 너비 스크린샷을 검토했습니다. 지원 일정·주거 표 줄바꿈과 JSON 오류 문구를 수정했습니다.'),
   ],
+  'daily-proposals-2026-11-25-evening': [
+    verified('19:13 KST 승인·거절 라벨 확인', repo + '/issues/8', '열린 제안의 라벨과 라벨 이벤트를 대조했습니다. 승인 #8 한 건과 거절 #5·#7·#9를 확인했습니다.'),
+    ...[10, 11, 12].map((id) => verified(`신규 제안 #${id} 등록`, repo + '/issues/' + id, '공식 자료, 사용자 이점, 대상 주소와 제외 범위가 있는 열린 제안 이슈 및 제안 라벨을 확인했습니다.')),
+    open('네이버 데이터랩 검색어 동향', '데스크톱 조회가 접근 오류를 반환했습니다. 공식 모바일 조회는 네트워크 접근 승인 대기이며, 수치는 기록하지 않았습니다.'),
+    open('승인 #8 전체 브라우저 감사와 운영 검증', '로컬 구현의 단위 검사를 통과했습니다. Playwright 다운로드 접근이 필요해 Firefox·WebKit을 포함한 전체 검사와 운영 배포는 미확인입니다.', '미확인', [repo + '/issues/8']),
+    open('운영 추천 카드·순서·검색 제외 확인', 'Pages 배포 후 운영 HTML에서 신규 추천·거절 상태·검색 제외 메타를 대조합니다.'),
+  ],
+  'news-refresh-2026-11-25-evening': [
+    verified('17:21 KST 실제 예약 실행', repo + '/actions/runs/45575503149', 'Actions에서 event=schedule과 refresh / build·refresh / deploy 성공을 확인했습니다.'),
+    open('저녁 점검의 뉴스 보완 실행', '직전 30분에 성공한 예약이 없어 추천 탭 배포 종료 후 다시 확인하고 필요하면 보완 실행합니다.'),
+    open('뉴스 수집 로그와 반복 주기', '원본 로그 도메인 접근 승인 대기입니다. 두 예약 성공으로 정기 실행 주기를 확정할 수 없습니다.'),
+  ],
 };
 
 export const unconfirmed = (requirement, reason, links) => open(requirement, reason, '미확인', links);
