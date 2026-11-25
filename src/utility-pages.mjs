@@ -48,7 +48,7 @@ const forms = {
     html: '<label>텍스트<textarea name="text" rows="7" placeholder="여기에 글을 입력하거나 붙여 넣으세요."></textarea></label><div class="form-grid"><label>목표 글자 수<select name="preset"><option value="">사용하지 않음</option><optgroup label="자기소개서 분량 예시"><option>500</option><option>1000</option><option>1500</option></optgroup><optgroup label="SNS 게시글"><option value="bluesky">Bluesky · 300자 / 3,000바이트</option><option value="x">X 일반 게시글 · 가중 280자</option></optgroup><option value="custom">직접 입력</option></select></label><label>직접 입력 (자)<input type="number" name="target" min="1" max="1000000" disabled></label></div><p class="note">자기소개서 제한은 지원처마다 다릅니다. Bluesky는 글자 수와 바이트를 모두 제한합니다. X는 한글·이모지에 가중치 2, 링크에 길이와 관계없이 23을 적용합니다. 직접 입력은 공백 포함 글자 수를 기준으로 합니다.</p>',
   },
   age: {
-    faq: [['만 나이는 언제 한 살 늘어나나요?', '출생일에 0세이며 생일마다 한 살 늘어납니다. 이 도구는 2월 29일생의 평년 기준에서는 3월 1일부터 한 살을 더합니다.'],
+    faq: [['만 나이는 언제 한 살 늘어나나요?', '태어난 날에는 0세이고, 생일마다 한 살씩 늘어납니다. 이 계산기에서는 2월 29일에 태어난 사람의 경우 윤년이 아닌 해에는 3월 1일에 한 살을 더합니다.'],
       ['모든 나이 제한에 만 나이를 적용하나요?', '민법과 행정기본법의 일반 원칙입니다. 개별 법령에 별도 기준이 있으면 해당 법령이 우선합니다.']],
     sources: [
       { name: '국가법령정보센터 · 민법 제158조 (나이의 계산과 표시)', url: 'https://www.law.go.kr/법령/민법/제158조', effective: '2023-06-28' },
@@ -90,6 +90,7 @@ export function utilityPages(config) {
     const parent = utilityGroups.find((item) => item.name === group);
     const main = `<p class="eyebrow"><a href="${root}tools/">도구</a> · <a href="${root}${parent.path}">${group}</a></p><h1>${name}</h1><p class="intro">${description}</p>
     ${embedded ? html : `<section class="panel"><form data-utility="${id}">${html}
+      ${tableConverter || id === 'photo-location' ? '' : '<p class="error utility-error" role="alert"></p>'}
       <output class="utility-result"${tableConverter ? ' data-copy-exact aria-live="off"' : ' aria-live="polite"'}></output></form></section>`}
     ${sources ? `<section class="panel"><h2>공식 자료</h2>${sourcesHTML(sources)}</section>` : ''}
     ${faqHTML(faq)}`;

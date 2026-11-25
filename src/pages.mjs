@@ -220,7 +220,7 @@ export function homePage(config) {
     description: '급여·근로·주거 계산기, 사진·문서 도구, 생활 정보와 국내외 IT·AI 소식을 한곳에서 찾아보세요.',
     path: '', root: './',
     main: `<div class="home-hero"><div class="home-hero-copy"><h1>${brand}</h1>
-      <p class="intro">급여·근로 계산기부터 사진 편집, 생활 정보와 IT·AI 소식까지 원하는 기능을&nbsp;바로 열어 보세요.</p></div>
+      <p class="intro">월급 계산과 사진 편집에 필요한 기능을&nbsp;바로 찾아보세요. 생활 정보와 IT·AI 소식도 한곳에 모았습니다.</p></div>
       <img class="home-hero-art" src="./${brandAssets}hero.svg" width="600" height="270" alt=""></div>
       <section aria-labelledby="shortcuts"><div class="dashboard-title"><h2 id="shortcuts">한눈에 바로가기</h2>
         <label class="dashboard-search" hidden>바로가기 검색<input id="shortcut-search" type="search" data-dashboard-search aria-controls="shortcut-results" aria-describedby="shortcut-search-help" placeholder="예: 나이, 집, PDF, ㅇㅂ" autocomplete="off" maxlength="80">
@@ -249,8 +249,9 @@ export function salaryCalculatorPage(config) {
     path: salaryCalculatorPath, root, calculator: true, payroll: true, faq,
     main: `<p class="eyebrow">${year}년 기준 · 공식 자료 확인 <time datetime="${verifiedOn}">${verifiedOn}</time></p><h1>연봉 실수령액 계산기</h1>
       <p class="intro">세전 연봉과 비과세액을 입력하면 보험료와 세금을 뺀 월평균 실수령액을 확인할 수 있습니다.</p>
-      <p class="note">실수령액은 ${year}년 기준입니다. 2027년 보험 상·하한 등의 추가 고시를 확인한 뒤 연간 계산을 업데이트합니다. 먼저 발표된 요율은 <a href="${root}tools/insurance-rates/">직장인 보험료 비교</a>에서 확인하세요.</p>
-      ${salaryForm()}${salaryIndex(root)}
+      ${salaryForm()}
+      <p class="note">실수령액은 ${year}년 기준입니다. 발표된 2027년 요율은 <a href="${root}tools/insurance-rates/">직장인 보험료 비교</a>에서 확인하세요. 보험료 상·하한 등이 확정되면 실수령액 계산에도 반영합니다.</p>
+      ${salaryIndex(root)}
       ${faqHTML(faq)}`,
   });
 }

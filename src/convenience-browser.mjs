@@ -81,12 +81,13 @@ function addCopyButton() {
   const button = document.createElement('button');
   button.type = 'button'; button.className = 'convenience-copy'; button.textContent = '결과 복사';
   const resultText = () => {
+    if (result.hidden) return '';
     const text = result.value ?? result.innerText;
     return result.hasAttribute('data-copy-exact') ? text : text.trim();
   };
   const sync = () => { button.disabled = !resultText(); };
   sync();
-  new MutationObserver(sync).observe(result, { childList: true, characterData: true, subtree: true });
+  new MutationObserver(sync).observe(result, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
   button.addEventListener('click', async () => {
     const text = resultText();
     if (!text) return;

@@ -3,7 +3,7 @@ export const informationSections = [
   { path: 'info/holidays/2027/', name: '2027년 공휴일·연휴', description: '설날, 추석, 노동절·제헌절 대체공휴일과 3일 이상 연휴' },
   { path: 'info/tax-calendar/', name: '주요 세금 신고·납부 일정', description: '종합소득세와 일반·간이과세자의 부가가치세 신고 기간' },
   { path: 'info/yearly-rates/', name: '2026·2027년 최저임금·보험료 비교표', description: '확정된 연도별 최저임금 및 직장인 보험료율 변경 사항' },
-  { path: 'info/support-calendar/', name: '정부 지원금·신청 일정', description: '복지로·국세청·고용24에서 확인한 주요 지원 제도의 신청 기간과 접수처' },
+  { path: 'info/support-calendar/', name: '정부 지원금·신청 일정', description: '주요 지원 제도의 공식 신청 기간과 접수처' },
 ];
 
 export const supportApplications = [
@@ -24,7 +24,7 @@ export const supportApplications = [
   },
   {
     name: '국민취업지원제도',
-    details: '일반 신청의 접수 여부와 지원 유형별 자격·별도 모집 일정은 고용24에서 확인하세요.',
+    details: '고용24에서 현재 신청할 수 있는지, 지원 유형별 자격은 무엇인지 확인하세요.',
     agency: '국가법령정보센터 · 취업지원 신청 근거', notice: 'https://www.law.go.kr/LSW/lsLinkProc.do?joNo=000800&lsClsCd=L&lsNm=구직자취업촉진및생활안정지원에관한법률&mode=11',
     apply: 'https://www.work24.go.kr/cm/c/f/1100/selecSystInfo.do?systClId=SC00000274&systId=SI00000316',
   },

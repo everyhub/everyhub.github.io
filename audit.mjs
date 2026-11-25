@@ -601,7 +601,7 @@ async function auditViewport(origin) {
               const accepted = form.checkValidity();
               cases++;
               if (mustReject && accepted) failures.push(`${field.name || field.id} accepts invalid value ${JSON.stringify(value)}`);
-              if (mustReject && field.type === 'date' && !/네 자리 연도/.test(field.validationMessage)) {
+              if (mustReject && field.type === 'date' && !/날짜를 입력해 주세요/.test(field.validationMessage)) {
                 failures.push(`${field.name} missing friendly date validation`);
               }
               if (accepted && !form.querySelector('.utility-download')) {
@@ -633,10 +633,7 @@ async function auditViewport(origin) {
           if (hasFile) {
             await file.setInputFiles(await file.getAttribute('multiple') !== null ? [invalidFile, invalidFile] : invalidFile);
             await submit();
-            await page.waitForFunction(() => {
-              const value = document.querySelector('.utility-result').value.trim();
-              return value && value !== '처리 중입니다.';
-            }, null, { timeout: 5000 });
+            await form.locator('.utility-error:not(:empty)').waitFor({ timeout: 5000 });
             if (await download.isVisible()) issue('Invalid file produced a download');
             await file.setInputFiles(await file.getAttribute('multiple') !== null ? [fixture, fixture] : fixture);
             if (route === '/tools/passport-photo/') await form.locator('canvas').waitFor();
@@ -688,7 +685,8 @@ async function auditViewport(origin) {
           const output = form.locator('output');
           await text.fill('{invalid}');
           await submit.click();
-          if (!/올바른 JSON을 입력하세요/.test(await output.textContent())) issue('Invalid JSON lacks useful Korean guidance');
+          if (!/올바른 JSON을 입력하세요/.test(await form.locator('.utility-error').textContent()) ||
+              await output.textContent() || !await copy.isDisabled()) issue('Invalid JSON must show guidance without a copyable result');
           await reset.click();
           await page.waitForFunction(() => document.querySelector('.convenience-copy').disabled);
           if (await text.inputValue() || await output.textContent()) issue('Reset did not clear input and output');
@@ -700,6 +698,21 @@ async function auditViewport(origin) {
           const recent = page.locator('[data-recent-tools] li > a').first();
           if (await recent.getAttribute('href') !== route) issue('Recently used tool did not appear first');
           cases += 4;
+        }
+        if (route === '/tools/salary-calculator/') {
+          const children = form.locator('#children');
+          const summary = page.locator('.net');
+          const copy = page.locator('.convenience-copy');
+          await children.fill('1');
+          await children.press('Enter');
+          if (!/부양가족 수보다 많을 수 없습니다/.test(await form.locator('#calc-error').textContent()) ||
+              await summary.isVisible() || await page.locator('#calculation-table').isVisible() ||
+              !await copy.isDisabled()) issue('Invalid family inputs must not display or copy old amounts');
+          await children.fill('0');
+          await children.press('Enter');
+          if (await form.locator('#calc-error').textContent() || !await summary.isVisible() ||
+              await copy.isDisabled()) issue('Valid Enter submission did not restore salary results');
+          cases += 2;
         }
         if (route === '/tools/character-count/') {
           await form.locator('[name="preset"]').selectOption('bluesky');

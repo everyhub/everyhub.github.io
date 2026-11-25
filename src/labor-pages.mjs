@@ -63,8 +63,6 @@ function toolPage(config, id, tool) {
     path: toolPath(id), root, faq: tool.faq, application: tool.name, script: 'labor-browser.mjs',
     main: `<p class="eyebrow"><a href="${root}${category.id}/">${category.title}</a> · ${review}</p>
       <h1>${tool.name}</h1><p class="intro">${escape(tool.description)}</p>
-      ${tool.related?.length ? `<ul class="tag-list" aria-label="관련 계산기">${tool.related.map((related) => `<li>${toolLink(root, related)}</li>`).join('')}</ul>` : ''}
-      ${id === 'tenancy-renewal-report' ? `<p><a href="${root}${moveInGuide.path}">${moveInGuide.name}</a></p>` : ''}
       <section class="panel" aria-labelledby="tool-calculate"><h2 id="tool-calculate">조건 입력</h2>
         <form id="tool-form" data-tool="${id}"><div class="form-grid">${tool.fields.map(formField).join('')}</div>
           <p><button type="submit">계산하기</button></p>
@@ -76,6 +74,10 @@ function toolPage(config, id, tool) {
         </div>
         <p class="note">${escape(tool.scope)}</p>
       </section>
+      ${tool.related?.length || id === 'tenancy-renewal-report' ? `<section class="panel"><h2>함께 보면 좋은 도구와 안내</h2>
+        ${tool.related?.length ? `<ul class="tag-list" aria-label="관련 계산기">${tool.related.map((related) => `<li>${toolLink(root, related)}</li>`).join('')}</ul>` : ''}
+        ${id === 'tenancy-renewal-report' ? `<p><a href="${root}${moveInGuide.path}">${moveInGuide.name}</a></p>` : ''}
+      </section>` : ''}
       <section class="panel" aria-labelledby="sources"><h2 id="sources">공식 계산 기준</h2>
         ${sourcesHTML(references)}
         <p><a href="${root}${category.id}/">${category.title} 계산기 모아보기</a></p>

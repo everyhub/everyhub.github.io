@@ -5,6 +5,7 @@ import { lunarToSolar, solarToLunar } from './lunar-calendar.mjs';
 
 const form = document.querySelector('[data-utility]');
 const result = form.querySelector('output');
+const errorMessage = form.querySelector('.utility-error');
 const fields = form.elements;
 const tool = form.dataset.utility;
 const number = (value) => value.toLocaleString('ko-KR', { maximumFractionDigits: 4 });
@@ -24,8 +25,10 @@ if (fields.reference) {
 const dateFields = [...form.querySelectorAll('input[type="date"]')];
 for (const field of dateFields) {
   field.addEventListener('invalid', () => {
-    field.setCustomValidity(`${field.min.slice(0, 4)}~${field.max.slice(0, 4)}년 사이의 올바른 날짜를 네 자리 연도로 입력해 주세요.`);
-    result.value = field.validationMessage;
+    result.value = '';
+    errorMessage.textContent = field.validity.valueMissing ? '날짜를 입력해 주세요.'
+      : `${field.min.slice(0, 4)}~${field.max.slice(0, 4)}년 사이의 날짜를 입력해 주세요.`;
+    field.setCustomValidity(errorMessage.textContent);
   });
   field.addEventListener('input', () => { field.setCustomValidity(''); result.value = ''; });
 }
@@ -277,16 +280,19 @@ async function fileTool() {
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
+  errorMessage.textContent = '';
   try {
     if (tool === 'image-resize') await resizeImage();
     else if (download) await fileTool();
     else result.value = calculate[tool]();
   } catch (error) {
-    result.value = error.message;
+    result.value = '';
+    errorMessage.textContent = error.message;
   }
 });
 
 form.addEventListener('reset', () => {
+  errorMessage.textContent = '';
   for (const field of dateFields) field.setCustomValidity('');
   if (tool === 'ladder-draw') preview.setAttribute('hidden', '');
   if (download) {
@@ -304,6 +310,7 @@ form.addEventListener('reset', () => {
     else result.value = tool === 'area-converter' ? calculate[tool]() : '';
   });
 });
+form.addEventListener('input', () => { errorMessage.textContent = ''; });
 
 if (tool === 'lunar-calendar') {
   fields.mode.addEventListener('change', () => {
@@ -327,7 +334,9 @@ if (tool === 'lunar-calendar') {
       custom.hidden = custom.disabled = fields.format.value !== 'custom';
       paintPassport();
     });
-    fields.file.addEventListener('change', () => { loadPassport().catch(() => { result.value = '사진을 열지 못했습니다. 파일 형식과 크기를 확인해 주세요.'; }); });
+    fields.file.addEventListener('change', () => { loadPassport().catch((error) => {
+      errorMessage.textContent = error.name === 'Error' ? error.message : '사진을 열지 못했습니다. 파일 형식과 크기를 확인해 주세요.';
+    }); });
     for (const key of ['x', 'y', 'zoom', 'width', 'height']) fields[key].addEventListener('input', paintPassport);
   }
   const list = form.querySelector('.utility-file-list');
