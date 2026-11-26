@@ -10,7 +10,6 @@ import { readNewsSnapshot, refreshNews } from './src/news.mjs';
 import { newsPages } from './src/news-pages.mjs';
 import { informationPages } from './src/information-pages.mjs';
 import { utilityPages } from './src/utility-pages.mjs';
-import { sitePages } from './src/site-pages.mjs';
 import { playPages } from './src/play-pages.mjs';
 import { adminPath, adminTimelinePage, adminProposalsPath, adminProposalsPage } from './src/admin-pages.mjs';
 
@@ -73,7 +72,7 @@ await Promise.all(salaries.map(async (salary, index) => {
 }));
 
 const additional = [{ path: salaryCalculatorPath, html: salaryCalculatorPage(config) },
-  ...extraPages(config), ...newsPages(config, news), ...informationPages(config), ...utilityPages(config), ...sitePages(config), ...playPages(config)];
+  ...extraPages(config), ...newsPages(config, news), ...informationPages(config), ...utilityPages(config), ...playPages(config)];
 await Promise.all(additional.map(async ({ path, html }) => {
   const folder = join(dist, path);
   await mkdir(folder, { recursive: true });

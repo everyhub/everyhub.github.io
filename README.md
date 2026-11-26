@@ -129,7 +129,8 @@ Linux에서 시스템 라이브러리가 없으면 `npx playwright install-deps 
 ## 검색 및 광고
 
 - [Google Search Console](https://search.google.com/search-console/)과 [네이버 서치어드바이저](https://searchadvisor.naver.com/)에서 실제 운영 URL을 등록한 뒤 HTML 메타 태그로 소유권을 확인하고 [sitemap.xml](https://everyhub.github.io/sitemap.xml)을 제출합니다. `GOOGLE_SITE_VERIFICATION`, `NAVER_SITE_VERIFICATION`은 공개 HTML에 렌더링되는 검증 값입니다. 색인·순위·FAQ 리치 결과는 보장되지 않습니다. 하위 경로 사이트의 robots.txt는 호스트 루트 robots.txt를 대신할 수 없습니다.
-- AdSense 심사 준비로 루트 `ads.txt`와 `google-adsense-account` 소유권 확인 태그만 게시합니다. 광고 스크립트·광고 단위·방문자 분석은 운영하지 않습니다. 사이트 하단에서 소개, [개인정보 처리방침](https://everyhub.github.io/privacy/), GitHub 문의를 찾을 수 있습니다.
+- AdSense 심사 준비로 루트 `ads.txt`와 `google-adsense-account` 소유권 확인 태그만 게시합니다. 광고 스크립트·광고 단위·방문자 분석은 운영하지 않습니다.
+- 사용자 요청 없이 문의·오류 제보·개인정보 처리방침·사이트 소개 같은 페이지나 링크·버튼을 추가하지 않습니다. 광고 심사나 운영에 별도 공개 안내가 필요하면 추가하기 전에 사용자에게 확인합니다.
 - AdSense 승인과 별도 활성화 결정 후에만 `ADSENSE_ENABLED=1`, `ADSENSE_CLIENT_ID`, `ADSENSE_SLOT_ID`의 배포 연결을 검토합니다. 광고는 공개 콘텐츠에만 넣고 관리 페이지와 브라우저 전용 도구에서는 로드하지 않으며, 외부 요청 감사는 필요한 AdSense 호스트만 허용하도록 갱신합니다. 먼저 [GitHub Pages 사용 제한](https://docs.github.com/ko/pages/getting-started-with-github-pages/github-pages-limits)과 개인정보·동의 요건을 확인하세요. 상업 운영 조건이 맞지 않으면 상업적 호스팅과 커스텀 도메인을 검토합니다.
 
 ## 놀이

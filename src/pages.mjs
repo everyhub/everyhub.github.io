@@ -64,7 +64,7 @@ export function sourcesHTML(references) {
     `<li><a href="${escape(url)}">${escape(name)}</a>${effective ? ` <small>(적용 <time datetime="${effective}">${effective}</time>)</small>` : ''}</li>`).join('')}</ul>`;
 }
 
-function footer(config, payroll, root) {
+function footer(payroll, root) {
   const percent = ({ numerator, denominator }) => (100 * numerator / denominator).toLocaleString('ko-KR');
   const contributionLimits = rates.pension.periods.map(({ from, min, max }, i) => {
     const until = (rates.pension.periods[i + 1]?.from ?? 13) - 1;
@@ -72,7 +72,7 @@ function footer(config, payroll, root) {
   }).join(', ');
   const creditChange = rates.incomeTax.childCredits.at(-1).from;
   return `<footer class="site-foot"><div class="wrap">
-    <p class="footer-nav"><a href="${root}sitemap/">전체 사이트맵</a> · <a href="${root}about/">사이트 소개</a> · <a href="${root}privacy/">개인정보 처리방침</a> · <a href="https://github.com/everyhub/everyhub.github.io/issues">문의</a></p>
+    <p class="footer-nav"><a href="${root}sitemap/">전체 사이트맵</a></p>
     <p>공식 자료 확인일 <time datetime="${verifiedOn}">${verifiedOn}</time> · 개인별 결과는 참고용입니다.</p>
     ${payroll ? `<p>${disclaimer}</p>
     <details id="sources"><summary>${year}년 연봉 실수령액 공식 계산 기준</summary>
@@ -80,9 +80,6 @@ function footer(config, payroll, root) {
       <p>월평균은 연간 예상 금액을 12로 나눠 원 단위로 반올림한 값입니다. 적용 시기별 제도 변경과 반올림 때문에 실제 월별 금액과 일치하지 않을 수 있습니다.</p>
       ${sourcesHTML(sources.map(([name, url, effective]) => ({ name, url, effective })))}
     </details>` : ''}
-    <details><summary>개인정보 및 광고</summary><p>계산에 입력한 급여·가족 정보는 브라우저에서만 처리되며 사이트 운영 서버로 전송하지 않습니다.</p>
-    ${config.adsenseClient ? '<p>이 사이트는 Google AdSense 광고를 표시합니다. Google은 광고 제공을 위해 쿠키를 사용할 수 있습니다. <a href="https://policies.google.com/technologies/partner-sites?hl=ko">Google의 광고 데이터 처리 방식</a>을 확인하세요.</p>' : ''}
-    </details>
   </div></footer>`;
 }
 
@@ -164,7 +161,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
     <nav class="sidebar" id="site-navigation" aria-label="사이트 탐색"><p class="sidebar-title">분야별 찾아보기</p>${siteTree(root, path)}</nav>
     <main>${main}</main>
   </div>
-  ${footer(privatePage ? { ...config, adsenseClient: '' } : config, payroll, root)}
+  ${footer(payroll, root)}
 </body>
 </html>`;
 }

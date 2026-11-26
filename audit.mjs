@@ -97,6 +97,7 @@ async function liveInventory(site) {
 }
 
 async function checkLinks(page, origin) {
+  const removed = /^\/(?:about|privacy|contact|report-error)(?:\/|$)/;
   const pages = new Map();
   for (let i = 0; i < inventory.length; i += 12) {
     const batch = await Promise.all(inventory.slice(i, i + 12).map(async (path) => {
@@ -114,12 +115,16 @@ async function checkLinks(page, origin) {
       for (const button of doc.querySelectorAll('[data-news-filter]')) fragments.push('source-' + button.dataset.newsFilter);
       return [path, {
         fragments, canonical: doc.querySelector('link[rel="canonical"]')?.getAttribute('href'),
+        hasRemovedCopy: /사이트\s*소개|개인정보\s*처리\s*방침|개인정보 및 광고|오류\s*제보|(?:^|\s)문의(?:\s|$)/.test(doc.body.textContent),
         links: [...new Set([...doc.querySelectorAll('a[href]')].map((node) => node.getAttribute('href')))],
       }];
     }), batch.filter(Boolean));
     for (const [path, data] of parsed) pages.set(path, { ...data, fragments: new Set(data.fragments) });
   }
   const canonical = pages.get('/')?.canonical && new URL(pages.get('/').canonical);
+  for (const [path, { hasRemovedCopy }] of pages) if (removed.test(path) || hasRemovedCopy) {
+    issues.push({ route: path, width: 'HTML', message: 'Includes removed contact, report, privacy or about content' });
+  }
   const checked = new Set();
   for (const [path, { links }] of pages) for (const href of links) {
     let url;
@@ -131,6 +136,10 @@ async function checkLinks(page, origin) {
     if (url.origin !== origin) {
       if (live || url.origin !== canonical?.origin || !target.startsWith(canonical.pathname)) continue;
       target = '/' + target.slice(canonical.pathname.length);
+    }
+    if (removed.test(target)) {
+      issues.push({ route: path, width: 'HTML', message: 'Links to removed page: ' + href });
+      continue;
     }
     if (target.endsWith('/index.html')) target = target.slice(0, -'index.html'.length);
     if (pages.has(target + '/')) target += '/';

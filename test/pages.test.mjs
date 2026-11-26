@@ -4,7 +4,6 @@ import test from 'node:test';
 import { homePage, homeShortcuts, salaries, salaryCalculatorPage, salaryPage } from '../src/pages.mjs';
 import { extraPages } from '../src/labor-pages.mjs';
 import { informationPages } from '../src/information-pages.mjs';
-import { sitePages } from '../src/site-pages.mjs';
 import { playPages } from '../src/play-pages.mjs';
 import { playItems, playTools } from '../src/play-config.mjs';
 import { site } from '../site.config.mjs';
@@ -64,22 +63,21 @@ test('설정한 검색 소유권 태그와 광고 슬롯을 렌더링', () => {
   }
 });
 
-test('광고를 실행하지 않고 사이트 확인 태그와 심사용 안내를 게시', async () => {
+test('광고를 실행하지 않고 사이트 확인 태그를 게시하며 공통 문의·정책 링크를 두지 않는다', async () => {
   const account = 'ca-pub-8870302275342469';
   const configured = { ...config, adsenseAccount: site.adsenseAccount };
   assert.equal(site.adsenseAccount, account);
   const seller = await readFile(new URL('../src/ads.txt', import.meta.url), 'utf8');
   assert.equal(seller.trimEnd(), `google.com, ${account.slice(3)}, DIRECT, f08c47fec0942fa0`);
-  const pages = sitePages(configured);
-  const privacy = pages.find(({ path }) => path === 'privacy/').html;
-  assert.match(privacy, /Google과 같은 제3자 광고 제공업체/);
-  assert.match(privacy, /https:\/\/myadcenter\.google\.com\//);
   for (const html of [homePage(configured), salaryCalculatorPage(configured), adminTimelinePage(configured),
-    adminProposalsPage(configured), ...pages.map(({ html }) => html)]) {
+    adminProposalsPage(configured), ...playPages(configured).map(({ html }) => html)]) {
     assert.ok(html.includes(`<meta name="google-adsense-account" content="${account}">`));
     assert.doesNotMatch(html, /adsbygoogle|data-ad-slot/);
-    assert.match(html, /class="footer-nav"[^\n]*about\/[^\n]*privacy\/[^\n]*github\.com\/everyhub\/everyhub\.github\.io\/issues/);
+    assert.match(html, /class="footer-nav"><a href="[^"]*sitemap\/">전체 사이트맵<\/a><\/p>/);
+    assert.doesNotMatch(html, /href="[^"]*\/(?:about|privacy|contact)\/|개인정보 및 광고/);
   }
+  const editor = await readFile(new URL('../src/background-removal/index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(editor, /사이트 소개|개인정보 처리방침|오류 제보|>문의</);
 });
 
 test('개인 이름 없는 브랜드와 분류 탐색 패널', () => {
