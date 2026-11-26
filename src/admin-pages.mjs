@@ -34,7 +34,7 @@ function activeWorkPanel(items) {
   </section>`;
 }
 
-const timelineFilters = ['전체', '진행중', '부분', '미확인', '완료', '제외'];
+const timelineFilters = ['전체', '진행중', '대기', '부분', '미확인', '완료', '제외'];
 
 function officialEvidencePanel() {
   const groups = Object.entries(officialValueEvidence).map(([group, entries]) =>

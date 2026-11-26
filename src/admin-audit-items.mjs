@@ -5,6 +5,7 @@ const verified = (requirement, path, evidence) => ({
   requirement, status: '완료', evidence, links: [path.startsWith('/') ? site + path : path],
 });
 const tool = (requirement, id, evidence) => verified(requirement, '/tools/' + id + '/', evidence);
+export const sharedWishTree = open('여러 방문자가 함께 만드는 공유 트리(B)', '사용자 결정: A 먼저, B는 나중에', '대기', [site + '/ops-7f3a9c2d/#shared-wish-tree']);
 
 export const auditItems = {
   'business-model': [
@@ -403,10 +404,9 @@ export const auditItems = {
     verified('입력·30자 제한·이모지·키보드·접근 가능한 소원 목록', '/info/christmas-wish-tree/', '운영 세 엔진과 두 너비에서 Enter 등록, 공백·길이 오류, 결합 이모지 30개 및 HTML처럼 보이는 문자열의 텍스트 처리와 접근 가능한 목록을 확인했습니다.'),
     verified('로컬 저장·개수·초기화·상호작용 중 네트워크 요청 0건', '/info/christmas-wish-tree/', '운영 세 엔진에서 오프라인 등록·소원 개수·새로고침 후 복구를 확인했습니다. 초기화는 개인 소원만 지우며 예시 40개와 다른 저장 키를 유지합니다. 상호작용 중 네트워크 요청은 0건입니다.'),
     verified('홈 바로가기·검색·사이트맵·SEO 및 390·1440px 운영 검증', repo + '/actions/runs/45825119686', 'Pages build·deploy 성공, 운영 홈 링크, 트리·크리스마스·소원 검색 첫 결과와 HTML·XML 사이트맵을 확인했습니다. 운영 세 엔진 390·1440px에서 페이지 제목·canonical·오류 0건을 확인했습니다.'),
+    sharedWishTree,
   ],
-  'shared-wish-tree': [
-    open('여러 방문자가 함께 만드는 공유 트리(B)', '사용자가 A를 먼저 요청해 공유와 서버 저장은 이번 범위에서 제외했습니다.', '제외', [site + '/ops-7f3a9c2d/#christmas-wish-tree']),
-  ],
+  'shared-wish-tree': [sharedWishTree],
 };
 
 export const unconfirmed = (requirement, reason, links) => open(requirement, reason, '미확인', links);

@@ -426,7 +426,7 @@ async function auditViewport(origin) {
           }));
           if (brokenLinks) issue('Admin evidence is not displayed as short, single-line labels');
           const filters = page.getByRole('group', { name: '타임라인 상태 필터' });
-          for (const status of ['진행중', '부분', '미확인', '완료', '제외', '전체']) {
+          for (const status of ['진행중', '대기', '부분', '미확인', '완료', '제외', '전체']) {
             const button = filters.getByRole('button', { name: status, exact: true });
             await button.click();
             const visible = await rows.evaluateAll((nodes) => nodes.filter((row) => !row.hidden).map((row) => row.id));
@@ -500,6 +500,9 @@ async function auditViewport(origin) {
           try {
             if (await count.textContent() !== '0' || !await page.getByText(/예시 소원 40개/).isVisible() ||
                 await form.getByRole('button', { name: /초기화/ }).count() !== 1) issue('Wish tree starts without its personal counter, sample disclosure, or single reset');
+            await motion.waitFor({ state: 'visible' });
+            const initial = await frame();
+            await page.waitForFunction(previous => document.querySelector('.wish-canvas').toDataURL() !== previous, initial);
             await input.press('Enter');
             await form.getByText('소원을 입력해 주세요.', { exact: true }).waitFor();
             await input.fill('가'.repeat(31));
@@ -536,7 +539,18 @@ async function auditViewport(origin) {
               !await page.getByText(/예시 소원 40개/).isVisible() || requests.length !== resetStart) issue('Wish reset did not preserve samples or made a request');
           await page.reload();
           if (await count.textContent() !== '0') issue('Wish reset did not persist on reload');
-          cases += 3;
+          await page.emulateMedia({ reducedMotion: 'reduce' });
+          try {
+            await page.reload();
+            await input.waitFor();
+            await canvas.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+            const initial = await frame();
+            await page.waitForTimeout(150);
+            if (await page.locator('[data-wish-motion]').isVisible() || await frame() !== initial) issue('Wish tree did not start still with reduced motion');
+          } finally {
+            await page.emulateMedia({ reducedMotion: null });
+          }
+          cases += 5;
           continue;
         }
         if (route === '/tools/csv-json-converter/') {

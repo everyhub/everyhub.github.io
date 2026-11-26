@@ -287,6 +287,16 @@ test('관리 요청과 Markdown 감사 내보내기는 같은 순서·상태·�
   }
 });
 
+test('공유 트리는 대기로 표시하고 상위 요청은 완료하지 않는다', () => {
+  const parent = adminTimeline.find(({ id }) => id === 'christmas-wish-tree');
+  const shared = adminTimeline.find(({ id }) => id === 'shared-wish-tree');
+  assert.equal(parent.status, '부분');
+  assert.equal(shared.status, '대기');
+  assert.equal(shared.reason, '사용자 결정: A 먼저, B는 나중에');
+  assert.deepEqual(parent.items.filter(({ status }) => status === '대기'), shared.items);
+  assert.match(adminTimelinePage(config), /data-timeline-filter="대기"/);
+});
+
 test('추천 예약 등록과 추가 슬롯의 첫 실행은 별도로 추적한다', () => {
   const rows = new Map(adminTimeline.map((entry) => [entry.id, entry]));
   assert.equal(rows.get('daily-choice').status, '완료');

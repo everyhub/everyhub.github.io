@@ -37,8 +37,8 @@ export function parseWishes(value) {
 }
 
 export function helixPoint(height, rotation) {
-  const radius = 0.065 + 0.935 * (1 - height) ** 1.04;
-  const angle = height * 10 * Math.PI + rotation;
+  const radius = .035 + .965 * (1 - height) ** .8;
+  const angle = 2 * Math.PI * (7 * height + 2 * height ** 2) + rotation;
   return { radius, x: radius * Math.cos(angle), depth: Math.sin(angle) };
 }
 

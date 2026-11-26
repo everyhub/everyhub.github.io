@@ -30,6 +30,10 @@ test('예시 소원 40개는 모두 유효하며 회전하는 나선은 위쪽�
   assert.equal(front.depth, 1);
   assert.equal(back.depth, -1);
   assert.equal(front.radius, bottom.radius);
+  assert.ok(helixPoint(.75, 0).radius > .3);
+  const revolutions = Array.from({ length: 91 }, (_, i) => helixPoint(i / 90, 0).depth)
+    .filter((depth, index, samples) => index && depth > 0 && samples[index - 1] <= 0).length;
+  assert.equal(revolutions, 9);
   assert.ok(wishLevel(40, 41, 0) < wishLevel(40, 41, .5));
   assert.ok(wishLevel(40, 41, .5) < wishLevel(40, 41, 1));
   assert.ok(wishLevel(40, 41, 1) > wishLevel(39, 41));

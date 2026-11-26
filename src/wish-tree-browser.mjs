@@ -36,6 +36,12 @@ const flurries = Array.from({ length: 48 }, (_, i) => ({
   speed: 3 + i % 7 * 1.7,
 }));
 const colors = ['#a0f9d0', '#e8fdf8', '#ffd79b', '#6de2b5', '#b1e7ff'];
+const branchLights = Array.from({ length: 108 }, (_, i) => ({
+  level: (i + 1) / 110,
+  offset: i * 2.39996,
+  reach: .35 + (i * 7 % 11) / 17,
+  size: .7 + i % 4 * .26,
+}));
 
 function glow(x, y, radius, color) {
   const halo = paint.createRadialGradient(x, y, 0, x, y, radius);
@@ -54,16 +60,27 @@ function draw() {
   const top = height * .14;
   const span = base - top;
   const spread = Math.min(width * .35, height * .38);
-  const project = (level) => {
-    const { radius, x, depth } = helixPoint(level, rotation);
+  const project = (level, offset = 0, reach = 1) => {
+    const { radius, x, depth } = helixPoint(level, rotation + offset);
     return {
-      x: center + spread * x * (1 + depth * .11),
-      y: base - level * span + depth * radius * height * .047,
+      x: center + spread * x * reach * (1 + depth * .11),
+      y: base - level * span + depth * radius * reach * height * .032,
       depth,
     };
   };
 
   glow(center, height * .59, span * .64, '#16836532');
+  const canopy = paint.createLinearGradient(center - spread, 0, center + spread, 0);
+  canopy.addColorStop(0, '#32a97400');
+  canopy.addColorStop(.5, '#248b68a0');
+  canopy.addColorStop(1, '#32a97400');
+  paint.fillStyle = canopy;
+  paint.beginPath();
+  paint.moveTo(center, top - 4);
+  paint.quadraticCurveTo(center + spread * .58, top + span * .41, center + spread, base);
+  paint.quadraticCurveTo(center, base + span * .12, center - spread, base);
+  paint.quadraticCurveTo(center - spread * .58, top + span * .41, center, top - 4);
+  paint.fill();
   paint.save();
   paint.translate(center, base + height * .035);
   paint.scale(1, .17);
@@ -89,15 +106,25 @@ function draw() {
   paint.lineTo(center, base + 12);
   paint.stroke();
 
-  for (let i = 0; i < 190; i++) {
-    const a = project(i / 190);
-    const b = project((i + 1) / 190);
-    paint.strokeStyle = a.depth > 0 ? '#79e1bd68' : '#79e1bd27';
-    paint.lineWidth = a.depth > 0 ? 1.75 : 1;
+  for (const { level, offset, reach, size } of branchLights) {
+    const { x, y, depth } = project(level, offset, reach);
+    paint.fillStyle = depth > 0 ? '#88e5ab76' : '#54c78e39';
+    paint.beginPath();
+    paint.arc(x, y, size, 0, 2 * Math.PI);
+    paint.fill();
+  }
+
+  const segments = 360;
+  let a = project(0);
+  for (let i = 1; i <= segments; i++) {
+    const b = project(i / segments);
+    paint.strokeStyle = a.depth > 0 ? '#79e1bd91' : '#79e1bd39';
+    paint.lineWidth = a.depth > 0 ? 1.7 : 1;
     paint.beginPath();
     paint.moveTo(a.x, a.y);
     paint.lineTo(b.x, b.y);
     paint.stroke();
+    a = b;
   }
 
   const ascent = arrival === null || reduced.matches ? 1 : Math.min(1, (elapsed - arrival) / 2600);
