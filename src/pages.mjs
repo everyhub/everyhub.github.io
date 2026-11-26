@@ -71,7 +71,7 @@ function footer(config, payroll, root) {
   }).join(', ');
   const creditChange = rates.incomeTax.childCredits.at(-1).from;
   return `<footer class="site-foot"><div class="wrap">
-    <p class="footer-nav"><a href="${root}sitemap/">전체 사이트맵</a></p>
+    <p class="footer-nav"><a href="${root}sitemap/">전체 사이트맵</a> · <a href="${root}about/">사이트 소개</a> · <a href="${root}privacy/">개인정보 처리방침</a> · <a href="https://github.com/everyhub/everyhub.github.io/issues">문의</a></p>
     <p>공식 자료 확인일 <time datetime="${verifiedOn}">${verifiedOn}</time> · 개인별 결과는 참고용입니다.</p>
     ${payroll ? `<p>${disclaimer}</p>
     <details id="sources"><summary>${year}년 연봉 실수령액 공식 계산 기준</summary>
@@ -90,6 +90,9 @@ export function ad(config) {
   return `<aside class="ad-slot" aria-label="광고"><ins class="adsbygoogle" style="display:block" data-ad-client="${escape(config.adsenseClient)}" data-ad-slot="${escape(config.adsenseSlot)}" data-ad-format="auto" data-full-width-responsive="true"></ins>
   <script>(window.adsbygoogle = window.adsbygoogle || []).push({});</script></aside>`;
 }
+
+export const adsenseVerificationMeta = ({ adsenseAccount }) => adsenseAccount
+  ? `<meta name="google-adsense-account" content="${escape(adsenseAccount)}">` : '';
 
 export function layout({ config, title, description, path, root, main, faq, calculator = false, application, script, payroll = false, localOnly = false, networkless = false, robots = '' }) {
   const privatePage = localOnly || path.startsWith('tools/');
@@ -142,6 +145,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
   <link rel="apple-touch-icon" href="${root}${brandAssets}icon-180.png" sizes="180x180">
   <link rel="manifest" href="${root}${brandAssets}site.webmanifest">
   ${verification}
+  ${adsenseVerificationMeta(config)}
   <link rel="stylesheet" href="${root}assets/style.css">
   <script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>
   <script type="module" src="${root}assets/navigation-browser.mjs"></script>

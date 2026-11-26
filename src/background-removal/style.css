@@ -11,6 +11,8 @@ main { width: 100%; max-width: 960px; margin: 0 auto; padding: 0 16px 24px; flex
 .top h1 { margin: 0 0 4px; font-size: 24px; }
 .privacy { margin: 0; color: var(--muted); font-size: 14px; }
 .privacy::before { content: "🔒 "; }
+.site-foot { width: 100%; max-width: 960px; margin: 0 auto; padding: 0 16px; color: var(--muted); font-size: 14px; }
+.site-foot a { color: inherit; }
 
 .controls { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 16px 0; }
 .field { display: flex; align-items: center; gap: 8px; }

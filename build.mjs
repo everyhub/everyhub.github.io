@@ -1,14 +1,16 @@
-import { appendFile, copyFile, cp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { appendFile, copyFile, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { versionBuildAssets } from './build-assets.mjs';
 import { site } from './site.config.mjs';
-import { homePage, salaries, salaryCalculatorPage, salaryPage, salaryPath } from './src/pages.mjs';
+import { adsenseVerificationMeta, homePage, salaries, salaryCalculatorPage, salaryPage, salaryPath } from './src/pages.mjs';
 import { salaryCalculatorPath } from './src/navigation.mjs';
 import { extraPages } from './src/labor-pages.mjs';
 import { readNewsSnapshot, refreshNews } from './src/news.mjs';
 import { newsPages } from './src/news-pages.mjs';
 import { informationPages } from './src/information-pages.mjs';
 import { utilityPages } from './src/utility-pages.mjs';
+import { sitePages } from './src/site-pages.mjs';
 import { adminPath, adminTimelinePage, adminProposalsPath, adminProposalsPage } from './src/admin-pages.mjs';
 
 const dist = fileURLToPath(new URL('./dist/', import.meta.url));
@@ -52,24 +54,29 @@ await Promise.all(['style.css', 'browser.mjs', 'calculator.mjs', 'display.mjs', 
 await cp(join(source, 'background-removal'), join(dist, 'assets', 'background-removal'), { recursive: true });
 await cp(join(source, 'utility-vendor'), join(dist, 'assets', 'utility-vendor'), { recursive: true });
 await cp(join(source, 'brand'), join(dist, 'assets', 'brand'), { recursive: true });
-await writeFile(join(dist, 'index.html'), homePage(config));
+const versionHTML = await versionBuildAssets(dist, baseURL);
+const writePage = (path, html) => writeFile(join(dist, path, 'index.html'), versionHTML(html, path));
+const backgroundRemovalPath = 'assets/background-removal/';
+const backgroundRemovalHTML = await readFile(join(dist, backgroundRemovalPath, 'index.html'), 'utf8');
+await writePage(backgroundRemovalPath, backgroundRemovalHTML.replace('</head>', `  ${adsenseVerificationMeta(config)}\n</head>`));
+await writePage('', homePage(config));
 for (const [path, render] of [[adminPath, adminTimelinePage], [adminProposalsPath, adminProposalsPage]]) {
   const folder = join(dist, path);
   await mkdir(folder, { recursive: true });
-  await writeFile(join(folder, 'index.html'), render(config));
+  await writePage(path, render(config));
 }
 await Promise.all(salaries.map(async (salary, index) => {
   const folder = join(dist, salaryPath(salary));
   await mkdir(folder, { recursive: true });
-  await writeFile(join(folder, 'index.html'), salaryPage(config, salary, index));
+  await writePage(salaryPath(salary), salaryPage(config, salary, index));
 }));
 
 const additional = [{ path: salaryCalculatorPath, html: salaryCalculatorPage(config) },
-  ...extraPages(config), ...newsPages(config, news), ...informationPages(config), ...utilityPages(config)];
+  ...extraPages(config), ...newsPages(config, news), ...informationPages(config), ...utilityPages(config), ...sitePages(config)];
 await Promise.all(additional.map(async ({ path, html }) => {
   const folder = join(dist, path);
   await mkdir(folder, { recursive: true });
-  await writeFile(join(folder, 'index.html'), html);
+  await writePage(path, html);
 }));
 
 const paths = ['', ...salaries.map(salaryPath), ...additional.map(({ path }) => path)];
@@ -80,6 +87,7 @@ ${paths.map((path) => `  <url><loc>${xmlEscape(new URL(path, baseURL).href)}</lo
 `);
 await writeFile(join(dist, 'robots.txt'), `User-agent: *\nAllow: ${baseURL.pathname}\nSitemap: ${sitemapURL.href}\n`);
 await writeFile(join(dist, 'news-data.json'), JSON.stringify({ version: 1, revision, feeds: news }));
+await copyFile(join(source, 'ads.txt'), join(dist, 'ads.txt'));
 await writeFile(join(dist, '.nojekyll'), '');
 await signalBuild(true);
 console.log(`Built ${paths.length} HTML pages (${salaries.length} salary pages) in dist/`);

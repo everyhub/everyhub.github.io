@@ -407,6 +407,13 @@ export const auditItems = {
     sharedWishTree,
   ],
   'shared-wish-tree': [sharedWishTree],
+  'wish-tree-cache': [
+    open('내용 기반 자산 버전과 소원 트리의 운영 동작 확인', 'Pages 배포 및 운영 확인 전입니다.', '진행중', [site + '/info/christmas-wish-tree/']),
+  ],
+  'adsense-ownership': [
+    open('ads.txt·소유권 태그·소개·개인정보 처리방침·문의 링크 운영 확인', 'Pages 배포 및 운영 확인 전입니다.', '진행중', [site + '/ads.txt', site + '/privacy/']),
+    open('AdSense 승인 및 광고 게시', 'AdSense 계정에서 심사를 요청하고 결과를 확인하는 단계가 남았습니다. 승인과 별도 활성화 전에는 광고를 표시하지 않습니다.', '대기'),
+  ],
 };
 
 export const unconfirmed = (requirement, reason, links) => open(requirement, reason, '미확인', links);

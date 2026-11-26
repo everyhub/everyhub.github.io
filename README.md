@@ -124,11 +124,13 @@ Linux에서 시스템 라이브러리가 없으면 `npx playwright install-deps 
 - 같은 날 [19:25 KST 보완 실행](https://github.com/everyhub/everyhub.github.io/actions/runs/45594849070)은 빌드에 성공했고 뉴스와 커밋이 같아 배포를 생략했습니다. 2026-11-26에는 [03:48 KST](https://github.com/everyhub/everyhub.github.io/actions/runs/45678945682)·[11:08 KST](https://github.com/everyhub/everyhub.github.io/actions/runs/45740409324) 예약 실행 성공 후 직전 30분 예약이 없어 [14:27 KST 보완 실행](https://github.com/everyhub/everyhub.github.io/actions/runs/45761732433)(빌드·배포 성공)과 [19:25 KST 보완 실행](https://github.com/everyhub/everyhub.github.io/actions/runs/45801245895)(빌드 성공, 내용 동일로 배포 생략)을 확인했습니다. 운영 스냅샷은 14개 피드·112건입니다. 30분 주기의 지속 여부는 미확인입니다.
 - 피드가 실패하면 운영 `news-data.json`의 해당 피드 마지막 정상 목록을 사용합니다. 새 피드에 이전 데이터가 없으면 다른 피드를 배포하면서 출처 링크를 표시합니다. 이전 스냅샷이 404가 아닌 오류로 읽히지 않으면 기존 사이트를 보존하도록 빌드를 중단합니다. 수집 오류와 건수는 Actions 로그를 확인하세요.
 - 배포 후 Actions에서 **Deploy to GitHub Pages**의 결과와 커밋을 확인하고 운영 홈·대표 계산기·새 페이지·`sitemap.xml`을 HTTP로 확인합니다. 예약 실행에서 ‘소식 변경 없음’으로 배포 작업이 건너뛰어지는 것은 정상입니다.
+- 빌드는 HTML의 로컬 CSS·스크립트·이미지 URL과 로컬 모듈 가져오기에 파일 내용 기반 `?v=`를 붙입니다. 하위 모듈만 바뀌어도 상위 모듈 URL이 바뀝니다. 배포 직후 HTML 자체가 이전 버전으로 캐시되어 있으면 새로고침 후 최신 페이지를 확인하세요.
 
 ## 검색 및 광고
 
 - [Google Search Console](https://search.google.com/search-console/)과 [네이버 서치어드바이저](https://searchadvisor.naver.com/)에서 실제 운영 URL을 등록한 뒤 HTML 메타 태그로 소유권을 확인하고 [sitemap.xml](https://everyhub.github.io/sitemap.xml)을 제출합니다. `GOOGLE_SITE_VERIFICATION`, `NAVER_SITE_VERIFICATION`은 공개 HTML에 렌더링되는 검증 값입니다. 색인·순위·FAQ 리치 결과는 보장되지 않습니다. 하위 경로 사이트의 robots.txt는 호스트 루트 robots.txt를 대신할 수 없습니다.
-- `ADSENSE_CLIENT_ID`와 `ADSENSE_SLOT_ID`를 넣기 전에는 광고가 표시되지 않습니다. 활성화 전 [GitHub Pages 사용 제한](https://docs.github.com/ko/pages/getting-started-with-github-pages/github-pages-limits), AdSense 자격, ads.txt 및 개인정보·동의 요건을 확인하세요. 상업 운영 조건이 맞지 않으면 상업적 호스팅과 커스텀 도메인을 검토합니다.
+- AdSense 심사 준비로 루트 `ads.txt`와 `google-adsense-account` 소유권 확인 태그만 게시합니다. 광고 스크립트·광고 단위·방문자 분석은 운영하지 않습니다. 사이트 하단에서 소개, [개인정보 처리방침](https://everyhub.github.io/privacy/), GitHub 문의를 찾을 수 있습니다.
+- AdSense 승인과 별도 활성화 결정 후에만 `ADSENSE_ENABLED=1`, `ADSENSE_CLIENT_ID`, `ADSENSE_SLOT_ID`의 배포 연결을 검토합니다. 광고는 공개 콘텐츠에만 넣고 관리 페이지와 브라우저 전용 도구에서는 로드하지 않으며, 외부 요청 감사는 필요한 AdSense 호스트만 허용하도록 갱신합니다. 먼저 [GitHub Pages 사용 제한](https://docs.github.com/ko/pages/getting-started-with-github-pages/github-pages-limits)과 개인정보·동의 요건을 확인하세요. 상업 운영 조건이 맞지 않으면 상업적 호스팅과 커스텀 도메인을 검토합니다.
 
 ## 다음에 확인할 일
 

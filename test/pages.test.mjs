@@ -4,6 +4,8 @@ import test from 'node:test';
 import { homePage, homeShortcuts, salaries, salaryCalculatorPage, salaryPage } from '../src/pages.mjs';
 import { extraPages } from '../src/labor-pages.mjs';
 import { informationPages } from '../src/information-pages.mjs';
+import { sitePages } from '../src/site-pages.mjs';
+import { site } from '../site.config.mjs';
 import { holidayCalendar } from '../src/information.mjs';
 import { brand, toolPath, tools } from '../src/tool-specs.mjs';
 import { informationSections, wishTreeSection } from '../src/information.mjs';
@@ -57,6 +59,24 @@ test('설정한 검색 소유권 태그와 광고 슬롯을 렌더링', () => {
     ...extraPages(configured).filter(({ path }) => path.startsWith('tools/')).map(({ html }) => html)]) {
     assert.match(tool, /connect-src 'self'/);
     assert.doesNotMatch(tool, /adsbygoogle|data-ad-slot/);
+  }
+});
+
+test('광고를 실행하지 않고 사이트 확인 태그와 심사용 안내를 게시', async () => {
+  const account = 'ca-pub-8870302275342469';
+  const configured = { ...config, adsenseAccount: site.adsenseAccount };
+  assert.equal(site.adsenseAccount, account);
+  const seller = await readFile(new URL('../src/ads.txt', import.meta.url), 'utf8');
+  assert.equal(seller.trimEnd(), `google.com, ${account.slice(3)}, DIRECT, f08c47fec0942fa0`);
+  const pages = sitePages(configured);
+  const privacy = pages.find(({ path }) => path === 'privacy/').html;
+  assert.match(privacy, /Google과 같은 제3자 광고 제공업체/);
+  assert.match(privacy, /https:\/\/myadcenter\.google\.com\//);
+  for (const html of [homePage(configured), salaryCalculatorPage(configured), adminTimelinePage(configured),
+    adminProposalsPage(configured), ...pages.map(({ html }) => html)]) {
+    assert.ok(html.includes(`<meta name="google-adsense-account" content="${account}">`));
+    assert.doesNotMatch(html, /adsbygoogle|data-ad-slot/);
+    assert.match(html, /class="footer-nav"[^\n]*about\/[^\n]*privacy\/[^\n]*github\.com\/everyhub\/everyhub\.github\.io\/issues/);
   }
 });
 

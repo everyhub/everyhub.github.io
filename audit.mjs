@@ -165,7 +165,9 @@ async function auditViewport(origin) {
   await context.route('**/*', async (requestRoute) => {
     const request = requestRoute.request();
     const url = new URL(request.url());
-    if (url.origin !== origin || !['GET', 'HEAD'].includes(request.method()) || url.search) {
+    const versionedAsset = /^\/assets\/[^?]+\.(?:css|m?js|json|svg|png|jpe?g|webp|gif|avif|ico|webmanifest)$/i.test(url.pathname) &&
+      /^\?v=[a-f0-9]{16}$/.test(url.search);
+    if (url.origin !== origin || !['GET', 'HEAD'].includes(request.method()) || (url.search && !versionedAsset)) {
       issue(`Blocked request: ${request.method()} ${url.origin}${url.pathname}`);
       await requestRoute.abort();
     } else await requestRoute.continue();
