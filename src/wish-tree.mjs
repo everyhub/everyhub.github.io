@@ -41,3 +41,10 @@ export function helixPoint(height, rotation) {
   const angle = height * 10 * Math.PI + rotation;
   return { radius, x: radius * Math.cos(angle), depth: Math.sin(angle) };
 }
+
+export function wishLevel(index, total, progress = 1) {
+  const target = .025 + .93 * index / (total - 1);
+  return index === total - 1 && progress < 1
+    ? .08 + (target - .08) * (1 - (1 - progress) ** 2)
+    : target;
+}

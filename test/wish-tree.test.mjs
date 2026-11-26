@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { helixPoint, parseWishes, sampleWishes, savedWishLimit, validateWish, wishLimit } from '../src/wish-tree.mjs';
+import { helixPoint, parseWishes, sampleWishes, savedWishLimit, validateWish, wishLevel, wishLimit } from '../src/wish-tree.mjs';
 
 test('소원은 공백을 정리하고 이모지를 포함한 30글자까지 받는다', () => {
   assert.deepEqual(validateWish('  모두 행복하기 🎄  '), { text: '모두 행복하기 🎄' });
@@ -30,4 +30,8 @@ test('예시 소원 40개는 모두 유효하며 회전하는 나선은 위쪽�
   assert.equal(front.depth, 1);
   assert.equal(back.depth, -1);
   assert.equal(front.radius, bottom.radius);
+  assert.ok(wishLevel(40, 41, 0) < wishLevel(40, 41, .5));
+  assert.ok(wishLevel(40, 41, .5) < wishLevel(40, 41, 1));
+  assert.ok(wishLevel(40, 41, 1) > wishLevel(39, 41));
+  assert.equal(wishLevel(39, 41, .5), wishLevel(39, 41));
 });

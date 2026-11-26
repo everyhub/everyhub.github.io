@@ -2,7 +2,7 @@
 
 [운영 사이트](https://everyhub.github.io/) · [저장소](https://github.com/everyhub/everyhub.github.io) · [배포 기록](https://github.com/everyhub/everyhub.github.io/actions/workflows/pages.yml)
 
-공식 한국 자료를 바탕으로 한 계산기와 생활 정보, 브라우저 사진·텍스트 도구, IT·AI 소식을 제공하는 정적 사이트입니다. 홈은 **한눈에 바로가기** 카드만 보여 주며 연봉 계산기는 `/tools/salary-calculator/`에서 엽니다. 기존 연봉별 주소와 홈의 `?salary=4000#calculator` 같은 링크는 홈에서 전용 계산기 주소로 자동 이동합니다. [HTML 사이트맵](https://everyhub.github.io/sitemap/)과 왼쪽 메뉴에서 분야별 기능을 열 수 있습니다. 공개 페이지 230개와 검색에서 제외한 관리 페이지 두 개, 이미지 편집기 문서 하나를 생성합니다.
+공식 한국 자료를 바탕으로 한 계산기와 생활 정보, 브라우저 사진·텍스트 도구, IT·AI 소식을 제공하는 정적 사이트입니다. 홈은 **한눈에 바로가기** 카드만 보여 주며 연봉 계산기는 `/tools/salary-calculator/`에서 엽니다. 기존 연봉별 주소와 홈의 `?salary=4000#calculator` 같은 링크는 홈에서 전용 계산기 주소로 자동 이동합니다. [HTML 사이트맵](https://everyhub.github.io/sitemap/)과 왼쪽 메뉴에서 분야별 기능을 열 수 있습니다. 공개 페이지 232개와 검색에서 제외한 관리 페이지 두 개, 이미지 편집기 문서 하나를 생성합니다.
 
 ## 새 작업에 착수할 때
 
@@ -76,6 +76,8 @@ Linux에서 시스템 라이브러리가 없으면 `npx playwright install-deps 
 - 사진·PDF·텍스트는 브라우저 메모리에서만 처리합니다. PDF·QR의 라이브러리는 동일 출처의 정적 자산으로 제공하며, 저장은 사용자가 Blob 다운로드를 눌렀을 때만 이뤄집니다. 파일 테스트에는 실제 문서가 아닌 직접 만든 작은 PDF·이미지를 사용합니다.
 - 글자 수 도구에서 X 일반 게시글을 선택하면 공식 `twitter-text` 가중치를 적용합니다. 근무일수는 생활 정보의 2026·2027년 공식 공휴일 데이터를 재사용합니다. 여권 사진은 외교부 권장 온라인 규격으로 자를 뿐, 심사를 보장하지 않습니다.
 - [CSV·JSON 변환기](https://everyhub.github.io/tools/csv-json-converter/)는 2MB 이하 UTF-8 데이터를 파일 또는 붙여 넣기로 받아 쉼표·탭·세미콜론으로 양방향 변환합니다. 첫 CSV 행은 고유한 열 이름이어야 하고 값은 문자열로 유지합니다. JSON은 키가 같은 평면 객체 배열만 지원합니다. 결과는 기기에서 복사·저장할 수 있고, CSV 수식처럼 보이는 문자열 앞에는 기본적으로 작은따옴표를 붙입니다. 감사는 페이지를 연 뒤 오프라인으로 변환·복사·저장을 실행하고 요청 0건을 확인합니다.
+- [예금·적금 이자 계산기](https://everyhub.github.io/tools/deposit-interest/)는 정기예금·정기적금의 단리·월복리 이자를 월 단위 표준 산식으로 계산하고, 소득세법 제129조·지방세법 제103조의13·조세특례제한법 제88조의2·제89조의3·국고금 관리법 제47조에 따라 일반과세(15.4%)·비과세(0%)·조합등예탁금(1.4%·2026년 신규 5%) 세액(10원 미만 절사)과 만기 예상 수령액을 브라우저에서만 계산합니다.
+- [대출 이자 계산기](https://everyhub.github.io/tools/loan-interest/)는 대출 원금·기간·연 이자율·거치 기간을 입력받아 원리금균등·원금균등·만기일시상환의 월 상환액, 총이자, 총상환액과 3가지 방식별 총이자 비교를 월 단위 표준 산식으로 브라우저에서만 계산하며, 이자제한법 제2조·최고이자율 규정(연 20%)·금융소비자보호법 제19조·한국주택금융공사 안내를 연결합니다.
 
 - `/tools/`의 모든 계산기·도구에는 광고·분석 스크립트를 넣지 않습니다. CSP로 같은 출처 자산만 요청할 수 있으며 폼의 서버 제출을 차단합니다. 누끼 편집기와 Blob Worker도 같은 출처의 모델만 읽으며 사진을 전송하거나 저장하지 않습니다.
 - 만 나이·디데이는 네 자리 연도 1900~2100년만 허용합니다. 세계 시간은 서울에 UTC+9를 적용하는 1989~2100년, 근무일수는 공식 자료가 있는 2026~2027년만 계산합니다.
@@ -119,7 +121,7 @@ Linux에서 시스템 라이브러리가 없으면 `npx playwright install-deps 
 
 - `main` 푸시, 매월 1일 03:17 UTC, 기본 수동 실행은 전체 빌드·배포합니다. [Refresh news](https://github.com/everyhub/everyhub.github.io/actions/workflows/news.yml)는 정각을 피해 UTC 매시 07·37분에 공통 Pages 워크플로를 호출합니다. 예약이 누락되면 **Refresh news → Run workflow**로 수동 실행할 수 있습니다(기존 **Deploy to GitHub Pages → Run workflow → news_only**도 동작합니다). 뉴스 실행은 게시물이나 배포 대상 커밋이 달라진 경우에만 배포합니다. 예약 시각은 목표이며 GitHub가 실행을 지연하거나 누락할 수 있습니다. 수동 실행 성공과 예약 실행 확인은 별개입니다. 겹치는 Pages 실행은 최신 실행이 앞선 실행을 취소합니다.
 - 2026-11-25 [09:04 KST](https://github.com/everyhub/everyhub.github.io/actions/runs/45515165966)와 [17:21 KST](https://github.com/everyhub/everyhub.github.io/actions/runs/45575503149)에 시작한 Refresh news 예약 실행의 빌드·Pages 배포 성공을 확인했습니다. 추천 자동화는 매 실행마다 최근 뉴스 예약을 확인하고, 직전 30분에 성공한 예약이 없으면 [보완 갱신 절차](docs/daily-proposals.md#5-뉴스-예약-누락-시-보완-갱신)를 따릅니다.
-- 같은 날 [19:25 KST 보완 실행](https://github.com/everyhub/everyhub.github.io/actions/runs/45594849070)은 빌드에 성공했고 뉴스와 커밋이 같아 배포를 생략했습니다. 운영 스냅샷은 14개 피드·112건입니다. 빌드 원본 로그의 피드 실패 건수와 30분 주기의 지속 여부는 미확인입니다.
+- 같은 날 [19:25 KST 보완 실행](https://github.com/everyhub/everyhub.github.io/actions/runs/45594849070)은 빌드에 성공했고 뉴스와 커밋이 같아 배포를 생략했습니다. 2026-11-26에는 [03:48 KST](https://github.com/everyhub/everyhub.github.io/actions/runs/45678945682)·[11:08 KST](https://github.com/everyhub/everyhub.github.io/actions/runs/45740409324) 예약 실행 성공 후 직전 30분 예약이 없어 [14:27 KST 보완 실행](https://github.com/everyhub/everyhub.github.io/actions/runs/45761732433)(빌드·배포 성공)과 [19:25 KST 보완 실행](https://github.com/everyhub/everyhub.github.io/actions/runs/45801245895)(빌드 성공, 내용 동일로 배포 생략)을 확인했습니다. 운영 스냅샷은 14개 피드·112건입니다. 30분 주기의 지속 여부는 미확인입니다.
 - 피드가 실패하면 운영 `news-data.json`의 해당 피드 마지막 정상 목록을 사용합니다. 새 피드에 이전 데이터가 없으면 다른 피드를 배포하면서 출처 링크를 표시합니다. 이전 스냅샷이 404가 아닌 오류로 읽히지 않으면 기존 사이트를 보존하도록 빌드를 중단합니다. 수집 오류와 건수는 Actions 로그를 확인하세요.
 - 배포 후 Actions에서 **Deploy to GitHub Pages**의 결과와 커밋을 확인하고 운영 홈·대표 계산기·새 페이지·`sitemap.xml`을 HTTP로 확인합니다. 예약 실행에서 ‘소식 변경 없음’으로 배포 작업이 건너뛰어지는 것은 정상입니다.
 

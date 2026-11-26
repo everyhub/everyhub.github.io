@@ -1,4 +1,4 @@
-import { helixPoint, parseWishes, sampleWishes, savedWishLimit, validateWish, wishStorageKey } from './wish-tree.mjs';
+import { helixPoint, parseWishes, sampleWishes, savedWishLimit, validateWish, wishLevel, wishStorageKey } from './wish-tree.mjs';
 
 const tree = document.querySelector('[data-wish-tree]');
 const form = tree.querySelector('form');
@@ -25,6 +25,7 @@ let paused = false;
 let frame;
 let lastTime = null;
 let elapsed = 0;
+let arrival = null;
 let width = 420;
 let height = 432;
 
@@ -99,8 +100,9 @@ function draw() {
     paint.stroke();
   }
 
+  const ascent = arrival === null || reduced.matches ? 1 : Math.min(1, (elapsed - arrival) / 2600);
   const ornaments = [...sampleWishes, ...wishes].map((text, i, all) => ({
-    ...project(.025 + .93 * i / (all.length - 1)), text, i,
+    ...project(wishLevel(i, all.length, ascent)), text, i,
   })).sort((a, b) => a.depth - b.depth);
   for (const { x, y, depth, i, text } of ornaments) {
     const own = i >= sampleWishes.length;
@@ -191,6 +193,7 @@ form.addEventListener('submit', event => {
     return;
   }
   wishes = [...wishes, result.text].slice(-savedWishLimit);
+  arrival = !paused && !reduced.matches ? elapsed : null;
   save();
   status.textContent = `소원을 달았어요. 내 소원 ${wishes.length}개.`;
   input.value = '';
@@ -199,6 +202,7 @@ form.addEventListener('submit', event => {
 input.addEventListener('input', () => showError());
 reset.addEventListener('click', () => {
   wishes = [];
+  arrival = null;
   save();
   showError();
   status.textContent = '내 소원을 모두 지웠어요. 예시 소원은 그대로예요.';
