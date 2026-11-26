@@ -214,7 +214,7 @@ export const adminProposals = [
         url: "https://www.law.go.kr/"
       }
     ],
-    scope: "임신·출산·육아 분야 /info/civil-service-fertility-leave/ 1페이지. 국가·지방 적용 근거를 나누고 시행일·신청 전 확인 항목·공식 문의 경로를 안내합니다. 체크리스트는 화면에서만 표시합니다.",
+    scope: "임신·출산·육아 분야 /info/civil-service-fertility-leave/ 1페이지. 국가·지방 적용 근거를 나누고 시행일과 신청 전 확인 항목을 안내합니다. 체크리스트는 화면에서만 표시합니다.",
     risks: "민간 근로자 제도와 합쳐 설명하지 않으며 개인 자격·급여·승인 결과를 판단하지 않습니다. 공포된 시행 조문과 최신 지침을 구현 때 다시 확인하고 미공개 서류나 기준은 추정하지 않습니다. 치료 이력은 받지 않습니다.",
     createdAt: "2026-11-25 09:16",
     status: "제외",
