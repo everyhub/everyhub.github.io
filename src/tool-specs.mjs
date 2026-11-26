@@ -6,6 +6,7 @@ import { housingTools } from './housing-specs.mjs';
 
 export const brand = '에브리허브 (EveryHub)';
 export const shortcutKeywords = {
+  'christmas-wish-tree': ['트리', '크리스마스', '소원', '성탄절'],
   'salary-calculator': ['월급', '세후 월급', '실수령', '연봉', '월급 실수령', '급여'],
   'social-insurance': ['4대 보험', '국민연금', '건강보험', '월급 공제'],
   'insurance-rates': ['보험 요율', '보험료율', '4대 보험'],

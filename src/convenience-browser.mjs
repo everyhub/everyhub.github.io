@@ -234,7 +234,7 @@ try {
   }
 } catch {}
 formatMoneyInputs();
-document.querySelectorAll('main form').forEach(rememberForm);
+document.querySelectorAll('main form:not([data-custom-reset])').forEach(rememberForm);
 addCopyButton();
 addBackToTop();
 recentTools();

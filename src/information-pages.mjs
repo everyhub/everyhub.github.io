@@ -1,8 +1,9 @@
-import { holidayCalendar, informationSections, informationSources, supportApplications } from './information.mjs';
+import { holidayCalendar, informationSections, informationSources, supportApplications, wishTreeSection } from './information.mjs';
 import { laborRates, laborSources } from './labor-rates.mjs';
 import { escape, layout, sourcesHTML } from './pages.mjs';
 import { insurance2027, insurance2027Sources, rates, sources } from './rates.mjs';
 import { brand } from './tool-specs.mjs';
+import { sampleWishes, savedWishLimit, wishLimit } from './wish-tree.mjs';
 
 const infoIntro = '공휴일 달력, 정부 지원금 신청 기간, 세금 신고 일정과 연도별 임금·보험료 기준을 공식 자료와 함께 확인하세요.';
 const refs = (items) => `<section class="panel"><h2>공식 자료</h2>${sourcesHTML(items)}</section>`;
@@ -119,6 +120,44 @@ function supportPage(config, section) {
     <p>다른 지원 제도는 <a href="https://www.gov.kr/portal/rcvfvrSvc/main">정부24 혜택알리미·보조금 안내</a>에서 확인하세요.</p></section>`);
 }
 
+function wishTreePage(config) {
+  const { path, name, description } = wishTreeSection;
+  return { path, html: layout({
+    config, root: '../../', path, title: `${name} | ${brand}`, description,
+    localOnly: true, networkless: true, application: name, script: 'wish-tree-browser.mjs',
+    main: `<p class="eyebrow wish-kicker">겨울 한정 · 나만의 소원</p>
+      <h1>${name}</h1><p class="intro">${description}</p>
+      <div class="wish-layout" data-wish-tree>
+        <section class="panel wish-controls">
+          <h2>트리에 소원 달기</h2>
+          <p>내 브라우저에만 저장돼요. 다른 사람에게 보이지 않아요.</p>
+          <form novalidate data-custom-reset>
+            <label for="wish-text">소원</label>
+            <input id="wish-text" type="text" placeholder="예: 우리 모두 건강하기" aria-describedby="wish-help wish-error" autocomplete="off" disabled>
+            <p id="wish-help" class="wish-help">${wishLimit}자 이내 · 최근 ${savedWishLimit}개를 보관해요.</p>
+            <p id="wish-error" class="error" role="alert" hidden></p>
+            <div class="wish-actions"><button type="submit" disabled>소원 달기</button>
+              <button type="button" class="wish-secondary" data-wish-reset disabled>초기화</button></div>
+          </form>
+          <p class="wish-visually-hidden" role="status" data-wish-status></p>
+          <p class="wish-help" data-wish-storage role="status" hidden></p>
+          <noscript><p>소원 달기와 트리 표시는 자바스크립트가 필요합니다.</p></noscript>
+          <section class="wish-visually-hidden" aria-labelledby="wish-list-heading">
+            <h3 id="wish-list-heading">내 소원 목록</h3><ul data-wish-list></ul>
+          </section>
+        </section>
+        <section class="wish-scene" aria-labelledby="wish-scene-title">
+          <div class="wish-scene-head"><div><h2 id="wish-scene-title">한밤의 소원 트리</h2>
+            <p>내 소원 <strong data-wish-count>0</strong>개 <span aria-hidden="true">·</span> 예시 소원 ${sampleWishes.length}개</p></div>
+            <button type="button" data-wish-motion hidden>움직임 멈추기</button>
+          </div>
+          <canvas class="wish-canvas" width="420" height="432" aria-hidden="true"></canvas>
+          <p class="wish-scene-caption">소원 하나하나가 모여 트리가 돼요.</p>
+        </section>
+      </div>`,
+  }) };
+}
+
 export function informationPages(config) {
   const root = '../';
   const [holidays26, holidays27, tax, yearly, support] = informationSections;
@@ -134,5 +173,6 @@ export function informationPages(config) {
     taxPage(config, tax),
     ratesPage(config, yearly),
     supportPage(config, support),
+    wishTreePage(config),
   ];
 }

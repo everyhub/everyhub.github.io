@@ -5,6 +5,7 @@ import { verifiedOn } from './labor-rates.mjs';
 import { brand, shortcutKeywords } from './tool-specs.mjs';
 import { categoryIcon, navigationGroups, salaryCalculatorPath, siteTree } from './navigation.mjs';
 import { utilitySections } from './utility-config.mjs';
+import { wishTreeSection } from './information.mjs';
 
 const { year } = rates;
 const taxFree = won(defaults.monthlyTaxFree);
@@ -90,7 +91,7 @@ export function ad(config) {
   <script>(window.adsbygoogle = window.adsbygoogle || []).push({});</script></aside>`;
 }
 
-export function layout({ config, title, description, path, root, main, faq, calculator = false, application, script, payroll = false, localOnly = false, robots = '' }) {
+export function layout({ config, title, description, path, root, main, faq, calculator = false, application, script, payroll = false, localOnly = false, networkless = false, robots = '' }) {
   const privatePage = localOnly || path.startsWith('tools/');
   const canonical = new URL(path, config.baseURL).href;
   const shareImage = escape(new URL(brandAssets + 'og.png', config.baseURL).href);
@@ -115,7 +116,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  ${privatePage ? `<meta http-equiv="Content-Security-Policy" content="default-src 'self';${path === 'tools/image-resize/' ? " script-src 'self' 'wasm-unsafe-eval';" : ''} connect-src ${['tools/photo-location/', 'tools/csv-json-converter/'].includes(path) ? "'none'" : "'self'"}; img-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'">` : ''}
+  ${privatePage ? `<meta http-equiv="Content-Security-Policy" content="default-src 'self';${path === 'tools/image-resize/' ? " script-src 'self' 'wasm-unsafe-eval';" : ''} connect-src ${networkless || ['tools/photo-location/', 'tools/csv-json-converter/'].includes(path) ? "'none'" : "'self'"}; img-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'">` : ''}
   <meta name="viewport" content="width=device-width, initial-scale=1">
   ${robots ? `<meta name="robots" content="${escape(robots)}">` : ''}
   <title>${escape(title)}</title>
@@ -222,6 +223,7 @@ export function homePage(config) {
     main: `<div class="home-hero"><div class="home-hero-copy"><h1>${brand}</h1>
       <p class="intro">월급 계산과 사진 편집에 필요한 기능을&nbsp;바로 찾아보세요. 생활 정보와 IT·AI 소식도 한곳에 모았습니다.</p></div>
       <img class="home-hero-art" src="./${brandAssets}hero.svg" width="600" height="270" alt=""></div>
+      <a class="wish-home-link button" href="./${wishTreeSection.path}"><span aria-hidden="true">✦</span> ${wishTreeSection.name}</a>
       <section aria-labelledby="shortcuts"><div class="dashboard-title"><h2 id="shortcuts">한눈에 바로가기</h2>
         <label class="dashboard-search" hidden>바로가기 검색<input id="shortcut-search" type="search" data-dashboard-search aria-controls="shortcut-results" aria-describedby="shortcut-search-help" placeholder="예: 나이, 집, PDF, ㅇㅂ" autocomplete="off" maxlength="80">
           <small id="shortcut-search-help">관련 단어·초성 검색 · / 키로 검색 열기</small></label></div>

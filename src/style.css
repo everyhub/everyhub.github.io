@@ -102,6 +102,30 @@ input, select { display: block; width: 100%; margin-top: .3rem; padding: .5rem .
 .dashboard-card-head h2 a:hover { text-decoration: underline; }
 .dashboard-card-head .nav-icon { width: 1.1rem; height: 1.1rem; }
 .home-hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 1rem; align-items: center; margin-bottom: 1.25rem; padding: clamp(.85rem, 2.1vw, 1.5rem); border: 1px solid #cde1d8; border-radius: 1rem; background: linear-gradient(120deg, #fff 35%, #edf7f3); }
+.wish-home-link { margin-bottom: 1.25rem; background: #123d37; }
+.wish-home-link span { color: #ffdfa0; }
+.wish-kicker { letter-spacing: .055em; }
+.wish-layout { display: grid; gap: 1rem; align-items: start; margin-block: 1.25rem; }
+.wish-controls { margin: 0; }
+.wish-controls h2 { margin-bottom: .35rem; }
+.wish-controls label { margin-top: 1rem; }
+.wish-help { color: var(--muted); font-size: var(--text-small); }
+.wish-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .875rem; }
+.wish-actions .wish-secondary { color: #075640; background: #eef7f2; box-shadow: inset 0 0 0 1px #bad8ca; }
+.wish-actions .wish-secondary:hover { background: #daeee4; }
+.wish-actions button:disabled { opacity: .48; cursor: default; }
+.wish-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.wish-scene { min-width: 0; padding: clamp(.75rem, 3vw, 1.5rem); border-radius: 1.1rem; border: 1px solid #1f4b50; overflow: hidden;
+  color: #f1fbf6; background: radial-gradient(ellipse at 50% 65%, #123a39, #101d31 67%, #0b1525); }
+.wish-scene-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .35rem .75rem; }
+.wish-scene h2 { margin: 0; }
+.wish-scene p { margin: .2rem 0 0; color: #bfded7; font-size: var(--text-small); }
+.wish-scene button { padding-inline: .65rem; font-size: .8125rem; background: #25494e; }
+.wish-scene button:hover { background: #346068; }
+.wish-scene button[hidden] { display: none; }
+.wish-canvas { display: block; width: min(100%, 34rem); height: clamp(19rem, 76vw, 29rem); margin-inline: auto; }
+.wish-scene .wish-scene-caption { color: #e6d7af; text-align: center; }
+@media (min-width: 64rem) { .wish-layout { grid-template-columns: minmax(14rem, .72fr) minmax(0, 1.28fr); } }
 .home-hero h1 { font-size: var(--text-h1); }
 .home-hero-art { display: block; width: 100%; height: auto; border-radius: .65rem; }
 @media (max-width: 44rem) {

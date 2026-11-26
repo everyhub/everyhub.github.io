@@ -388,6 +388,15 @@ export const auditItems = {
     verified('운영 뉴스 스냅샷과 국내 뉴스 HTTP 확인', '/news/', '운영 스냅샷의 14개 피드·112건과 국내 뉴스의 6개 출처를 확인했습니다.'),
     open('뉴스 수집 로그와 반복 주기', '원본 로그 도메인 접근 승인을 기다리고 있어 이번 빌드의 수집 건수와 피드 실패 건수는 미확인입니다. 같은 날 확인한 예약 성공 2건과 별도로 30분 주기의 지속 여부를 확인해야 합니다.'),
   ],
+  'christmas-wish-tree': [
+    open('희미한 소원 글자, 불빛·눈·별이 있는 원뿔형 나선 트리와 예시 40개', '운영 화면의 모양과 회전, 일시 정지와 움직임 줄이기 설정을 확인할 예정입니다.', '부분', [site + '/info/christmas-wish-tree/']),
+    open('입력·30자 제한·이모지·키보드·접근 가능한 소원 목록', '운영 브라우저에서 정상·오류 입력과 목록을 확인할 예정입니다.', '부분', [site + '/info/christmas-wish-tree/']),
+    open('로컬 저장·개수·초기화·상호작용 중 네트워크 요청 0건', '운영에서 오프라인 입력과 저장·초기화 동작을 확인할 예정입니다.', '부분', [site + '/info/christmas-wish-tree/']),
+    open('홈 바로가기·검색·사이트맵·SEO 및 390·1440px 운영 검증', 'Pages 배포 후 각 브라우저에서 확인할 예정입니다.', '부분', [site + '/info/christmas-wish-tree/']),
+  ],
+  'shared-wish-tree': [
+    open('여러 방문자가 함께 만드는 공유 트리(B)', '사용자가 A를 먼저 요청해 공유와 서버 저장은 이번 범위에서 제외했습니다.', '제외', [site + '/ops-7f3a9c2d/#christmas-wish-tree']),
+  ],
 };
 
 export const unconfirmed = (requirement, reason, links) => open(requirement, reason, '미확인', links);

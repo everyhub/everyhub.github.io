@@ -315,6 +315,11 @@ async function auditViewport(origin) {
           if (await matches.nth(1).evaluate((link) => document.activeElement !== link)) issue('Shortcut result keyboard navigation failed');
           await page.keyboard.press('Escape');
           if (!await search.evaluate((input) => document.activeElement === input)) issue('Shortcut search Escape did not return focus');
+          for (const query of ['트리', '크리스마스', '소원']) {
+            await search.fill(query);
+            if (await matches.first().getAttribute('href') !== './info/christmas-wish-tree/') issue('Wish tree shortcut missing for ' + query);
+            cases++;
+          }
           await search.fill('없는결과확인');
           const suggestions = page.locator('[data-dashboard-empty]');
           if (!await suggestions.isVisible()) issue('No shortcut suggestions for an unmatched query');
@@ -483,6 +488,57 @@ async function auditViewport(origin) {
         const form = page.locator('main form');
         if (!await form.count()) continue;
         forms++;
+        if (route === '/info/christmas-wish-tree/') {
+          const input = form.getByLabel('소원', { exact: true });
+          const count = page.locator('[data-wish-count]');
+          const wishes = page.locator('[data-wish-list] li');
+          const canvas = page.locator('.wish-canvas');
+          const motion = page.getByRole('button', { name: '움직임 멈추기' });
+          const start = requests.length;
+          const frame = () => canvas.evaluate(node => node.toDataURL());
+          await context.setOffline(true);
+          try {
+            if (await count.textContent() !== '0' || !await page.getByText(/예시 소원 40개/).isVisible() ||
+                await form.getByRole('button', { name: /초기화/ }).count() !== 1) issue('Wish tree starts without its personal counter, sample disclosure, or single reset');
+            await input.press('Enter');
+            await form.getByText('소원을 입력해 주세요.', { exact: true }).waitFor();
+            await input.fill('가'.repeat(31));
+            await input.press('Enter');
+            await form.getByText('소원은 30자 이내로 적어 주세요.', { exact: true }).waitFor();
+            const text = '<b>행복</b> 🎄';
+            await input.fill('  ' + text + '  ');
+            await input.press('Enter');
+            if (await count.textContent() !== '1' || await wishes.first().textContent() !== text ||
+                await wishes.locator('b').count() || await input.inputValue()) issue('Wish submission did not trim, escape, or update the accessible list');
+            const moving = await frame();
+            await page.waitForFunction(previous => document.querySelector('.wish-canvas').toDataURL() !== previous, moving);
+            await motion.click();
+            const still = await frame();
+            await page.waitForTimeout(150);
+            if (await frame() !== still) issue('Wish tree kept moving after pause');
+            await page.getByRole('button', { name: '움직임 켜기' }).click();
+            await page.emulateMedia({ reducedMotion: 'reduce' });
+            await motion.waitFor({ state: 'hidden' });
+            const reduced = await frame();
+            await page.waitForTimeout(150);
+            if (await frame() !== reduced) issue('Wish tree ignored reduced-motion preference');
+            if (requests.length !== start) issue('Wish submission or animation controls made a network request');
+            cases += 6;
+          } finally {
+            await context.setOffline(false);
+            await page.emulateMedia({ reducedMotion: null });
+          }
+          await page.reload();
+          if (await wishes.count() !== 1 || await count.textContent() !== '1') issue('Wish did not persist on reload');
+          const resetStart = requests.length;
+          await form.getByRole('button', { name: '초기화', exact: true }).click();
+          if (await count.textContent() !== '0' || await wishes.count() ||
+              !await page.getByText(/예시 소원 40개/).isVisible() || requests.length !== resetStart) issue('Wish reset did not preserve samples or made a request');
+          await page.reload();
+          if (await count.textContent() !== '0') issue('Wish reset did not persist on reload');
+          cases += 3;
+          continue;
+        }
         if (route === '/tools/csv-json-converter/') {
           const start = requests.length;
           const text = form.locator('[name="text"]');

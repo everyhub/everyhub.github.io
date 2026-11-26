@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { homePage, salaries, salaryCalculatorPage, salaryPage } from '../src/pages.mjs';
+import { homePage, homeShortcuts, salaries, salaryCalculatorPage, salaryPage } from '../src/pages.mjs';
 import { extraPages } from '../src/labor-pages.mjs';
 import { informationPages } from '../src/information-pages.mjs';
 import { holidayCalendar } from '../src/information.mjs';
 import { brand, toolPath, tools } from '../src/tool-specs.mjs';
-import { informationSections } from '../src/information.mjs';
+import { informationSections, wishTreeSection } from '../src/information.mjs';
 import { newsSections } from '../src/news-config.mjs';
 import { utilityGroups } from '../src/utility-config.mjs';
 import { examplePages, medianPages, navigationGroups } from '../src/navigation.mjs';
@@ -141,6 +141,24 @@ test('브라우저 편의 기능 자산과 홈 카드 검색·전체보기', asy
   assert.match(convenience, /field\.valueAsNumber/);
   assert.match(home, /data-dashboard-results hidden>[\s\S]*href="\.\/tools\/pdf-merge\/"/);
   assert.match(salaryCalculatorPage(config), /id="annualSalary" type="number"/);
+});
+
+test('크리스마스 소원 트리는 검색·사이트맵에서 열리고 외부 전송을 차단한다', () => {
+  const { path, name } = wishTreeSection;
+  const { html } = informationPages({ ...config, adsenseClient: 'example' }).find(page => page.path === path);
+  assert.ok(html.includes(`<h1>${name}</h1>`));
+  assert.ok(html.includes(`rel="canonical" href="${config.baseURL}${path}"`));
+  assert.match(html, /"@type":"WebApplication".*크리스마스 소원 트리/);
+  assert.match(html, /connect-src 'none';.*form-action 'none'/);
+  assert.doesNotMatch(html, /<script[^>]*src="https?:\/\//);
+  assert.match(html, /<canvas[^>]+aria-hidden="true"/);
+  assert.match(html, /내 브라우저에만 저장돼요.*다른 사람에게 보이지 않아요/);
+  assert.match(html, /예시 소원 40개/);
+  assert.match(html, /내 소원 목록<\/h3><ul data-wish-list>/);
+  assert.ok(homePage(config).includes(`class="wish-home-link button" href="./${path}"`));
+  const shortcut = homeShortcuts().find(item => item.path === path);
+  assert.deepEqual(shortcut.keywords, ['트리', '크리스마스', '소원', '성탄절']);
+  assert.ok(extraPages(config).find(page => page.path === 'sitemap/').html.includes(`href="../${path}"`));
 });
 
 test('전입신고 안내는 신고·확정일자·전입 절차를 구분하고 공식 접수처와 연결한다', () => {
@@ -394,10 +412,10 @@ test('월력요항 및 개정 법령에 따른 공휴일과 주 5일제 연휴�
   assert.ok(previous.holidays.some(({ date, name }) => date === '2026-07-17' && name === '제헌절'));
   assert.ok(next.holidays.some(({ date, name }) => date === '2027-07-19' && name === '대체공휴일(제헌절)'));
   const pages = informationPages(config);
-  assert.equal(pages.length, 6);
+  assert.equal(pages.length, 7);
   for (const { path, html } of pages) {
     assert.ok(html.includes(`href="${config.baseURL}${path}"`));
-    assert.match(html, /"@type":"CollectionPage"/);
+    if (path !== wishTreeSection.path) assert.match(html, /"@type":"CollectionPage"/);
   }
   const holiday = (year) => pages.find(({ path }) => path === `info/holidays/${year}/`).html;
   for (const year of [2026, 2027]) {
