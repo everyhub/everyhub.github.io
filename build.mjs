@@ -11,6 +11,7 @@ import { newsPages } from './src/news-pages.mjs';
 import { informationPages } from './src/information-pages.mjs';
 import { utilityPages } from './src/utility-pages.mjs';
 import { sitePages } from './src/site-pages.mjs';
+import { playPages } from './src/play-pages.mjs';
 import { adminPath, adminTimelinePage, adminProposalsPath, adminProposalsPage } from './src/admin-pages.mjs';
 
 const dist = fileURLToPath(new URL('./dist/', import.meta.url));
@@ -49,7 +50,7 @@ await Promise.all(['style.css', 'browser.mjs', 'calculator.mjs', 'display.mjs', 
   'guide-specs.mjs', 'guides.mjs', 'guide-rates.mjs', 'housing-specs.mjs', 'housing.mjs', 'housing-rates.mjs',
   'navigation-browser.mjs', 'convenience-browser.mjs', 'shortcut-search.mjs', 'news-browser.mjs', 'information.mjs', 'information-browser.mjs', 'utility.mjs', 'utility-extra.mjs', 'utility-browser.mjs', 'utility-files.mjs', 'lunar-calendar.mjs']
   .concat(['photo-location.mjs', 'photo-location-browser.mjs', 'admin-browser.mjs', 'csv-json.mjs', 'csv-json-browser.mjs',
-    'wish-tree.mjs', 'wish-tree-browser.mjs'])
+    'wish-tree.mjs', 'wish-tree-browser.mjs', 'play.mjs', 'play-browser.mjs'])
   .map((name) => copyFile(join(source, name), join(dist, 'assets', name))));
 await cp(join(source, 'background-removal'), join(dist, 'assets', 'background-removal'), { recursive: true });
 await cp(join(source, 'utility-vendor'), join(dist, 'assets', 'utility-vendor'), { recursive: true });
@@ -72,7 +73,7 @@ await Promise.all(salaries.map(async (salary, index) => {
 }));
 
 const additional = [{ path: salaryCalculatorPath, html: salaryCalculatorPage(config) },
-  ...extraPages(config), ...newsPages(config, news), ...informationPages(config), ...utilityPages(config), ...sitePages(config)];
+  ...extraPages(config), ...newsPages(config, news), ...informationPages(config), ...utilityPages(config), ...sitePages(config), ...playPages(config)];
 await Promise.all(additional.map(async ({ path, html }) => {
   const folder = join(dist, path);
   await mkdir(folder, { recursive: true });

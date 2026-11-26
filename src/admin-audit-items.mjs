@@ -414,6 +414,10 @@ export const auditItems = {
     verified('ads.txt·소유권 태그·소개·개인정보 처리방침·문의 링크 운영 확인', '/ads.txt', '운영 루트에서 HTTP 200과 text/plain, 정확한 판매자 정보를 확인했습니다. 홈·소개·개인정보 처리방침·관리·도구·독립 편집기에 소유권 태그가 있고 광고 코드가 없음을 확인했습니다.'),
     open('AdSense 승인 및 광고 게시', 'AdSense 계정에서 심사를 요청하고 결과를 확인하는 단계가 남았습니다. 승인과 별도 활성화 전에는 광고를 표시하지 않습니다.', '대기'),
   ],
+  'play-tools': [
+    open('놀이 허브와 브라우저 도구 7종 운영 검증', 'Pages 배포와 운영 확인 전입니다.', '진행중', [site + '/play/']),
+    open('사이트 소개·개인정보 처리방침·문의 운영 화면 확인', '390·1440px의 운영 화면을 확인한 뒤 기록합니다.', '진행중', [site + '/about/', site + '/privacy/', site + '/about/#contact']),
+  ],
 };
 
 export const unconfirmed = (requirement, reason, links) => open(requirement, reason, '미확인', links);

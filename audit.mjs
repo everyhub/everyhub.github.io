@@ -8,6 +8,7 @@ import { chromium, devices, firefox, webkit } from 'playwright';
 import { adminTimeline, sortAdminTimeline } from './src/admin-log.mjs';
 import activeWork from './src/admin-now.json' with { type: 'json' };
 import { newsFeeds } from './src/news-config.mjs';
+import { playItems } from './src/play-config.mjs';
 import { PDFDocument } from './src/utility-vendor/pdf-lib-1.17.1.mjs';
 import { jpegLocation } from './src/photo-location.mjs';
 import { jpegWithGPS } from './test/photo-location-fixture.mjs';
@@ -149,6 +150,112 @@ async function checkLinks(page, origin) {
   console.log(`Internal links: ${checked.size} targets from ${pages.size} HTML pages.`);
 }
 
+async function auditPlayTool(page, context) {
+  const start = requests.length;
+  const tool = page.locator('[data-play]');
+  const result = tool.locator('[data-play-result]');
+  const error = tool.locator('[data-play-error]');
+  const submit = () => tool.locator('button[type="submit"]').click();
+  await context.setOffline(true);
+  try {
+    if (route === '/play/new-year-countdown/') {
+      const digits = tool.locator('[data-play-time]');
+      const date = '2026-12-31T15:00:00Z';
+      if (!(await digits.allTextContents()).some((digit) => Number(digit) > 0)) issue('Countdown does not show remaining time');
+      await page.clock.setFixedTime(new Date(date));
+      await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+      if ((await digits.allTextContents()).some((value) => value !== '00') || !/새해가 밝았습니다/.test(await result.textContent()) ||
+          !await tool.locator('.play-fireworks i').first().isVisible()) issue('KST countdown did not celebrate at midnight');
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      if (await tool.locator('.play-fireworks i').first().isVisible()) issue('Countdown firework ignores reduced motion');
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
+      await page.evaluate(() => {
+        Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+      });
+      if (await tool.locator('.play-fireworks i').first().evaluate((node) => getComputedStyle(node).animationPlayState) !== 'paused') issue('Countdown did not pause while hidden');
+      await page.evaluate(() => {
+        delete document.hidden;
+        document.dispatchEvent(new Event('visibilitychange'));
+      });
+      await page.clock.setFixedTime(new Date('2026-05-24T15:05:00Z'));
+      cases += 4;
+    } else if (route === '/play/resolution-card/' || route === '/play/year-in-review/') {
+      const field = tool.locator('textarea').first();
+      const example = '기억하고 싶은 우리 가족 여행 🐏';
+      await field.fill(example);
+      await submit();
+      const save = tool.getByRole('button', { name: 'PNG 저장' });
+      if (!await save.isVisible() || !await tool.locator('canvas').isVisible()) issue('PNG preview missing');
+      const [download] = await Promise.all([page.waitForEvent('download', { timeout: 7000 }), save.click()]);
+      const bytes = await readFile(await download.path());
+      if (bytes.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a' || bytes.length < 5000) issue('Downloaded card is not a rendered PNG');
+      await tool.getByRole('button', { name: '지우기' }).click();
+      if (await save.isVisible() || await field.inputValue() || await result.textContent()) issue('Card reset failed');
+      cases += 3;
+    } else if (route === '/play/zodiac-age/') {
+      const birth = tool.locator('[name="birthday"]');
+      const year = tool.locator('[name="year"]');
+      await year.fill('2027');
+      await year.press('Enter');
+      if (!/정미년\(양띠\)/.test(await result.textContent())) issue('Year-mode zodiac missing 2027');
+      await year.fill('');
+      await birth.fill('2026-02-16');
+      await submit();
+      if (!/만 0세.*을사년\(뱀띠\)/.test(await result.textContent())) issue('Before-Seollal age or zodiac incorrect');
+      await birth.fill('2026-02-17');
+      await submit();
+      if (!/만 0세.*병오년\(말띠\)/.test(await result.textContent())) issue('Seollal boundary incorrect');
+      await birth.fill('2000-02-05');
+      await submit();
+      if (!/만 26세.*경진년\(용띠\)/.test(await result.textContent())) issue('Browser lunar calendar result incorrect');
+      await birth.fill('2028-02-17');
+      await submit();
+      if (!/빠를 수 없습니다/.test(await error.textContent()) || await result.textContent()) issue('Future birthday did not clear prior result');
+      cases += 5;
+    } else {
+      const entries = tool.locator('textarea');
+      await entries.fill('하늘\n하늘');
+      await submit();
+      if (!/겹치는/.test(await error.textContent())) issue('Duplicate entries were not rejected');
+      await entries.fill('하늘\n나무\n바다');
+      await submit();
+      cases++;
+      if (route === '/play/secret-santa/') {
+        const secret = tool.locator('[data-play-secret]');
+        const used = new Set();
+        for (const name of ['하늘', '나무', '바다']) {
+          if (await secret.textContent() || !(await tool.locator('[data-play-person]').textContent()).includes(name)) issue('Pair shown before reveal or wrong turn');
+          await tool.getByRole('button', { name: '내 짝 보기' }).click();
+          const value = (await secret.textContent()).replace('내 짝: ', '');
+          if (!['하늘', '나무', '바다'].includes(value) || value === name || used.has(value)) issue('Invalid secret pairing');
+          used.add(value);
+          await tool.locator('[data-play-next]').click();
+          cases++;
+        }
+        if (await secret.textContent() || await tool.locator('[data-play-pair]').isVisible()) issue('Secret draw did not clear after last person');
+      } else if (route === '/play/roulette/') {
+        await page.waitForFunction(() => /뽑힌 항목: (하늘|나무|바다)/.test(document.querySelector('[data-play-result]').textContent), null, { timeout: 4500 });
+        if (await tool.locator('.play-legend li').count() !== 3) issue('Roulette choices are missing');
+        await page.emulateMedia({ reducedMotion: 'reduce' });
+        await submit();
+        if (!/뽑힌 항목:/.test(await result.textContent()) ||
+            await tool.locator('.play-wheel').evaluate((node) => node.getAnimations().length)) issue('Roulette ignores reduced motion');
+        await page.emulateMedia({ reducedMotion: 'no-preference' });
+        cases += 2;
+      } else {
+        const teams = tool.locator('[data-play-teams] ul');
+        if (await teams.count() !== 2 || await teams.nth(0).locator('li').count() !== 2 || await teams.nth(1).locator('li').count() !== 1 ||
+            (await teams.locator('li').allTextContents()).sort().join() !== ['하늘', '나무', '바다'].sort().join()) issue('Teams are not balanced or members changed');
+        cases++;
+      }
+    }
+  } finally {
+    await context.setOffline(false);
+    if (requests.length !== start) issue('Play interaction made a network request');
+  }
+}
+
 async function auditViewport(origin) {
   const context = await browser.newContext({ viewport: { width, height: 850 }, ...device, serviceWorkers: 'block' });
   if (engine === chromium) await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin });
@@ -220,7 +327,7 @@ async function auditViewport(origin) {
           const standalone = location.pathname === '/assets/background-removal/';
           if (document.querySelectorAll('h1').length !== 1 || (!standalone && !document.querySelector('.site-foot a'))) found.push('Missing or duplicate heading/footer');
           const controls = document.querySelectorAll(standalone ? '#refineNum, #bgColor' :
-            '.site-head :is(button, .home-link), main :is(button, .button, select, input:not([type=checkbox], [type=radio], [type=range]))');
+            '.site-head :is(button, .home-link, .play-head-link), main :is(button, .button, select, input:not([type=checkbox], [type=radio], [type=range]))');
           for (const control of controls) {
             const { width, height } = control.getBoundingClientRect();
             if (width > 0 && height > 0 && height < 43.75) found.push('Control under 44px: ' + (control.id || control.name || control.textContent.trim()));
@@ -486,6 +593,19 @@ async function auditViewport(origin) {
             issue('Move-in checklist is missing an official link');
           }
           cases++;
+        }
+        if (route.startsWith('/play/')) {
+          if (await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content').then((policy) => !policy?.includes("connect-src 'none'"))) {
+            issue('Play page does not block connections');
+          }
+          cases++;
+          if (route === '/play/') {
+            for (const { path } of playItems) if (await page.locator(`main a[href="../${path}"]`).count() !== 1) issue('Play hub link missing: ' + path);
+          } else {
+            await auditPlayTool(page, context);
+            if (await overflow() > 1) issue('Play page overflows after interaction');
+          }
+          continue;
         }
         const form = page.locator('main form');
         if (!await form.count()) continue;

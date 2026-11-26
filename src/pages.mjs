@@ -6,6 +6,7 @@ import { brand, shortcutKeywords } from './tool-specs.mjs';
 import { categoryIcon, navigationGroups, salaryCalculatorPath, siteTree } from './navigation.mjs';
 import { utilitySections } from './utility-config.mjs';
 import { wishTreeSection } from './information.mjs';
+import { ladderPath, playPath, playTools } from './play-config.mjs';
 
 const { year } = rates;
 const taxFree = won(defaults.monthlyTaxFree);
@@ -157,6 +158,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
   <header class="site-head"><div class="wrap"><a class="brand" href="${root}" aria-label="${brand}">
     <img src="${root}${brandAssets}mark.svg" width="28" height="28" alt=""><span>에브리허브 <span class="brand-latin">(EveryHub)</span></span></a>
     <button type="button" class="nav-toggle" hidden aria-controls="site-navigation" aria-expanded="false">전체 메뉴</button>
+    <a class="play-head-link" href="${root}${playPath}"${path === playPath ? ' aria-current="page"' : ''}>놀이</a>
     <a class="home-link" href="${root}">홈</a></div></header>
   <div class="page-grid wrap">
     <nav class="sidebar" id="site-navigation" aria-label="사이트 탐색"><p class="sidebar-title">분야별 찾아보기</p>${siteTree(root, path)}</nav>
@@ -209,12 +211,14 @@ function dashboard() {
 export function homeShortcuts() {
   const groupItems = ({ name: category, items }) => items.map((item) => ({ ...item, category }));
   const ordered = [...navigationGroups.filter(({ path }) => path !== 'tools/').flatMap(groupItems),
-    ...utilitySections.map(({ group: category, ...item }) => ({ ...item, category })),
+    ...utilitySections.filter((item) => item.path !== ladderPath).map(({ group: category, ...item }) => ({ ...item, category })),
     ...navigationGroups.filter(({ path }) => path === 'tools/').flatMap(groupItems),
     ...navigationGroups.map(({ name, path }) => ({ name, path, category: name }))];
-  return ordered.map(({ path, name: title, category }) => ({
-    path, title, category, keywords: shortcutKeywords[path.split('/')[1]] ?? [],
-  }));
+  return ordered.filter(({ path }, index) => ordered.findIndex((item) => item.path === path) === index)
+    .map(({ path, name: title, category }) => ({
+      path, title, category, keywords: playTools.find((item) => item.path === path)?.keywords ??
+        (path === playPath ? ['놀이', '게임', '재미'] : shortcutKeywords[path.split('/')[1]] ?? []),
+    }));
 }
 
 export function homePage(config) {

@@ -5,6 +5,7 @@ import { informationSections } from './information.mjs';
 import { newsSections } from './news-config.mjs';
 import { utilityGroups, utilitySections } from './utility-config.mjs';
 import { housingExamples } from './housing-examples.mjs';
+import { playItems, playPath } from './play-config.mjs';
 
 export const salaryCalculatorPath = 'tools/salary-calculator/';
 export const moveInGuide = { path: 'housing/move-in-checklist/', name: '전입신고·확정일자 체크리스트' };
@@ -33,6 +34,7 @@ export const navigationGroups = [
       : id === 'housing' ? [...entries(id), moveInGuide] : entries(id),
   })),
   { path: 'tools/', name: '도구', items: utilityGroups },
+  { path: playPath, name: '놀이', items: playItems },
   { path: 'news/', name: 'IT·AI 소식', items: newsSections },
   { path: 'info/', name: '생활 정보·복지', items: [...informationSections, ...entries('living')] },
 ];
@@ -48,6 +50,7 @@ const iconPaths = {
   'leave/': 'M12 20S5 16 5 10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 6-7 10-7 10',
   'housing/': 'M3 11l9-7 9 7 M5 10v10h14V10 M10 20v-5h4v5',
   'tools/': 'M14 6l4-4 4 4-4 4 M18 2l-8 8 M4 20h4l9-9-4-4-9 9v4',
+  'play/': 'M12 3l2.6 5.7 6.2.7-4.6 4.2 1.2 6.2L12 17l-5.4 2.8 1.2-6.2-4.6-4.2 6.2-.7z',
   'news/': 'M4 5h16v14H4z M7 9h10 M7 13h7 M7 17h4',
   'info/': 'M12 3l9 5-9 5-9-5 9-5 M5 11v5l7 4 7-4v-5',
 };
@@ -63,10 +66,11 @@ function groupLinks(root, { items }, path, parent) {
 export function siteTree(root, path) {
   const example = [...examplePages, ...medianPages, ...housingExamples].find((item) => item.path === path);
   const utility = utilitySections.find((item) => item.path === path);
-  const parent = example ? toolPath(example.id) : path.startsWith('salary/') ? salaryCalculatorPath
+  const defaultParent = example ? toolPath(example.id) : path.startsWith('salary/') ? salaryCalculatorPath
     : utility ? utilityGroups.find((group) => group.name === utility.group).path : path;
   const hub = path === 'tax/' ? 'pay/' : path === 'living/' ? 'info/' : path;
   return `<ul class="site-tree">${navigationGroups.map((group) => {
+    const parent = group.path === playPath ? path : defaultParent;
     const active = group.path === hub || group.items.some((item) => item.path === parent);
     return `<li class="nav-category${active ? ' nav-ancestor' : ''}"><details${active ? ' open' : ''}><summary><span class="nav-summary">${categoryIcon(group.path)}<span>${group.name}</span></span></summary><ul>
       <li>${link(root, group.path, `${group.name} 전체 보기`, path === group.path ? path : parent)}</li>${groupLinks(root, group, path, parent)}</ul></details></li>`;

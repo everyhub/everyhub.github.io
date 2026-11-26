@@ -5,6 +5,8 @@ import { homePage, homeShortcuts, salaries, salaryCalculatorPage, salaryPage } f
 import { extraPages } from '../src/labor-pages.mjs';
 import { informationPages } from '../src/information-pages.mjs';
 import { sitePages } from '../src/site-pages.mjs';
+import { playPages } from '../src/play-pages.mjs';
+import { playItems, playTools } from '../src/play-config.mjs';
 import { site } from '../site.config.mjs';
 import { holidayCalendar } from '../src/information.mjs';
 import { brand, toolPath, tools } from '../src/tool-specs.mjs';
@@ -83,7 +85,7 @@ test('광고를 실행하지 않고 사이트 확인 태그와 심사용 안내�
 test('개인 이름 없는 브랜드와 분류 탐색 패널', () => {
   const home = homePage(config);
   assert.ok(home.includes(`<meta property="og:site_name" content="${brand}">`));
-  assert.equal(navigationGroups.length, 8);
+  assert.equal(navigationGroups.length, 9);
   for (const { path } of navigationGroups) assert.ok(home.includes(`href="./${path}"`));
   const group = extraPages(config).find(({ path }) => path === 'leave/');
   assert.match(group.html, /href="\.\.\/leave\/" aria-current="page"/);
@@ -161,6 +163,29 @@ test('브라우저 편의 기능 자산과 홈 카드 검색·전체보기', asy
   assert.match(convenience, /field\.valueAsNumber/);
   assert.match(home, /data-dashboard-results hidden>[\s\S]*href="\.\/tools\/pdf-merge\/"/);
   assert.match(salaryCalculatorPage(config), /id="annualSalary" type="number"/);
+});
+
+test('놀이 허브는 기존 URL을 보존하고 새 도구를 탐색·검색·사이트맵에 연결', () => {
+  const pages = playPages({ ...config, adsenseClient: 'example' });
+  const hub = pages.find(({ path }) => path === 'play/').html;
+  const home = homePage(config);
+  const sitemap = extraPages(config).find(({ path }) => path === 'sitemap/').html;
+  assert.match(home, /class="play-head-link" href="\.\/play\/">놀이<\/a>/);
+  for (const { path } of playItems) {
+    assert.ok(hub.includes(`href="../${path}"`));
+    assert.ok(sitemap.includes(`href="../${path}"`));
+    const shortcut = homeShortcuts().filter((item) => item.path === path);
+    assert.equal(shortcut.length, 1);
+    assert.equal(shortcut[0].category, '놀이');
+    assert.ok(shortcut[0].keywords.length);
+  }
+  for (const { path } of playTools) {
+    const html = pages.find((item) => item.path === path).html;
+    assert.ok(html.includes(`rel="canonical" href="${config.baseURL}${path}"`));
+    assert.match(html, /"@type":"WebApplication"/);
+    assert.match(html, /connect-src 'none';.*form-action 'none'/);
+    assert.doesNotMatch(html, /adsbygoogle|<script[^>]*src="https?:\/\//);
+  }
 });
 
 test('크리스마스 소원 트리는 검색·사이트맵에서 열리고 외부 전송을 차단한다', () => {

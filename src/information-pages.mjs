@@ -125,7 +125,7 @@ function wishTreePage(config) {
   return { path, html: layout({
     config, root: '../../', path, title: `${name} | ${brand}`, description,
     localOnly: true, networkless: true, application: name, script: 'wish-tree-browser.mjs',
-    main: `<p class="eyebrow wish-kicker">겨울 한정 · 나만의 소원</p>
+    main: `<p class="eyebrow wish-kicker"><a href="../../play/">놀이</a> · 겨울 한정</p>
       <h1>${name}</h1><p class="intro">${description}</p>
       <div class="wish-layout" data-wish-tree>
         <section class="panel wish-controls">

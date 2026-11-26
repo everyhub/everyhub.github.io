@@ -3,6 +3,7 @@ import { brand } from './tool-specs.mjs';
 import { utilityGroups, utilitySections } from './utility-config.mjs';
 import { dateInput, extraUtilityForms } from './utility-forms.mjs';
 import { maxArea } from './utility.mjs';
+import { ladderPath, playPath } from './play-config.mjs';
 
 const root = '../../';
 const toolIntro = '글쓰기, 이미지·PDF, 날짜·시간, 생활 계산과 개발 도구를 브라우저에서 바로 사용하세요. 파일과 입력값은 서버로 보내지 않습니다.';
@@ -88,7 +89,7 @@ export function utilityPages(config) {
     const embedded = id === 'background-removal';
     const tableConverter = id === 'csv-json-converter';
     const parent = utilityGroups.find((item) => item.name === group);
-    const main = `<p class="eyebrow"><a href="${root}tools/">도구</a> · <a href="${root}${parent.path}">${group}</a></p><h1>${name}</h1><p class="intro">${description}</p>
+    const main = `<p class="eyebrow"><a href="${root}tools/">도구</a> · <a href="${root}${parent.path}">${group}</a>${path === ladderPath ? ` · <a href="${root}${playPath}">놀이</a>` : ''}</p><h1>${name}</h1><p class="intro">${description}</p>
     ${embedded ? html : `<section class="panel"><form data-utility="${id}">${html}
       ${tableConverter || id === 'photo-location' ? '' : '<p class="error utility-error" role="alert"></p>'}
       <output class="utility-result"${tableConverter ? ' data-copy-exact aria-live="off"' : ' aria-live="polite"'}></output></form></section>`}

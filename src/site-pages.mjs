@@ -10,7 +10,7 @@ export function sitePages(config) {
       main: `<h1>사이트 소개</h1>
       <p class="intro">에브리허브는 급여·노동·주거·생활 정보를 한국어로 정리하고, 일상에서 필요한 계산기와 도구를 제공하는 사이트입니다.</p>
       <section class="panel"><h2>정보를 확인하는 방법</h2><p>계산 기준과 적용 시기는 관련 페이지에서 확인할 수 있습니다. 제도가 바뀌거나 개인 사정에 따라 결과가 달라질 수 있으니 중요한 결정은 함께 안내하는 기관 원문을 참고해 주세요.</p></section>
-      <section class="panel"><h2>문의와 오류 제보</h2><p><a href="https://github.com/everyhub/everyhub.github.io/issues">GitHub 이슈</a>에 페이지 주소와 확인이 필요한 내용을 남겨 주세요. 공개 게시판이므로 급여 명세서, 연락처, 사진 같은 개인정보는 올리지 마세요.</p></section>`,
+      <section class="panel" id="contact"><h2>문의와 오류 제보</h2><p><a href="https://github.com/everyhub/everyhub.github.io/issues">GitHub 이슈</a>에 페이지 주소와 확인이 필요한 내용을 남겨 주세요. 공개 게시판이므로 급여 명세서, 연락처, 사진 같은 개인정보는 올리지 마세요.</p></section>`,
     },
     {
       path: 'privacy/',
