@@ -418,6 +418,10 @@ export const auditItems = {
     verified('놀이 허브와 브라우저 도구 7종 운영 검증', '/play/', 'Pages #45835971327 운영 390·1440px에서 새해 자정 효과, PNG 2종, 가려서 보는 마니또, 룰렛, 설 기준 띠·만 나이, 균등 팀 배정과 기존 소원 트리·사다리 타기를 확인했습니다. 두 너비 모두 외부 요청·상호작용 요청·페이지 오류가 없었습니다.'),
     verified('사이트 소개·개인정보 처리방침·문의 운영 화면 확인', '/about/#contact', '390·1440px에서 소개와 개인정보 처리방침, 소개 안의 문의 섹션을 캡처하여 검수했습니다. GitHub의 공개 문의 링크와 개인정보를 올리지 말라는 안내를 확인했습니다.'),
   ],
+  'prompt-fortune-cookie': [
+    verified('질문 뽑기·다시 뽑기·복사와 움직임 줄이기', '/play/prompt-fortune-cookie/', '한국어 질문 102개와 주제별·전체 뽑기, 최근 질문 제외를 테스트합니다. 브라우저 감사에서 Enter·Space, 쿠키 깨기 효과와 움직임 줄이기, Chromium 클립보드를 검사합니다.'),
+    verified('놀이 허브·홈 검색·사이트맵과 외부 전송 차단', '/play/', '놀이 목록·검색·canonical·사이트맵에 등록했습니다. 브라우저 감사는 오프라인 뽑기와 복사, 상호작용 요청 0건을 검사하며, AI 서비스는 사용자가 링크를 눌러야 열리고 질문이 링크에 포함되지 않습니다.'),
+  ],
 };
 
 export const unconfirmed = (requirement, reason, links) => open(requirement, reason, '미확인', links);

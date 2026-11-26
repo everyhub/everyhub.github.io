@@ -291,6 +291,28 @@ summary { cursor: pointer; padding: .5rem 0; font-weight: 700; }
 .play-card-preview { margin: 1rem 0; max-width: 26rem; }
 .play-card-preview canvas { display: block; width: 100%; height: auto; border-radius: .8rem; }
 [data-play-save][hidden] { display: none; }
+.fortune-cookie { position: relative; }
+.fortune-cookie select { width: min(100%, 16rem); min-height: 2.75rem; }
+.fortune-stage { margin-block: 1rem; padding: 1rem .75rem .6rem; border-radius: 1rem; text-align: center; background: radial-gradient(ellipse at 50% 45%, #fff8e8, #f9dfd2 100%); }
+button.fortune-draw, button.fortune-draw:hover { display: inline-grid; justify-items: center; max-width: 100%; background: transparent; color: #653a29; }
+.fortune-draw:focus-visible { outline: 3px solid #784538; outline-offset: 3px; }
+.fortune-draw span { padding: .45rem 1.05rem; border-radius: 2rem; background: #723e2c; color: #fff9ec; font-weight: 750; }
+.fortune-draw:hover span { background: #572b1f; }
+.fortune-art { display: block; width: min(13rem, 100%); height: auto; overflow: visible; }
+.fortune-half { transform-box: fill-box; transform-origin: center; }
+.fortune-cracked .fortune-half:first-of-type { transform: translate(-12px, 3px) rotate(-10deg); }
+.fortune-cracked .fortune-half:last-of-type { transform: translate(13px, 3px) rotate(12deg); }
+@media (prefers-reduced-motion: no-preference) {
+  .fortune-cracked .fortune-half { animation: fortune-crack .36s ease-out; }
+  @keyframes fortune-crack { from { transform: none; } }
+}
+.fortune-slip { padding: .9rem 1rem; border: 1px solid #e6c6a7; border-radius: .8rem; background: #fffaf0; }
+.fortune-topic { margin: 0; color: #724731; font-weight: 750; }
+.fortune-prompt { margin: .45rem 0 1rem; max-width: 46rem; line-height: 1.7; color: #302522; }
+.fortune-links { display: flex; flex-wrap: wrap; gap: .35rem; padding: 0; margin: 0; list-style: none; }
+.fortune-links a { display: inline-flex; align-items: center; min-height: 2.75rem; padding-inline: .65rem; border: 1px solid #d7bfa8; border-radius: .45rem; }
+.fortune-status { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+[data-fortune-copy-status]:empty { margin: 0; }
 .play-private { background: #fff6eb; border: 1px solid #eedcc9; border-radius: .8rem; padding: .85rem 1rem; }
 .play-private h2 { margin: 0; overflow-wrap: anywhere; }
 .play-roulette { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); align-items: center; gap: 1rem; }

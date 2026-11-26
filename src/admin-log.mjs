@@ -85,6 +85,7 @@ const requests = [
   { time: "2026-11-26 22:50", id: "wish-tree-cache", request: "소원트리 반영 안된거 같고 다시 확인해봐", status: "완료", reflection: "HTML과 중첩 모듈에 내용 기반 자산 버전을 적용했습니다. 운영에서 버전 없는 자산을 차단해도 장식된 트리가 회전했습니다.", links: ["https://everyhub.github.io/info/christmas-wish-tree/", "https://github.com/everyhub/everyhub.github.io/actions/runs/45833273166"] },
   { time: "2026-11-26 22:50", id: "adsense-ownership", request: "AdSense 판매자 인증 정보 게시", status: "부분", reflection: "운영 ads.txt와 소유권 태그, 소개·개인정보 처리방침·문의 링크를 확인했습니다. 광고와 방문자 분석은 활성화하지 않았습니다.", links: ["https://everyhub.github.io/ads.txt", "https://everyhub.github.io/privacy/", "https://everyhub.github.io/about/"] },
   { time: "2026-11-26 23:05", id: "play-tools", request: "소원 트리 같은 재미있는 기능을 한 탭에 모으고 괜찮은 것은 더 넣어 줘", status: "완료", reflection: "기존 두 페이지의 주소를 유지하고 놀이 허브와 브라우저 전용 도구 일곱 개를 추가했습니다. 운영 390·1440px에서 도구와 안내 페이지를 확인했습니다.", links: ["https://everyhub.github.io/play/", "https://github.com/everyhub/everyhub.github.io/actions/runs/45835971327", "https://everyhub.github.io/about/#contact", "https://everyhub.github.io/privacy/"] },
+  { time: "2026-11-26 23:20", id: "prompt-fortune-cookie", request: "포춘쿠키에서 질문을 뽑아 AI에 물어보는 놀이", status: "완료", reflection: "놀이에 한국어 질문 102개를 담은 AI 프롬프트 포춘쿠키를 추가했습니다. 질문은 브라우저에서 뽑고, 복사한 뒤 원하는 AI에 직접 붙여 넣을 수 있습니다.", links: ["https://everyhub.github.io/play/prompt-fortune-cookie/"] },
 ];
 
 export function hasCompletionEvidence(item) {

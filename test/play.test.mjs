@@ -1,6 +1,22 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { birthdayZodiac, countdown, kstToday, listEntries, newYear, roulettePick, secretPairs, splitTeams, wrapCardText, yearZodiac } from '../src/play.mjs';
+import { fortuneCategories, fortunePromptCount, pickFortune } from '../src/prompt-fortune.mjs';
+
+test('포춘쿠키는 100개 이상의 고유 질문을 주제별로 뽑고 최근 질문을 피한다', () => {
+  const all = Object.values(fortuneCategories).flatMap(({ prompts }) => prompts);
+  assert.ok(fortunePromptCount >= 100);
+  assert.equal(new Set(all).size, fortunePromptCount);
+  assert.ok(all.every((text) => /[가-힣]/.test(text)));
+  for (const [category, { prompts }] of Object.entries(fortuneCategories)) {
+    const recent = prompts.slice(0, 12);
+    assert.deepEqual(pickFortune(category, recent, () => 0), { category, text: prompts[12] });
+    assert.deepEqual(pickFortune(category, prompts, () => 0), { category, text: prompts[0] });
+  }
+  const remaining = all.at(-1);
+  assert.deepEqual(pickFortune('', all.slice(0, -1), () => 0), { category: 'learn', text: remaining });
+  assert.ok(all.includes(pickFortune('', []).text));
+});
 
 test('2027년 타이머는 한국 자정에 0으로 고정되고 이후 음수가 되지 않는다', () => {
   assert.equal(newYear, Date.parse('2026-12-31T15:00:00Z'));

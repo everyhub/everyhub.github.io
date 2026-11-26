@@ -10,6 +10,7 @@ export const playTools = [
   ['roulette', '랜덤 뽑기·룰렛', '고르기 어려울 때 후보를 적고 룰렛을 돌려 하나를 뽑아 보세요.', ['랜덤', '뽑기', '룰렛', '당첨', '메뉴']],
   ['zodiac-age', '띠·만 나이 계산', '양력 생일로 설날 기준 띠와 생일 기준 만 나이를 확인하세요.', ['띠', '십이지', '정미년', '양띠', '설날']],
   ['team-draw', '랜덤 팀 나누기', '참가자를 섞어 인원 차이가 최대 한 명인 팀을 만드세요.', ['팀 나누기', '조 편성', '팀 배정', '랜덤', '팀짜기']],
+  ['prompt-fortune-cookie', 'AI 프롬프트 포춘쿠키', '쿠키를 깨서 질문을 뽑고, 좋아하는 AI에게 물어보세요.', ['포춘쿠키', '포츈쿠키', '프롬프트', 'AI 질문', '챗GPT', '제미나이', '클로드']],
 ].map(([id, name, description, keywords]) => ({ id, path: `play/${id}/`, name, description, keywords }));
 
 export const ladderPath = 'tools/ladder-draw/';

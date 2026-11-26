@@ -9,6 +9,7 @@ import { adminTimeline, sortAdminTimeline } from './src/admin-log.mjs';
 import activeWork from './src/admin-now.json' with { type: 'json' };
 import { newsFeeds } from './src/news-config.mjs';
 import { playItems } from './src/play-config.mjs';
+import { fortuneCategories } from './src/prompt-fortune.mjs';
 import { PDFDocument } from './src/utility-vendor/pdf-lib-1.17.1.mjs';
 import { jpegLocation } from './src/photo-location.mjs';
 import { jpegWithGPS } from './test/photo-location-fixture.mjs';
@@ -193,6 +194,49 @@ async function auditPlayTool(page, context) {
       await tool.getByRole('button', { name: '지우기' }).click();
       if (await save.isVisible() || await field.inputValue() || await result.textContent()) issue('Card reset failed');
       cases += 3;
+    } else if (route === '/play/prompt-fortune-cookie/') {
+      const draw = tool.locator('[data-fortune-draw]');
+      const slip = tool.locator('[data-fortune-slip]');
+      const topic = tool.locator('[data-fortune-topic]');
+      const prompt = tool.locator('[data-fortune-prompt]');
+      const category = tool.locator('[data-fortune-category]');
+      const copy = tool.locator('[data-fortune-copy]');
+      const copyStatus = tool.locator('[data-fortune-copy-status]');
+      if (await slip.isVisible()) issue('Fortune cookie result appears before opening');
+      await draw.press('Enter');
+      await slip.waitFor({ state: 'visible' });
+      const first = await prompt.textContent();
+      const firstTopic = await topic.textContent();
+      if (!Object.values(fortuneCategories).some(({ label, prompts }) => prompts.includes(first) && label === firstTopic) ||
+          await draw.locator('.fortune-half').first().evaluate((node) => getComputedStyle(node).animationName) !== 'fortune-crack') {
+        issue('Fortune cookie did not animate and reveal a prompt');
+      }
+      await draw.press('Space');
+      await slip.waitFor({ state: 'visible' });
+      if (await prompt.textContent() === first) issue('Fortune cookie repeated the previous prompt');
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      try {
+        await category.selectOption('creative');
+        if (await slip.isVisible()) issue('Fortune cookie kept the old result after a category change');
+        await draw.click();
+        await slip.waitFor({ state: 'visible' });
+        const text = await prompt.textContent();
+        if (await topic.textContent() !== fortuneCategories.creative.label || !fortuneCategories.creative.prompts.includes(text) ||
+            await draw.locator('.fortune-half').first().evaluate((node) => getComputedStyle(node).animationName) !== 'none') {
+          issue('Fortune cookie did not honor the selected category or reduced motion');
+        }
+        if (engine === chromium) {
+          await copy.click();
+          await copyStatus.waitFor({ state: 'visible' });
+          if (await page.evaluate(() => navigator.clipboard.readText()) !== text) issue('Fortune cookie did not copy the displayed prompt');
+        }
+        const links = await tool.locator('.fortune-links a').evaluateAll(nodes => nodes.map(node => [node.href, node.target, node.rel]));
+        if (JSON.stringify(links) !== JSON.stringify(['https://chatgpt.com/', 'https://gemini.google.com/', 'https://claude.ai/']
+          .map(url => [url, '_blank', 'noopener noreferrer']))) issue('Fortune cookie AI links do not open clean service URLs in separate tabs');
+      } finally {
+        await page.emulateMedia({ reducedMotion: 'no-preference' });
+      }
+      cases += engine === chromium ? 6 : 5;
     } else if (route === '/play/zodiac-age/') {
       const birth = tool.locator('[name="birthday"]');
       const year = tool.locator('[name="year"]');
@@ -427,6 +471,11 @@ async function auditViewport(origin) {
           for (const query of ['트리', '크리스마스', '소원']) {
             await search.fill(query);
             if (await matches.first().getAttribute('href') !== './info/christmas-wish-tree/') issue('Wish tree shortcut missing for ' + query);
+            cases++;
+          }
+          for (const query of ['포츈쿠키', '프롬프트']) {
+            await search.fill(query);
+            if (await matches.first().getAttribute('href') !== './play/prompt-fortune-cookie/') issue('Fortune cookie shortcut missing for ' + query);
             cases++;
           }
           await search.fill('없는결과확인');

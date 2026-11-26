@@ -4,6 +4,7 @@ import { playItems, playPath, playTools } from './play-config.mjs';
 import { lunarSources } from './lunar-calendar.mjs';
 import { playLimits } from './play.mjs';
 import { dateRange } from './utility.mjs';
+import { fortuneCategories, fortunePromptCount } from './prompt-fortune.mjs';
 
 const cardLayout = (html) => `${html}
   <div class="play-actions"><button type="submit">카드 만들기</button><button type="reset" class="play-secondary">지우기</button></div>
@@ -21,7 +22,49 @@ const zodiacSources = [
   { name: '국가법령정보센터 · 민법 제158조', url: 'https://www.law.go.kr/법령/민법/제158조' },
   { name: '국가법령정보센터 · 행정기본법 제7조의2', url: 'https://www.law.go.kr/법령/행정기본법/제7조의2' },
 ];
+const fortuneCookie = `<section class="panel fortune-cookie play-form" data-play="prompt-fortune-cookie">
+  <label>주제<select data-fortune-category>
+    <option value="">모든 주제</option>${Object.entries(fortuneCategories).map(([key, { label, prompts }]) =>
+      `<option value="${key}">${label} (${prompts.length}개)</option>`).join('')}
+  </select></label>
+  <div class="fortune-stage">
+    <button type="button" class="fortune-draw" data-fortune-draw>
+      <svg class="fortune-art" viewBox="0 0 240 160" width="240" height="160" aria-hidden="true">
+        <defs><linearGradient id="fortune-crust" x2="30%" y2="100%"><stop stop-color="#ffe39f"/><stop offset=".52" stop-color="#eda14d"/><stop offset="1" stop-color="#ac5427"/></linearGradient></defs>
+        <path d="M30 43v20m-10-10h20m164 52v24m-12-12h24m-15-84v14m-7-7h14" stroke="#ac653d" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <ellipse cx="120" cy="138" rx="69" ry="8" fill="#643823" opacity=".13"/>
+        <g class="fortune-half">
+          <path d="M124 42Q89 27 58 62Q43 79 52 96Q64 118 111 127L119 101 111 86 125 68Z" fill="url(#fortune-crust)" stroke="#964925" stroke-width="2.5"/>
+          <path d="M54 92Q72 83 111 111L111 127Q65 119 54 97Z" fill="#a95729"/>
+          <path d="M60 75Q82 50 111 52" fill="none" stroke="#ffe8aa" stroke-width="4" stroke-linecap="round"/>
+        </g>
+        <g class="fortune-half">
+          <path d="M124 42Q156 26 182 61Q201 85 183 105Q163 126 111 127L119 101 111 86 125 68Z" fill="url(#fortune-crust)" stroke="#964925" stroke-width="2.5"/>
+          <path d="M119 101Q155 80 187 93Q178 120 111 127Z" fill="#a95729"/>
+          <path d="M136 52Q160 49 178 72" fill="none" stroke="#ffe8aa" stroke-width="4" stroke-linecap="round"/>
+          <path d="M151 105l40 6-3 13-42-12z" fill="#fff7dc" stroke="#aa7846" stroke-width="1.5"/>
+        </g>
+      </svg>
+      <span data-fortune-label>쿠키 깨기</span>
+    </button>
+    <p class="note">${fortunePromptCount}개의 질문이 들어 있어요.</p>
+  </div>
+  <div class="fortune-slip" data-fortune-slip hidden>
+    <p class="fortune-topic" data-fortune-topic></p>
+    <p class="fortune-prompt" data-fortune-prompt></p>
+    <button type="button" data-fortune-copy>프롬프트 복사</button>
+    <p class="note" data-fortune-copy-status role="status"></p>
+    <p class="note">복사한 뒤 원하는 AI를 열어 붙여 넣으세요.</p>
+    <ul class="fortune-links">
+      <li><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT 열기</a></li>
+      <li><a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">Gemini 열기</a></li>
+      <li><a href="https://claude.ai/" target="_blank" rel="noopener noreferrer">Claude 열기</a></li>
+    </ul>
+  </div>
+  <p class="fortune-status" data-fortune-status role="status"></p>
+</section>`;
 const activities = {
+  'prompt-fortune-cookie': fortuneCookie,
   'new-year-countdown': `<section class="play-countdown" data-play="new-year-countdown">
     <span class="play-clock-caption">대한민국 표준시 (KST)</span>
     <div class="play-timer" aria-label="남은 시간" role="timer">${['일', '시간', '분', '초'].map((unit) =>
@@ -62,7 +105,7 @@ export function playPages(config) {
     main: `<div class="play-hero"><p class="eyebrow">혼자서도, 여럿이서도</p><h1>놀이</h1>
       <p>겨울 소원을 달고, 새해를 기다리고, 친구들과 작은 내기를 즐겨 보세요.</p></div>
       <div class="play-grid">${playItems.map(({ path, name, description }, index) =>
-        `<article class="play-tile"><span aria-hidden="true">${['✦', '◷', '✎', '✉', '◈', '◉', '◇', '✣', '⇋'][index]}</span>
+        `<article class="play-tile"><span aria-hidden="true">${['✦', '◷', '✎', '✉', '◈', '◉', '◇', '✣', '✧', '⇋'][index]}</span>
         <h2><a href="../${path}">${name}</a></h2><p>${description}</p></article>`).join('')}</div>`,
   });
   const details = {
@@ -72,12 +115,14 @@ export function playPages(config) {
   };
   return [{ path: playPath, html: home }, ...playTools.map(({ id, path, name, description }) => ({
     path, html: layout({ config, root: '../../', path, title: `${name} | ${brand}`, description, application: name,
-      localOnly: true, networkless: true, script: 'play-browser.mjs',
+      localOnly: true, networkless: true, script: id === 'prompt-fortune-cookie' ? 'prompt-fortune-browser.mjs' : 'play-browser.mjs',
       main: `<p class="eyebrow"><a href="../../play/">놀이</a></p><h1>${name}</h1><p class="intro">${description}</p>
       <noscript><p>이 놀이를 이용하려면 자바스크립트를 켜 주세요.</p></noscript>
       ${activities[id]}
       ${details[id] ?? ''}
-      <p class="play-disclosure">입력한 내용은 저장하거나 서버로 보내지 않습니다.</p>`,
+      <p class="play-disclosure">${id === 'prompt-fortune-cookie'
+        ? '에브리허브는 뽑은 질문을 저장하거나 AI 서비스로 보내지 않습니다. 링크를 누르면 해당 서비스가 새 탭에서 열립니다.'
+        : '입력한 내용은 저장하거나 서버로 보내지 않습니다.'}</p>`,
     }),
   }))];
 }
