@@ -425,6 +425,11 @@ export const auditItems = {
     verified('공통 탐색 요소와 삭제한 페이지의 내부 링크 제거', '/', '공통 푸터와 독립 편집기에서 제거했습니다. 전체 HTML 감사에서 해당 페이지의 존재와 링크 또는 안내 문구가 남지 않았는지 검사합니다.'),
     verified('자동 운영에서도 요청 없는 공통 안내를 재추가하지 않음', repo + '/blob/main/docs/daily-proposals.md', 'README와 자동 운영 문서에 같은 기준을 명시했습니다. 기존 소유권 확인 태그와 공개 판매자 파일은 유지합니다.'),
   ],
+  'play-ux-review': [
+    verified('개별 칸·Enter 이동·입력 보존과 결과 표시', '/play/', '브라우저 감사에서 네 놀이의 빈칸·중복·수 변경·초기화를 검사합니다. 사다리 경로 선택, 룰렛의 당첨 강조, 팀 배정, 마니또의 개인 확인과 결과 복사를 검증합니다.'),
+    verified('소원 트리·사다리의 기존 주소와 놀이 분류', '/info/christmas-wish-tree/', '생활 정보·생활 계산의 중복 노출을 없앴습니다. 기존 주소와 canonical을 유지하고 검색·사이트맵에서는 놀이로 분류합니다.'),
+    verified('포춘쿠키 질문과 신규 놀이 후보 검토', '/play/prompt-fortune-cookie/', '전체 질문을 점검하고 평범하거나 모호한 질문을 구체적인 놀이·퀴즈로 바꿨습니다. 주사위·빙고·퀴즈 타이머는 최근 탐색 수요를 확인하지 못해 추가하지 않았습니다.'),
+  ],
 };
 
 export const unconfirmed = (requirement, reason, links) => open(requirement, reason, '미확인', links);

@@ -133,10 +133,6 @@ export const extraUtilityForms = {
   'random-picker': form(area('text', '후보 (한 줄에 하나)', 'maxlength="50000" required') +
     num('count', '당첨 인원 (명)', 1, 1, 1, 1000) + button('추첨'),
     '같은 이름이 여러 번 들어가면 어떻게 되나요?', '앞뒤 공백을 지운 뒤 같은 이름은 한 명으로 처리합니다. 당첨자는 중복 없이 뽑습니다.'),
-  'ladder-draw': form(
-    grid(area('people', '참가자 (한 줄에 하나)', 'maxlength="240" required'), area('choices', '결과 (한 줄에 하나)', 'maxlength="240" required')) + button('사다리 만들기') +
-      '<svg class="utility-preview ladder-preview" role="img" aria-label="사다리 연결도" hidden></svg>',
-    '인원과 결과는 몇 개 넣나요?', '두 목록 모두 2~8개로 개수를 맞추고 참가자 이름은 서로 다르게 쓰세요. 같은 결과는 여러 줄에 입력해도 됩니다.'),
   'json-formatter': form(text() + select('mode', '출력 형식', [['pretty', '2칸 들여쓰기'], ['compact', '공백 줄이기']]) + button('JSON 정리'),
     '입력한 값이 그대로 유지되나요?', '브라우저의 JSON 파서를 사용합니다. 매우 큰 정수는 정밀도를 잃을 수 있고 중복 키는 마지막 값만 남으므로 이런 데이터에는 사용하지 마세요.'),
   'csv-json-converter': form(

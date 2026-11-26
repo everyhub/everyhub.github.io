@@ -12,11 +12,12 @@ export function countdown(now) {
     Math.floor(remaining / 60) % 60, remaining % 60] };
 }
 
-export function listEntries(text, max = playLimits.names) {
-  const items = text.split(/\r\n?|\n/).map((line) => line.trim().normalize()).filter(Boolean);
-  if (items.length < 2 || items.length > max) throw new Error(`한 줄에 하나씩 2~${max}개를 입력해 주세요.`);
+export function validateEntries(values, { max = playLimits.names, allowRepeats = false } = {}) {
+  const items = values.map((value) => value.trim().normalize());
+  if (items.length < 2 || items.length > max) throw new Error(`2~${max}개를 입력해 주세요.`);
+  if (items.some((item) => !item)) throw new Error('빈 칸을 채워 주세요.');
   if (items.some((item) => [...item].length > playLimits.name)) throw new Error(`이름이나 항목은 ${playLimits.name}자 이내로 입력해 주세요.`);
-  if (new Set(items).size !== items.length) throw new Error('겹치는 이름이나 항목이 있습니다. 같은 이름은 별명으로 구분해 주세요.');
+  if (!allowRepeats && new Set(items).size !== items.length) throw new Error('겹치는 이름이나 항목이 있습니다. 같은 이름은 별명으로 구분해 주세요.');
   return items;
 }
 

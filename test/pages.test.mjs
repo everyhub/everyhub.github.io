@@ -5,13 +5,13 @@ import { homePage, homeShortcuts, salaries, salaryCalculatorPage, salaryPage } f
 import { extraPages } from '../src/labor-pages.mjs';
 import { informationPages } from '../src/information-pages.mjs';
 import { playPages } from '../src/play-pages.mjs';
-import { playItems, playTools } from '../src/play-config.mjs';
+import { ladderPath, playItems, playTools } from '../src/play-config.mjs';
 import { site } from '../site.config.mjs';
 import { holidayCalendar } from '../src/information.mjs';
 import { brand, toolPath, tools } from '../src/tool-specs.mjs';
 import { informationSections, wishTreeSection } from '../src/information.mjs';
 import { newsSections } from '../src/news-config.mjs';
-import { utilityGroups } from '../src/utility-config.mjs';
+import { utilityGroups, utilitySections } from '../src/utility-config.mjs';
 import { examplePages, medianPages, navigationGroups } from '../src/navigation.mjs';
 import { adminPath, adminTimelinePage, adminProposalsPath, adminProposalsPage } from '../src/admin-pages.mjs';
 import { officialValueEvidence } from '../src/official-value-evidence.mjs';
@@ -198,10 +198,22 @@ test('크리스마스 소원 트리는 검색·사이트맵에서 열리고 외�
   assert.match(html, /내 브라우저에만 저장돼요.*다른 사람에게 보이지 않아요/);
   assert.match(html, /예시 소원 40개/);
   assert.match(html, /내 소원 목록<\/h3><ul data-wish-list>/);
-  assert.ok(homePage(config).includes(`class="wish-home-link button" href="./${path}"`));
+  const infoHub = informationPages(config).find((page) => page.path === 'info/').html;
+  assert.ok(!infoHub.match(/<main>[\s\S]*?<\/main>/)[0].includes(`href="../${path}"`));
+  assert.doesNotMatch(homePage(config), /wish-home-link/);
   const shortcut = homeShortcuts().find(item => item.path === path);
+  assert.equal(shortcut.category, '놀이');
   assert.deepEqual(shortcut.keywords, ['트리', '크리스마스', '소원', '성탄절']);
   assert.ok(extraPages(config).find(page => page.path === 'sitemap/').html.includes(`href="../${path}"`));
+});
+
+test('사다리는 기존 주소를 유지하고 놀이 탐색에서만 표시한다', () => {
+  const { html } = playPages(config).find(({ path }) => path === ladderPath);
+  const sidebar = html.match(/<nav class="sidebar"[\s\S]+?<\/nav>/)[0];
+  assert.match(sidebar, /<details open><summary>[^]*?<span>놀이<\/span>/);
+  assert.ok(sidebar.includes(`href="../../${ladderPath}" aria-current="page"`));
+  assert.ok(!utilitySections.some(({ path }) => path === ladderPath));
+  assert.equal(homeShortcuts().find(({ path }) => path === ladderPath).category, '놀이');
 });
 
 test('전입신고 안내는 신고·확정일자·전입 절차를 구분하고 공식 접수처와 연결한다', () => {

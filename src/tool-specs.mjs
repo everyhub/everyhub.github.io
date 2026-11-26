@@ -63,7 +63,6 @@ export const shortcutKeywords = {
   'percentage': ['할인', '할인 가격', '세일', '증감률'],
   'split-bill': ['정산', '회비', '엔빵'],
   'random-picker': ['뽑기', '제비뽑기', '랜덤'],
-  'ladder-draw': ['사다리', '뽑기', '랜덤'],
   'json-formatter': ['JSON 포맷', 'JSON 검사', '들여쓰기'],
   'csv-json-converter': ['CSV 변환', 'JSON 표', 'TSV', '스프레드시트'],
   'text-encoding': ['디코딩', '인코딩', 'URL 변환'],

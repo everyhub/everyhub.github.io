@@ -1,4 +1,6 @@
-import { birthdayZodiac, countdown, listEntries, newYear, playLimits, roulettePick, secretPairs, splitTeams, wheelColors, wrapCardText, yearZodiac } from './play.mjs';
+import { birthdayZodiac, countdown, newYear, playLimits, roulettePick, secretPairs, splitTeams, wheelColors, wrapCardText, yearZodiac } from './play.mjs';
+import { ladderDraw } from './utility-extra.mjs';
+import { bindEntryBoxes } from './play-entry.mjs';
 
 const surface = document.querySelector('[data-play]');
 const mode = surface.dataset.play;
@@ -130,7 +132,7 @@ function cardHandler(form) {
   return { clear, run };
 }
 
-function privateDraw(form) {
+function privateDraw(form, entries) {
   const panel = form.querySelector('[data-play-pair]');
   const person = panel.querySelector('[data-play-person]');
   const secret = panel.querySelector('[data-play-secret]');
@@ -169,7 +171,7 @@ function privateDraw(form) {
     } else showPerson();
   });
   return { clear, run() {
-    queue = listEntries(form.elements.namedItem('entries').value);
+    queue = entries('people');
     pairs = secretPairs(queue);
     index = 0;
     panel.hidden = false;
@@ -178,7 +180,7 @@ function privateDraw(form) {
   } };
 }
 
-function roulette(form) {
+function roulette(form, entries, share) {
   const panel = form.querySelector('.play-roulette');
   const wheel = panel.querySelector('.play-wheel');
   const legend = panel.querySelector('.play-legend');
@@ -193,7 +195,7 @@ function roulette(form) {
     current = 0;
   }
   function run() {
-    const items = listEntries(form.elements.namedItem('entries').value, playLimits.choices);
+    const items = entries('choices');
     const { winner, angle } = roulettePick(items);
     const color = (i) => wheelColors[(i === items.length - 1 && i % wheelColors.length === 0 ? i - 2 : i) % wheelColors.length];
     const sectors = items.map((_, i) => `${color(i)} ${i / items.length * 360}deg ${(i + 1) / items.length * 360}deg`);
@@ -213,6 +215,8 @@ function roulette(form) {
       animation = undefined;
       submit.disabled = false;
       result.textContent = `뽑힌 항목: ${winner}`;
+      legend.children[items.indexOf(winner)].classList.add('play-winner');
+      share(result.textContent);
     };
     if (reduceMotion.matches) return show();
     result.textContent = '룰렛이 돌아가는 중입니다.';
@@ -238,12 +242,12 @@ function zodiac(form) {
   return `만 ${data.age}세 · ${data.sign ? format(data.sign) + ' ' + note : both(data) + ' · 브라우저에서 설 날짜를 확인할 수 없습니다.'}`;
 }
 
-function teams(form) {
+function teams(form, entries, share) {
   const list = form.querySelector('[data-play-teams]');
   return {
     clear: () => list.replaceChildren(),
     run() {
-      const names = listEntries(form.elements.namedItem('entries').value);
+      const names = entries('people');
       const groups = splitTeams(names, form.elements.teams.valueAsNumber);
       for (const [index, team] of groups.entries()) {
         const card = document.createElement('section');
@@ -257,18 +261,95 @@ function teams(form) {
         list.append(card);
       }
       result.textContent = `${names.length}명을 ${groups.length}개 팀으로 나눴습니다.`;
+      share(groups.map((team, i) => `${i + 1}팀: ${team.join(', ')}`).join('\n'));
+    },
+  };
+}
+
+function ladder(form, entries, share) {
+  const panel = form.querySelector('[data-play-ladder]');
+  const diagram = panel.querySelector('svg');
+  const cards = panel.querySelector('.play-ladder-matches');
+  const makeSVG = (tag, attrs, content = '') => {
+    const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const [name, value] of Object.entries(attrs)) node.setAttribute(name, value);
+    node.textContent = content;
+    return node;
+  };
+  return {
+    clear: () => { panel.hidden = true; cards.replaceChildren(); diagram.replaceChildren(); },
+    run() {
+      const { matches, rungs } = ladderDraw(entries('people').join('\n'), entries('choices').join('\n'));
+      const x = (i) => 16 + i * 32;
+      const y = (i) => 27 + i * 10;
+      const bottom = Math.max(57, y(rungs.length) + 8);
+      const line = (x1, y1, x2, y2) => makeSVG('line', { x1, y1, x2, y2 });
+      diagram.setAttribute('viewBox', `0 0 ${32 * matches.length} ${bottom + 20}`);
+      const labels = matches.flatMap(({ index }) => [14, bottom + 15].map((y) =>
+        makeSVG('text', { x: x(index), y, 'text-anchor': 'middle' }, index + 1)));
+      const trace = makeSVG('polyline', { class: 'play-ladder-trace' });
+      diagram.replaceChildren(...matches.map(({ index }) => line(x(index), 18, x(index), bottom)),
+        ...rungs.map((left, index) => line(x(left), y(index), x(left + 1), y(index))), ...labels, trace);
+      function select(start) {
+        let column = start;
+        const points = [[x(column), 18]];
+        rungs.forEach((left, index) => {
+          if (column !== left && column !== left + 1) return;
+          points.push([x(column), y(index)]);
+          column = column === left ? left + 1 : left;
+          points.push([x(column), y(index)]);
+        });
+        points.push([x(column), bottom]);
+        trace.setAttribute('points', points.join(' '));
+        [...cards.children].forEach((card, index) => card.setAttribute('aria-pressed', String(index === start)));
+      }
+      for (const { index, end, player, result: landing } of matches) {
+        const card = document.createElement('button');
+        const name = document.createElement('strong');
+        const destination = document.createElement('span');
+        card.type = 'button';
+        name.textContent = `${index + 1}. ${player}`;
+        destination.textContent = `→ ${end + 1}. ${landing}`;
+        card.append(name, destination);
+        card.addEventListener('click', () => select(index));
+        cards.append(card);
+      }
+      select(0);
+      panel.hidden = false;
+      result.textContent = `${matches.length}명의 도착 칸을 정했습니다.`;
+      share(matches.map(({ player, result: landing }) => `${player} → ${landing}`).join('\n'));
     },
   };
 }
 
 function bindForm(form) {
   const error = form.querySelector('[data-play-error]');
-  const handler = mode === 'secret-santa' ? privateDraw(form)
-    : mode === 'roulette' ? roulette(form)
+  const entries = form.querySelector('[data-entry-count]') ? bindEntryBoxes(form) : null;
+  const copy = form.querySelector('[data-play-copy]');
+  const copyStatus = form.querySelector('[data-play-copy-status]');
+  let shareText = '';
+  function share(text) {
+    shareText = text;
+    copy.hidden = !text;
+    copyStatus.textContent = '';
+  }
+  copy?.addEventListener('click', async () => {
+    const text = shareText;
+    try {
+      await navigator.clipboard.writeText(text);
+      if (shareText === text) copyStatus.textContent = '결과를 복사했습니다.';
+    } catch {
+      if (shareText === text) copyStatus.textContent = '자동으로 복사하지 못했습니다. 화면의 결과를 직접 복사해 주세요.';
+    }
+  });
+  const handler = mode === 'secret-santa' ? privateDraw(form, entries)
+    : mode === 'roulette' ? roulette(form, entries, share)
       : mode === 'zodiac-age' ? { run: () => { result.textContent = zodiac(form); } }
-        : mode === 'team-draw' ? teams(form) : cardHandler(form);
+        : mode === 'team-draw' ? teams(form, entries, share)
+          : mode === 'ladder-draw' ? ladder(form, entries, share) : cardHandler(form);
   function clear(clearPreview = true) {
     if (clearPreview) handler.clear?.();
+    if (copy) share('');
     error.textContent = result.textContent = '';
   }
   form.addEventListener('submit', (event) => {

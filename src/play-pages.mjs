@@ -5,17 +5,20 @@ import { lunarSources } from './lunar-calendar.mjs';
 import { playLimits } from './play.mjs';
 import { dateRange } from './utility.mjs';
 import { fortuneCategories, fortunePromptCount } from './prompt-fortune.mjs';
+import { entryBoxes } from './play-entry.mjs';
 
 const cardLayout = (html) => `${html}
   <div class="play-actions"><button type="submit">카드 만들기</button><button type="reset" class="play-secondary">지우기</button></div>
   <figure class="play-card-preview" hidden><canvas width="900" height="1080" role="img" aria-label="만든 카드 미리보기"></canvas></figure>
   <button type="button" data-play-save hidden>PNG 저장</button>`;
 const text = (name, label, limit, placeholder, required = false) => `<label>${label}<textarea name="${name}" rows="2" maxlength="${limit}" placeholder="${placeholder}"${required ? ' required' : ''}></textarea></label>`;
-const entries = (max, label, placeholder) => `<label>${label}<textarea name="entries" rows="5" maxlength="${max * (playLimits.name + 2)}" placeholder="${placeholder}" aria-describedby="play-entries-info" required></textarea></label>
-  <p id="play-entries-info" class="note">한 줄에 하나씩 2~${max}개 · 항목당 ${playLimits.name}자 · 중복은 구분해 주세요.</p>`;
+const people = { id: 'people', heading: '참가자 이름', label: '참가자', examples: ['하늘', '나무'] };
+const peopleBoxes = entryBoxes({ max: playLimits.names, countLabel: '참가 인원', unit: '명', groups: [people] });
+const copyResult = '<button type="button" class="play-secondary" data-play-copy hidden>결과 복사</button><p class="note" data-play-copy-status role="status"></p>';
 const actions = (label) => `<div class="play-actions"><button type="submit">${label}</button><button type="reset" class="play-secondary">지우기</button></div>`;
 const form = (id, inner) => `<section class="panel play-form"><form data-play="${id}" data-custom-reset autocomplete="off">
-  ${inner}<p class="error" data-play-error role="alert"></p><p class="play-result" data-play-result role="status"></p></form></section>`;
+  ${inner}<p class="error" data-play-error role="alert"></p><p class="play-result" data-play-result role="status"></p>
+  ${['roulette', 'team-draw', 'ladder-draw'].includes(id) ? copyResult : ''}</form></section>`;
 const zodiacSources = [
   { name: '한국천문연구원 · 음양력 변환', url: 'https://astro.kasi.re.kr/life/pageView/8' },
   ...lunarSources,
@@ -79,22 +82,28 @@ const activities = {
     text('message', '나에게 남기고 싶은 말은?', playLimits.memory, '예: 천천히 가도 괜찮아'),
     '<p class="note">한 가지 이상 답하면 카드에 담을 수 있어요.</p>',
   ].join(''))),
-  'secret-santa': form('secret-santa', `${entries(playLimits.names, '참가자 이름', '하늘&#10;나무&#10;바다')}
+  'secret-santa': form('secret-santa', `${peopleBoxes}
     ${actions('짝 배정하기')}<section class="play-private" data-play-pair hidden>
       <h2 data-play-person></h2><p class="note">본인만 화면을 보고 확인하세요. 다음 사람에게는 이름을 가린 상태로 넘겨주세요.</p>
-      <p class="play-result" data-play-secret></p>
+      <p class="play-secret-name play-result" data-play-secret role="status"></p>
       <div class="play-actions"><button type="button" data-play-reveal>내 짝 보기</button>
         <button type="button" class="play-secondary" data-play-next disabled>가리고 다음 사람</button></div>
     </section><p class="note">한 기기에서 차례대로 확인합니다. 새로고침하면 배정이 사라집니다.</p>`),
-  roulette: form('roulette', `${entries(playLimits.choices, '후보 목록', '떡볶이&#10;김밥&#10;비빔밥')}
+  roulette: form('roulette', `${entryBoxes({ max: playLimits.choices, countLabel: '후보 개수', unit: '개',
+    groups: [{ id: 'choices', heading: '후보 목록', label: '후보', examples: ['떡볶이', '김밥'] }] })}
     ${actions('룰렛 돌리기')}
-    <div class="play-roulette" hidden><div class="play-wheel-frame" aria-hidden="true"><div class="play-wheel"></div></div><ol class="play-legend"></ol></div>
-    <p class="note">각 후보가 뽑힐 확률은 같습니다.</p>`),
+    <div class="play-roulette" hidden><div class="play-wheel-frame" aria-hidden="true"><div class="play-wheel"></div></div><ol class="play-legend"></ol></div>`),
   'zodiac-age': form('zodiac-age', `<div class="form-grid"><label>양력 생년월일<input name="birthday" type="date" min="${dateRange[0]}" max="${dateRange[1]}"></label>
     <label>출생연도만 알고 있다면<input name="year" type="text" inputmode="numeric" maxlength="4" placeholder="예: 2027"></label></div>
     <p class="note">둘 중 하나만 입력하세요. 출생연도만 입력하면 설 전후의 두 띠를 비교합니다.</p>${actions('띠·나이 확인')}`),
-  'team-draw': form('team-draw', `${entries(playLimits.names, '참가자 이름', '하늘&#10;나무&#10;바다&#10;별')}
+  'team-draw': form('team-draw', `${peopleBoxes}
     <label>팀 수<input name="teams" type="number" min="2" max="10" value="2" required></label>${actions('팀 나누기')}<div class="play-team-grid" data-play-teams></div>`),
+  'ladder-draw': form('ladder-draw', `${entryBoxes({ max: 8, countLabel: '참가 인원', unit: '명', groups: [people,
+    { id: 'choices', heading: '도착 칸', label: '결과', examples: ['당첨', '꽝'], repeat: true }] })}
+    <p class="note">참가자 이름은 다르게 쓰고, 도착 칸에는 같은 결과를 써도 됩니다.</p>
+    ${actions('사다리 만들기')}
+    <section class="play-ladder" data-play-ladder hidden><h2>사다리 결과</h2><p class="note">참가자를 누르면 해당 경로가 표시됩니다.</p>
+      <svg role="img" aria-label="사다리 연결도"></svg><div class="play-ladder-matches"></div></section>`),
 };
 
 export function playPages(config) {

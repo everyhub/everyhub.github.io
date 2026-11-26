@@ -141,29 +141,6 @@ const calculate = {
     return remainder ? `${number(people - remainder)}명: ${number(base)}원\n${number(remainder)}명: ${number(base + 1)}원` : `1인당 ${number(base)}원`;
   },
   'random-picker': () => extra.drawNames(fields.text.value, fields.count.valueAsNumber).join('\n'),
-  'ladder-draw'() {
-    preview.setAttribute('hidden', '');
-    const { matches, rungs } = extra.ladderDraw(fields.people.value, fields.choices.value);
-    const x = (i) => 16 + 32 * i;
-    const y = (i) => 20 + 7 * i;
-    const width = 32 * matches.length;
-    const height = y(rungs.length) + 10;
-    preview.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    const svg = (tag, attrs, content) => {
-      const element = document.createElementNS('http://www.w3.org/2000/svg', tag);
-      for (const [name, value] of Object.entries(attrs)) element.setAttribute(name, value);
-      if (content) element.textContent = content;
-      return element;
-    };
-    const line = (x1, y1, x2, y2) => svg('line', { x1, y1, x2, y2, stroke: 'currentColor' });
-    preview.replaceChildren(...matches.flatMap(({ index }) => [
-      svg('text', { x: x(index), y: 12, 'text-anchor': 'middle', 'font-size': 10, fill: 'currentColor' }, index + 1),
-      line(x(index), 16, x(index), height - 13),
-      svg('text', { x: x(index), y: height - 2, 'text-anchor': 'middle', 'font-size': 10, fill: 'currentColor' }, index + 1),
-    ]), ...rungs.map((left, index) => line(x(left), y(index), x(left + 1), y(index))));
-    preview.removeAttribute('hidden');
-    return matches.map(({ index, end, player, result }) => `${index + 1}. ${player} → ${end + 1}. ${result}`).join('\n');
-  },
   'json-formatter'() {
     try {
       return extra.formatJSON(fields.text.value, fields.mode.value === 'pretty');
@@ -344,7 +321,6 @@ form.addEventListener('submit', async (event) => {
 form.addEventListener('reset', () => {
   errorMessage.textContent = '';
   for (const field of dateFields) field.setCustomValidity('');
-  if (tool === 'ladder-draw') preview.setAttribute('hidden', '');
   if (download) {
     clearImage();
     photoRevision++;

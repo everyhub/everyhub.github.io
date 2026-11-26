@@ -8,7 +8,7 @@ import { chromium, devices, firefox, webkit } from 'playwright';
 import { adminTimeline, sortAdminTimeline } from './src/admin-log.mjs';
 import activeWork from './src/admin-now.json' with { type: 'json' };
 import { newsFeeds } from './src/news-config.mjs';
-import { playItems } from './src/play-config.mjs';
+import { ladderPath, playItems } from './src/play-config.mjs';
 import { fortuneCategories } from './src/prompt-fortune.mjs';
 import { PDFDocument } from './src/utility-vendor/pdf-lib-1.17.1.mjs';
 import { jpegLocation } from './src/photo-location.mjs';
@@ -267,13 +267,29 @@ async function auditPlayTool(page, context) {
       if (!/빠를 수 없습니다/.test(await error.textContent()) || await result.textContent()) issue('Future birthday did not clear prior result');
       cases += 5;
     } else {
-      const entries = tool.locator('textarea');
-      await entries.fill('하늘\n하늘');
+      const count = tool.locator('[data-entry-count]');
+      const entries = tool.locator('[data-entry-group]').first().locator('[data-entry-input]:enabled');
+      await submit();
+      if (!/1 칸을 채워/.test(await error.textContent())) issue('Blank entry field was not rejected');
+      await entries.nth(0).fill('하늘');
+      await entries.nth(0).press('Enter');
+      if (!await entries.nth(1).evaluate((node) => node === document.activeElement)) issue('Enter did not focus the next entry');
+      await entries.nth(1).fill('하늘');
       await submit();
       if (!/겹치는/.test(await error.textContent())) issue('Duplicate entries were not rejected');
-      await entries.fill('하늘\n나무\n바다');
+      await count.selectOption('3');
+      await entries.nth(1).fill('나무');
+      await entries.nth(2).fill('바다');
+      await count.selectOption('2');
+      if (await entries.count() !== 2) issue('Entry count did not shrink');
+      await count.selectOption('3');
+      if (await entries.count() !== 3 || await entries.nth(2).inputValue() !== '바다') issue('Entry count did not grow or preserve input');
+      if (route === '/' + ladderPath) {
+        const choices = tool.locator('[data-entry-group="choices"] [data-entry-input]:enabled');
+        for (const [index, label] of ['당첨', '꽝', '꽝'].entries()) await choices.nth(index).fill(label);
+      }
       await submit();
-      cases++;
+      cases += 4;
       if (route === '/play/secret-santa/') {
         const secret = tool.locator('[data-play-secret]');
         const used = new Set();
@@ -289,12 +305,22 @@ async function auditPlayTool(page, context) {
         if (await secret.textContent() || await tool.locator('[data-play-pair]').isVisible()) issue('Secret draw did not clear after last person');
       } else if (route === '/play/roulette/') {
         await page.waitForFunction(() => /뽑힌 항목: (하늘|나무|바다)/.test(document.querySelector('[data-play-result]').textContent), null, { timeout: 4500 });
-        if (await tool.locator('.play-legend li').count() !== 3) issue('Roulette choices are missing');
+        if (await tool.locator('.play-legend li').count() !== 3 || await tool.locator('.play-legend .play-winner').count() !== 1) issue('Roulette choices or winner styling are missing');
         await page.emulateMedia({ reducedMotion: 'reduce' });
         await submit();
         if (!/뽑힌 항목:/.test(await result.textContent()) ||
             await tool.locator('.play-wheel').evaluate((node) => node.getAnimations().length)) issue('Roulette ignores reduced motion');
         await page.emulateMedia({ reducedMotion: 'no-preference' });
+        cases += 2;
+      } else if (route === '/' + ladderPath) {
+        const diagram = tool.locator('[data-play-ladder] svg');
+        const buttons = tool.locator('.play-ladder-matches button');
+        const trace = diagram.locator('polyline');
+        const before = await trace.getAttribute('points');
+        if (!await diagram.isVisible() || await diagram.locator('line').count() < 3 ||
+            await buttons.count() !== 3 || !/^1\. 하늘→ [1-3]\. /.test(await buttons.first().textContent())) issue('Missing ladder diagram or participant results');
+        await buttons.nth(1).click();
+        if (await buttons.nth(1).getAttribute('aria-pressed') !== 'true' || await trace.getAttribute('points') === before) issue('Ladder trace did not follow the participant selection');
         cases += 2;
       } else {
         const teams = tool.locator('[data-play-teams] ul');
@@ -302,6 +328,21 @@ async function auditPlayTool(page, context) {
             (await teams.locator('li').allTextContents()).sort().join() !== ['하늘', '나무', '바다'].sort().join()) issue('Teams are not balanced or members changed');
         cases++;
       }
+      const copy = tool.locator('[data-play-copy]');
+      if (await copy.count()) {
+        if (!await copy.isVisible()) issue('Result copy button missing');
+        if (engine === chromium) {
+          await copy.click();
+          await tool.locator('[data-play-copy-status]').waitFor({ state: 'visible' });
+          const copied = await page.evaluate(() => navigator.clipboard.readText());
+          const expected = route === '/play/roulette/' ? await result.textContent() : '하늘';
+          if (!copied.includes(expected)) issue('Game copy is missing the displayed result');
+          cases++;
+        }
+      }
+      await tool.getByRole('button', { name: '지우기' }).click();
+      if (await entries.count() !== 2 || await entries.first().inputValue() || (await copy.count() && await copy.isVisible())) issue('Entry reset did not clear data and results');
+      cases++;
     }
   } finally {
     await context.setOffline(false);
@@ -652,7 +693,7 @@ async function auditViewport(origin) {
           }
           cases++;
         }
-        if (route.startsWith('/play/')) {
+        if (route.startsWith('/play/') || route === '/' + ladderPath) {
           if (await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content').then((policy) => !policy?.includes("connect-src 'none'"))) {
             issue('Play page does not block connections');
           }
@@ -983,12 +1024,6 @@ async function auditViewport(origin) {
           await form.locator('[name="text"]').fill('가 👨‍👩‍👧‍👦 https://example.com/very/long/path');
           if (!/X 가중 글자 수 29자\n목표 280자 · 251자 남음/.test(await form.locator('output').textContent())) issue('Wrong X weighted character limit');
           cases += 2;
-        }
-        if (route === '/tools/ladder-draw/') {
-          const result = await form.locator('output').textContent();
-          if (!await form.locator('svg').isVisible() || await form.locator('svg line').count() < 2 ||
-              !/^1\. 가 → .*\n2\. 나 → /m.test(result)) issue('Missing ladder diagram or participant results');
-          cases++;
         }
         const preferences = {
           '/tools/character-count/': { preset: 'x' },

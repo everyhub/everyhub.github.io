@@ -87,6 +87,7 @@ const requests = [
   { time: "2026-11-26 23:05", id: "play-tools", request: "소원 트리 같은 재미있는 기능을 한 탭에 모으고 괜찮은 것은 더 넣어 줘", status: "완료", reflection: "기존 두 페이지의 주소를 유지하고 놀이 허브와 브라우저 전용 도구 일곱 개를 추가했습니다. 운영 390·1440px에서 도구를 확인했습니다.", links: ["https://everyhub.github.io/play/", "https://github.com/everyhub/everyhub.github.io/actions/runs/45835971327"] },
   { time: "2026-11-26 23:20", id: "prompt-fortune-cookie", request: "포춘쿠키에서 질문을 뽑아 AI에 물어보는 놀이", status: "완료", reflection: "놀이에 한국어 질문 102개를 담은 AI 프롬프트 포춘쿠키를 추가했습니다. 질문은 브라우저에서 뽑고, 복사한 뒤 원하는 AI에 직접 붙여 넣을 수 있습니다.", links: ["https://everyhub.github.io/play/prompt-fortune-cookie/"] },
   { time: "2026-11-26 23:30", id: "remove-unsolicited-site-pages", request: "사용자가 요청하지 않은 공통 안내 페이지와 링크 제거", status: "완료", reflection: "두 페이지와 공통 탐색 링크를 제거했습니다. 자동 운영에도 재추가 금지 기준을 적용하며, ads.txt와 소유권 확인 태그는 유지합니다.", links: ["https://everyhub.github.io/"] },
+  { time: "2026-11-26 23:46", id: "play-ux-review", request: "놀이 입력칸·결과 개선, 소원 트리 노출 정리, 포춘쿠키와 새 놀이 후보 검토", status: "완료", reflection: "네 놀이를 개수 선택과 개별 입력칸으로 바꿨습니다. 기존 소원 트리와 사다리 주소를 유지하고 놀이에서만 분류합니다. 포춘쿠키의 평범하거나 모호한 질문을 다듬었습니다. 새 놀이는 추가하지 않았습니다.", links: ["https://everyhub.github.io/play/", "https://everyhub.github.io/tools/ladder-draw/", "https://everyhub.github.io/play/prompt-fortune-cookie/"] },
 ];
 
 export function hasCompletionEvidence(item) {

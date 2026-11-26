@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { birthdayZodiac, countdown, kstToday, listEntries, newYear, roulettePick, secretPairs, splitTeams, wrapCardText, yearZodiac } from '../src/play.mjs';
+import { birthdayZodiac, countdown, kstToday, newYear, roulettePick, secretPairs, splitTeams, validateEntries, wrapCardText, yearZodiac } from '../src/play.mjs';
 import { fortuneCategories, fortunePromptCount, pickFortune } from '../src/prompt-fortune.mjs';
 
 test('포춘쿠키는 100개 이상의 고유 질문을 주제별로 뽑고 최근 질문을 피한다', () => {
@@ -27,11 +27,13 @@ test('2027년 타이머는 한국 자정에 0으로 고정되고 이후 음수�
 });
 
 test('명단은 공백·빈 줄·중복·상한을 처리한다', () => {
-  assert.deepEqual(listEntries(' 하늘\r\n\r나무\n바다 '), ['하늘', '나무', '바다']);
-  assert.throws(() => listEntries('가\n가'), /겹치는/);
-  assert.throws(() => listEntries('한 명'), /2~40/);
-  assert.throws(() => listEntries('가\n나\n다', 2), /2~2/);
-  assert.throws(() => listEntries('가\n' + '🐏'.repeat(41)), /40자/);
+  assert.deepEqual(validateEntries([' 하늘 ', '나무', '바다 ']), ['하늘', '나무', '바다']);
+  assert.throws(() => validateEntries(['가', '가']), /겹치는/);
+  assert.throws(() => validateEntries(['한 명']), /2~40/);
+  assert.throws(() => validateEntries(['가', '나', '다'], { max: 2 }), /2~2/);
+  assert.throws(() => validateEntries(['가', '🐏'.repeat(41)]), /40자/);
+  assert.throws(() => validateEntries(['가', ' ']), /빈 칸/);
+  assert.deepEqual(validateEntries(['꽝', '꽝'], { allowRepeats: true }), ['꽝', '꽝']);
 });
 
 test('마니또는 일대일로 배정하고 팀 나누기의 인원 차이는 한 명 이하다', () => {

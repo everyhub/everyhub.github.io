@@ -108,8 +108,6 @@ input, select { display: block; width: 100%; margin-top: .3rem; padding: .5rem .
 .dashboard-card-head h2 a:hover { text-decoration: underline; }
 .dashboard-card-head .nav-icon { width: 1.1rem; height: 1.1rem; }
 .home-hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 1rem; align-items: center; margin-bottom: 1.25rem; padding: clamp(.85rem, 2.1vw, 1.5rem); border: 1px solid #cde1d8; border-radius: 1rem; background: linear-gradient(120deg, #fff 35%, #edf7f3); }
-.wish-home-link { margin-bottom: 1.25rem; background: #123d37; }
-.wish-home-link span { color: #ffdfa0; }
 .wish-kicker { letter-spacing: .055em; }
 .wish-layout { display: grid; gap: 1rem; align-items: start; margin-block: 1.25rem; }
 .wish-controls { margin: 0; }
@@ -182,8 +180,6 @@ button:hover, .button:hover { background: #04523e; }
 [data-utility="csv-json-converter"] [name="protect"] { margin-top: .8rem; }
 .utility-preview:not([hidden]) { display: block; max-width: 100%; height: auto; margin: .75rem 0; border: 1px solid var(--line); }
 .passport-preview { width: min(100%, 15rem); }
-.ladder-preview { width: min(100%, 22rem); }
-.ladder-preview[hidden] { display: none; }
 [data-utility] label:has(> input[type="checkbox"]) { display: flex; align-items: center; gap: .65rem; min-height: 2.75rem; }
 [data-utility] input[type="checkbox"] { order: -1; flex: 0 0 auto; width: 1.15rem; height: 1.15rem; min-height: 0; margin: 0; accent-color: var(--accent); }
 .net { display: grid; gap: .5rem 1.5rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); margin-block: 1rem; }
@@ -279,6 +275,15 @@ summary { cursor: pointer; padding: .5rem 0; font-weight: 700; }
 .play-tile h2 a { display: inline-flex; min-height: 2.75rem; align-items: center; }
 .play-tile p { margin: .2rem 0 0; color: var(--muted); }
 .play-form label { display: grid; gap: .3rem; min-width: 0; margin-block: .55rem; }
+.play-form .play-count-label { width: min(100%, 10rem); }
+.play-count-label select, .play-entry-list input { min-height: 2.75rem; }
+.play-entry-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: .75rem; margin-block: 1rem; }
+.play-entry-group { min-width: 0; margin: 0; padding: .25rem .75rem .6rem; border: 1px solid #cbdcd6; border-radius: .75rem; background: #f3f8f6; }
+.play-entry-group legend { padding-inline: .35rem; color: #235748; font-weight: 750; }
+.play-entry-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr)); gap: .25rem .65rem; }
+.play-entry-list label { font-size: .89rem; }
+.play-entry-list label[hidden], [data-play-copy][hidden] { display: none; }
+.play-entry-list input { width: 100%; min-width: 0; font-size: 1rem; }
 .play-form input[type="number"] { max-width: 8rem; }
 .play-form textarea { width: 100%; min-height: 4.5rem; padding: .55rem .65rem; resize: vertical; border: 1px solid #a8bac5; border-radius: .5rem; font: inherit; }
 .play-actions { display: flex; flex-wrap: wrap; gap: .55rem; margin-block: .9rem; }
@@ -315,6 +320,7 @@ button.fortune-draw, button.fortune-draw:hover { display: inline-grid; justify-i
 [data-fortune-copy-status]:empty { margin: 0; }
 .play-private { background: #fff6eb; border: 1px solid #eedcc9; border-radius: .8rem; padding: .85rem 1rem; }
 .play-private h2 { margin: 0; overflow-wrap: anywhere; }
+.play-secret-name:not(:empty) { padding: .9rem 1rem; border-radius: .65rem; background: #623955; color: #fff7ef; font-size: 1.25rem; text-align: center; }
 .play-roulette { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); align-items: center; gap: 1rem; }
 .play-roulette[hidden] { display: none; }
 .play-wheel-frame { position: relative; width: min(100%, 16rem); margin: .7rem auto; }
@@ -323,8 +329,21 @@ button.fortune-draw, button.fortune-draw:hover { display: inline-grid; justify-i
 .play-legend { margin: 0; padding: 0; list-style: none; }
 .play-legend li { display: flex; gap: .55rem; align-items: baseline; overflow-wrap: anywhere; }
 .play-legend li::before { content: ""; flex: 0 0 .8rem; height: .8rem; background: var(--entry-color); border-radius: 50%; }
+.play-legend .play-winner { padding: .3rem .5rem; border-radius: .45rem; background: #def3e9; color: #184a3e; font-weight: 800; }
+.play-ladder { padding: .9rem; border-radius: .8rem; background: #edf5ff; color: #243c52; }
+.play-ladder h2 { margin: 0; }
+.play-ladder svg { display: block; width: min(100%, 22rem); height: auto; max-height: 21rem; margin: .6rem auto; }
+.play-ladder svg line { stroke: #7891aa; stroke-width: 1; }
+.play-ladder svg text { fill: #243c52; font-size: 9px; font-weight: 700; }
+.play-ladder-trace { fill: none; stroke: #9e3d64; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.play-ladder-matches { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: .55rem; }
+.play-ladder-matches button { display: grid; min-height: 2.75rem; gap: .2rem; border: 1px solid #9bb6cc; background: #fff; color: #243c52; text-align: left; overflow-wrap: anywhere; }
+.play-ladder-matches button:hover, .play-ladder-matches button[aria-pressed="true"] { border-color: #895368; background: #fceef4; color: #652c47; }
 .play-team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: .75rem; }
-.play-team-grid > section { background: #eef5f1; border-radius: .65rem; padding: .65rem .85rem; overflow-wrap: anywhere; }
+.play-team-grid > section { border-inline-start: .3rem solid #477d6b; background: #eef5f1; border-radius: .65rem; padding: .65rem .85rem; overflow-wrap: anywhere; }
+.play-team-grid > section:nth-child(2n) { border-color: #8875ae; background: #f2eef9; }
+.play-team-grid > section:nth-child(3n) { border-color: #af763a; background: #f9f1e4; }
+[data-play-copy-status]:empty { margin: 0; }
 .play-team-grid h2 { margin: 0; font-size: 1.05rem; }
 .play-team-grid ul { margin: .3rem 0 0; padding-inline-start: 1.25rem; }
 .play-countdown { position: relative; isolation: isolate; overflow: hidden; padding: clamp(1rem, 5vw, 3rem); border-radius: 1rem; background: radial-gradient(at top right, #56356e, transparent 70%), #1b2345; color: #fff7eb; text-align: center; }

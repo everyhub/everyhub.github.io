@@ -10,7 +10,6 @@ export const informationSections = [
   { path: 'info/tax-calendar/', name: '주요 세금 신고·납부 일정', description: '종합소득세와 일반·간이과세자의 부가가치세 신고 기간' },
   { path: 'info/yearly-rates/', name: '2026·2027년 최저임금·보험료 비교표', description: '확정된 연도별 최저임금 및 직장인 보험료율 변경 사항' },
   { path: 'info/support-calendar/', name: '정부 지원금·신청 일정', description: '주요 지원 제도의 공식 신청 기간과 접수처' },
-  wishTreeSection,
 ];
 
 export const supportApplications = [

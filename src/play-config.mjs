@@ -1,7 +1,7 @@
 import { wishTreeSection } from './information.mjs';
-import { utilitySections } from './utility-config.mjs';
 
 export const playPath = 'play/';
+export const ladderPath = 'tools/ladder-draw/';
 export const playTools = [
   ['new-year-countdown', '2027 새해 카운트다운', '한국 시간으로 2027년 새해까지 남은 시간을 확인해 보세요.', ['카운트다운', '새해', '신년', '2027', '남은 시간']],
   ['resolution-card', '새해 다짐 카드', '새해에 지키고 싶은 다짐을 한 장의 이미지로 남겨 보세요.', ['새해', '다짐', '목표', '카드', 'png']],
@@ -11,7 +11,7 @@ export const playTools = [
   ['zodiac-age', '띠·만 나이 계산', '양력 생일로 설날 기준 띠와 생일 기준 만 나이를 확인하세요.', ['띠', '십이지', '정미년', '양띠', '설날']],
   ['team-draw', '랜덤 팀 나누기', '참가자를 섞어 인원 차이가 최대 한 명인 팀을 만드세요.', ['팀 나누기', '조 편성', '팀 배정', '랜덤', '팀짜기']],
   ['prompt-fortune-cookie', 'AI 프롬프트 포춘쿠키', '쿠키를 깨서 질문을 뽑고, 좋아하는 AI에게 물어보세요.', ['포춘쿠키', '포츈쿠키', '프롬프트', 'AI 질문', '챗GPT', '제미나이', '클로드']],
-].map(([id, name, description, keywords]) => ({ id, path: `play/${id}/`, name, description, keywords }));
+  ['ladder-draw', '사다리 타기', '참가자와 도착 칸을 정하고, 한 명씩 사다리 경로를 따라가 보세요.', ['사다리', '사다리게임', '랜덤', '뽑기', '제비뽑기'], ladderPath],
+].map(([id, name, description, keywords, path = `play/${id}/`]) => ({ id, path, name, description, keywords }));
 
-export const ladderPath = 'tools/ladder-draw/';
-export const playItems = [wishTreeSection, ...playTools, utilitySections.find(({ path }) => path === ladderPath)];
+export const playItems = [wishTreeSection, ...playTools];

@@ -5,8 +5,7 @@ import { verifiedOn } from './labor-rates.mjs';
 import { brand, shortcutKeywords } from './tool-specs.mjs';
 import { categoryIcon, navigationGroups, salaryCalculatorPath, siteTree } from './navigation.mjs';
 import { utilitySections } from './utility-config.mjs';
-import { wishTreeSection } from './information.mjs';
-import { ladderPath, playPath, playTools } from './play-config.mjs';
+import { playPath, playTools } from './play-config.mjs';
 
 const { year } = rates;
 const taxFree = won(defaults.monthlyTaxFree);
@@ -208,7 +207,7 @@ function dashboard() {
 export function homeShortcuts() {
   const groupItems = ({ name: category, items }) => items.map((item) => ({ ...item, category }));
   const ordered = [...navigationGroups.filter(({ path }) => path !== 'tools/').flatMap(groupItems),
-    ...utilitySections.filter((item) => item.path !== ladderPath).map(({ group: category, ...item }) => ({ ...item, category })),
+    ...utilitySections.map(({ group: category, ...item }) => ({ ...item, category })),
     ...navigationGroups.filter(({ path }) => path === 'tools/').flatMap(groupItems),
     ...navigationGroups.map(({ name, path }) => ({ name, path, category: name }))];
   return ordered.filter(({ path }, index) => ordered.findIndex((item) => item.path === path) === index)
@@ -228,7 +227,6 @@ export function homePage(config) {
     main: `<div class="home-hero"><div class="home-hero-copy"><h1>${brand}</h1>
       <p class="intro">월급 계산과 사진 편집에 필요한 기능을&nbsp;바로 찾아보세요. 생활 정보와 IT·AI 소식도 한곳에 모았습니다.</p></div>
       <img class="home-hero-art" src="./${brandAssets}hero.svg" width="600" height="270" alt=""></div>
-      <a class="wish-home-link button" href="./${wishTreeSection.path}"><span aria-hidden="true">✦</span> ${wishTreeSection.name}</a>
       <section aria-labelledby="shortcuts"><div class="dashboard-title"><h2 id="shortcuts">한눈에 바로가기</h2>
         <label class="dashboard-search" hidden>바로가기 검색<input id="shortcut-search" type="search" data-dashboard-search aria-controls="shortcut-results" aria-describedby="shortcut-search-help" placeholder="예: 나이, 집, PDF, ㅇㅂ" autocomplete="off" maxlength="80">
           <small id="shortcut-search-help">관련 단어·초성 검색 · / 키로 검색 열기</small></label></div>
