@@ -408,10 +408,10 @@ export const auditItems = {
   ],
   'shared-wish-tree': [sharedWishTree],
   'wish-tree-cache': [
-    open('내용 기반 자산 버전과 소원 트리의 운영 동작 확인', 'Pages 배포 및 운영 확인 전입니다.', '진행중', [site + '/info/christmas-wish-tree/']),
+    verified('내용 기반 자산 버전과 소원 트리의 운영 동작 확인', '/info/christmas-wish-tree/', 'Pages #45833273166 배포 후 CSS·시작 모듈·하위 모듈의 응답 바이트와 URL 해시가 일치했습니다. 버전 없는 자산을 차단해도 트리가 렌더링·회전했고, Chromium·Firefox·WebKit 390·1440px에서 상호작용 요청과 오류가 없었습니다.'),
   ],
   'adsense-ownership': [
-    open('ads.txt·소유권 태그·소개·개인정보 처리방침·문의 링크 운영 확인', 'Pages 배포 및 운영 확인 전입니다.', '진행중', [site + '/ads.txt', site + '/privacy/']),
+    verified('ads.txt·소유권 태그·소개·개인정보 처리방침·문의 링크 운영 확인', '/ads.txt', '운영 루트에서 HTTP 200과 text/plain, 정확한 판매자 정보를 확인했습니다. 홈·소개·개인정보 처리방침·관리·도구·독립 편집기에 소유권 태그가 있고 광고 코드가 없음을 확인했습니다.'),
     open('AdSense 승인 및 광고 게시', 'AdSense 계정에서 심사를 요청하고 결과를 확인하는 단계가 남았습니다. 승인과 별도 활성화 전에는 광고를 표시하지 않습니다.', '대기'),
   ],
 };

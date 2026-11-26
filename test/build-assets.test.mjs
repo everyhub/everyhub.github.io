@@ -17,6 +17,7 @@ test('배포 HTML의 로컬 자산에만 내용 기반 버전을 붙인다', () 
   const markup = '<link href="../../assets/style.css"><img src="../../assets/brand/tree.svg?size=2#tree">' +
     '<meta property="og:image" content="https://example.com/everyhub/assets/brand/tree.svg">' +
     '<link href="../../assets/brand/site.webmanifest"><a href="../../tools/">도구</a>' +
+    '<a href="../../assets/brand/tree.svg">이미지 근거</a>' +
     '<script src="https://cdn.example.com/assets/style.css"></script>';
   const css = version(files.get('assets/style.css'));
   const image = version(files.get('assets/brand/tree.svg'));
@@ -26,6 +27,7 @@ test('배포 HTML의 로컬 자산에만 내용 기반 버전을 붙인다', () 
     `<link href="../../assets/style.css?v=${css}"><img src="../../assets/brand/tree.svg?size=2&amp;v=${image}#tree">` +
     `<meta property="og:image" content="${base}assets/brand/tree.svg?v=${image}">` +
     `<link href="../../assets/brand/site.webmanifest?v=${version(manifest)}"><a href="../../tools/">도구</a>` +
+    '<a href="../../assets/brand/tree.svg">이미지 근거</a>' +
     '<script src="https://cdn.example.com/assets/style.css"></script>');
   assert.equal(html('<script src="app.js"></script>', 'assets/background-removal/'),
     `<script src="app.js?v=${version(files.get('assets/background-removal/app.js'))}"></script>`);

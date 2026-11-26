@@ -54,11 +54,14 @@ export function fingerprintAssets(files, baseURL) {
 
   for (const name of files.keys()) fingerprint(name);
   const html = (source, from) => source.replace(
-    /(\s(?:src|href|content|poster)\s*=\s*)(["'])([^"'\s]+)\2/gi,
-    (match, prefix, quote, reference) => {
-      if (!assetType.test(reference.split(/[?#]/, 1)[0])) return match;
-      return prefix + quote + versioned(reference, from, '&amp;') + quote;
-    },
+    /<!--[\s\S]*?-->|<([a-z][\w:-]*)\b(?:[^"'<>]|"[^"]*"|'[^']*')*>/gi,
+    (tag, name) => !name || /^(?:a|area)$/i.test(name) ? tag : tag.replace(
+      /(\s(?:src|href|content|poster)\s*=\s*)(["'])([^"'\s]+)\2/gi,
+      (match, prefix, quote, reference) => {
+        if (!assetType.test(reference.split(/[?#]/, 1)[0])) return match;
+        return prefix + quote + versioned(reference, from, '&amp;') + quote;
+      },
+    ),
   );
   return { contents, html };
 }
