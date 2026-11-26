@@ -84,6 +84,54 @@ export function splitBill(total, people) {
   return { base: Math.floor(total / people), extra: total % people };
 }
 
+export function depositInterest({ product, amount, months, rate, compounding, taxType }) {
+  if (!['deposit', 'savings'].includes(product)) throw new Error('상품 유형을 선택해 주세요.');
+  if (!['simple', 'monthly'].includes(compounding)) throw new Error('이자 계산 방식을 선택해 주세요.');
+  if (!['normal', 'tax-free', 'coop-14', 'coop-5'].includes(taxType)) throw new Error('과세 구분을 선택해 주세요.');
+  if (!Number.isSafeInteger(amount) || amount < 1 || amount > 1_000_000_000_000) {
+    throw new Error('원금 또는 월 납입액은 1원~1조 원 사이의 정수로 입력해 주세요.');
+  }
+  if (!Number.isSafeInteger(months) || months < 1 || months > 600) {
+    throw new Error('기간은 1~600개월 사이의 정수로 입력해 주세요.');
+  }
+  if (!Number.isFinite(rate) || rate < 0 || rate > 100) {
+    throw new Error('연 이자율은 0~100% 사이의 숫자로 입력해 주세요.');
+  }
+  const principal = product === 'deposit' ? amount : amount * months;
+  const annualRate = rate / 100;
+  const monthlyRate = annualRate / 12;
+  let rawGross = 0;
+  if (product === 'deposit') {
+    rawGross = compounding === 'simple'
+      ? amount * annualRate * (months / 12)
+      : amount * ((1 + monthlyRate) ** months - 1);
+  } else {
+    rawGross = compounding === 'simple'
+      ? amount * annualRate * (months * (months + 1) / 24)
+      : monthlyRate === 0 ? 0 : amount * (1 + monthlyRate) * (((1 + monthlyRate) ** months - 1) / monthlyRate) - principal;
+  }
+  const grossInterest = Math.floor(rawGross + 1e-9);
+  const floor10 = (value) => Math.floor((value + 1e-9) / 10) * 10;
+  let incomeTax = 0;
+  let localTax = 0;
+  let ruralTax = 0;
+  let taxRate = 0;
+  if (taxType === 'normal') {
+    incomeTax = floor10(grossInterest * 0.14);
+    localTax = floor10(incomeTax * 0.1);
+    taxRate = 15.4;
+  } else if (taxType === 'coop-14') {
+    ruralTax = floor10(grossInterest * 0.014);
+    taxRate = 1.4;
+  } else if (taxType === 'coop-5') {
+    incomeTax = floor10(grossInterest * 0.05);
+    taxRate = 5;
+  }
+  const tax = incomeTax + localTax + ruralTax;
+  const netInterest = grossInterest - tax;
+  return { principal, grossInterest, incomeTax, localTax, ruralTax, tax, taxRate, netInterest, totalPayout: principal + netInterest };
+}
+
 export function secureIndex(size, cryptoSource = globalThis.crypto) {
   if (!Number.isSafeInteger(size) || size < 1 || size > 2 ** 32) throw new RangeError('지원하지 않는 범위입니다.');
   const slot = new Uint32Array(1);

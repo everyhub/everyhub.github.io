@@ -388,6 +388,11 @@ export const auditItems = {
     verified('운영 뉴스 스냅샷과 국내 뉴스 HTTP 확인', '/news/', '운영 스냅샷의 14개 피드·112건과 국내 뉴스의 6개 출처를 확인했습니다.'),
     open('뉴스 수집 로그와 반복 주기', '원본 로그 도메인 접근 승인을 기다리고 있어 이번 빌드의 수집 건수와 피드 실패 건수는 미확인입니다. 같은 날 확인한 예약 성공 2건과 별도로 30분 주기의 지속 여부를 확인해야 합니다.'),
   ],
+  'daily-feature-review-2026-11-26-afternoon': [
+    verified('검색 수요·공식 법령 근거 검증 및 1건 선정', 'https://datalab.naver.com/keyword/trendResult.naver?hashKey=N_ab2f0d867f66cca6b6173ad2e50a8502', '네이버 데이터랩 2026-10-26~11-25 비교에서 예금·적금 이자 계산기가 31일 전 기간 최고 상대 지수를 기록했고, 국가법령정보센터에서 소득세법 제129조·지방세법 제103조의13·조세특례제한법 제88조의2·제89조의3·국고금 관리법 제47조 원문을 확인했습니다.'),
+    open('예금·적금 이자 계산기 운영 배포 및 브라우저 검증', '로컬 단위 테스트 98건과 Chromium(390/768/1024/1440px)·Pixel 7 감사를 통과했습니다. Pages 배포 후 운영 사이트에서 동작·오프라인 0요청·관리 페이지를 확인합니다.', '진행중', [site + '/tools/deposit-interest/']),
+    open('뉴스 예약 실행 확인 및 보완 갱신', '배포 후 최근 news.yml 예약 실행 기록을 확인하고 직전 30분 성공 예약이 없으면 보완 실행합니다.', '진행중', [repo + '/actions/workflows/news.yml']),
+  ],
 };
 
 export const unconfirmed = (requirement, reason, links) => open(requirement, reason, '미확인', links);

@@ -55,6 +55,7 @@ export const shortcutKeywords = {
   'text-cleanup': ['글자', '공백 제거', '중복 제거', '대소문자'],
   'text-compare': ['글자', '문장 비교', 'diff'],
   'area-converter': ['집', '방', '주거', '평수', '면적'],
+  'deposit-interest': ['예금', '적금', '이자', '정기예금', '정기적금', '만기 수령액', '이자소득세', '단리', '복리'],
   'bmi': ['비만도', '키 몸무게'],
   'unit-converter': ['단위 환산', '단위 변환'],
   'percentage': ['할인', '할인 가격', '세일', '증감률'],

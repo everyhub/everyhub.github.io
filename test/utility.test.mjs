@@ -5,7 +5,7 @@ import { ageAt, characterLimit, convertArea, countText, difference, fitImage } f
 import { lunarToSolar, solarToLunar } from '../src/lunar-calendar.mjs';
 import { utilityPages } from '../src/utility-pages.mjs';
 import { utilityGroups, utilitySections } from '../src/utility-config.mjs';
-import { bmi, cleanText, colorCode, compareLines, convertUnit, drawNames, encodeText, formatJSON, ladderDraw, percentage, randomPassword, secureIndex, splitBill, workdays, worldTime } from '../src/utility-extra.mjs';
+import { bmi, cleanText, colorCode, compareLines, convertUnit, depositInterest, drawNames, encodeText, formatJSON, ladderDraw, percentage, randomPassword, secureIndex, splitBill, workdays, worldTime } from '../src/utility-extra.mjs';
 import { cropWindow, drawQR, makePDF, pdfPageSelection } from '../src/utility-files.mjs';
 import { PDFDocument } from '../src/utility-vendor/pdf-lib-1.17.1.mjs';
 
@@ -49,11 +49,11 @@ test('면적 환산과 이미지 크기 조절', () => {
 
 test('공개 도구는 광고 없이 렌더링하고 편집기와 Worker를 같은 출처로 제한한다', async () => {
   const pages = utilityPages({ baseURL: 'https://example.com/subpath/', adsenseClient: 'ca-pub-1' });
-  assert.equal(pages.length, 34);
+  assert.equal(pages.length, 35);
   const hubs = new Set(['tools/', ...utilityGroups.map(({ path }) => path)]);
   for (const { path, html } of pages) {
     assert.ok(html.includes(`rel="canonical" href="https://example.com/subpath/${path}"`));
-    const noConnection = ['tools/photo-location/', 'tools/csv-json-converter/'].includes(path);
+    const noConnection = ['tools/photo-location/', 'tools/csv-json-converter/', 'tools/deposit-interest/'].includes(path);
     assert.ok(html.includes(noConnection ? "connect-src 'none'" : "connect-src 'self'"), path);
     assert.doesNotMatch(html, /googlesyndication|Google AdSense/);
     if (!hubs.has(path)) {
@@ -145,6 +145,36 @@ test('everyday calculators handle exact thresholds and remainders', () => {
   assert.deepEqual(splitBill(100, 3), { base: 33, extra: 1 });
   assert.deepEqual(drawNames('가\n가\n나\n다', 2, () => 0), ['가', '나']);
   assert.throws(() => drawNames('가\n가', 2));
+});
+
+test('예금·적금 이자 계산기는 단리·월복리와 법정 과세 기준을 정확히 반영한다', () => {
+  assert.deepEqual(
+    depositInterest({ product: 'deposit', amount: 10_000_000, months: 12, rate: 3.5, compounding: 'simple', taxType: 'normal' }),
+    { principal: 10_000_000, grossInterest: 350_000, incomeTax: 49_000, localTax: 4_900, ruralTax: 0, tax: 53_900, taxRate: 15.4, netInterest: 296_100, totalPayout: 10_296_100 },
+  );
+  assert.deepEqual(
+    depositInterest({ product: 'savings', amount: 500_000, months: 12, rate: 3.5, compounding: 'simple', taxType: 'normal' }),
+    { principal: 6_000_000, grossInterest: 113_750, incomeTax: 15_920, localTax: 1_590, ruralTax: 0, tax: 17_510, taxRate: 15.4, netInterest: 96_240, totalPayout: 6_096_240 },
+  );
+  assert.deepEqual(
+    depositInterest({ product: 'deposit', amount: 10_000_000, months: 12, rate: 3.5, compounding: 'monthly', taxType: 'normal' }),
+    { principal: 10_000_000, grossInterest: 355_669, incomeTax: 49_790, localTax: 4_970, ruralTax: 0, tax: 54_760, taxRate: 15.4, netInterest: 300_909, totalPayout: 10_300_909 },
+  );
+  assert.deepEqual(
+    depositInterest({ product: 'savings', amount: 500_000, months: 12, rate: 0, compounding: 'monthly', taxType: 'tax-free' }),
+    { principal: 6_000_000, grossInterest: 0, incomeTax: 0, localTax: 0, ruralTax: 0, tax: 0, taxRate: 0, netInterest: 0, totalPayout: 6_000_000 },
+  );
+  assert.deepEqual(
+    depositInterest({ product: 'deposit', amount: 10_000_000, months: 12, rate: 4, compounding: 'simple', taxType: 'coop-14' }),
+    { principal: 10_000_000, grossInterest: 400_000, incomeTax: 0, localTax: 0, ruralTax: 5_600, tax: 5_600, taxRate: 1.4, netInterest: 394_400, totalPayout: 10_394_400 },
+  );
+  assert.deepEqual(
+    depositInterest({ product: 'deposit', amount: 10_000_000, months: 12, rate: 4, compounding: 'simple', taxType: 'coop-5' }),
+    { principal: 10_000_000, grossInterest: 400_000, incomeTax: 20_000, localTax: 0, ruralTax: 0, tax: 20_000, taxRate: 5, netInterest: 380_000, totalPayout: 10_380_000 },
+  );
+  assert.throws(() => depositInterest({ product: 'deposit', amount: 0, months: 12, rate: 3.5, compounding: 'simple', taxType: 'normal' }), /정수로/);
+  assert.throws(() => depositInterest({ product: 'deposit', amount: 1_000_000, months: 601, rate: 3.5, compounding: 'simple', taxType: 'normal' }), /600개월/);
+  assert.throws(() => depositInterest({ product: 'deposit', amount: 1_000_000, months: 12, rate: 101, compounding: 'simple', taxType: 'normal' }), /100%/);
 });
 
 test('developer tools round-trip UTF-8 and reject invalid input', () => {

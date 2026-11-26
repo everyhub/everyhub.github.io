@@ -9,6 +9,7 @@ const save = (key, value) => {
 const inputKey = (field) => field.name || field.id;
 const preferences = {
   'character-count': ['preset'],
+  'deposit-interest': ['product', 'compounding', 'taxType'],
   'unit-converter': ['pair'],
   'area-converter': ['unit'],
   'password-generator': ['length', 'symbols'],
