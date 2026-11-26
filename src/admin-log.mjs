@@ -78,7 +78,7 @@ const requests = [
   { time: "2026-11-25 19:13", id: "daily-proposals-2026-11-25-evening", request: "19:13 추천 조사·승인 반영 및 Pages 배포 확인", status: "부분", reflection: "신규 제안 #10~#12와 기존 #5·#7·#9의 거절을 추천 탭에 배포하고 운영 카드와 검색 제외 설정을 확인했습니다. 당시 #8은 로컬 구현과 Chromium 검사까지만 진행했습니다.", reason: "이후 새 선정 기준에서 최근 검색 수요가 부족해 #8을 배포하지 않고 이슈를 종료했습니다.", links: ["https://github.com/everyhub/everyhub.github.io/actions/runs/45594658093","https://github.com/everyhub/everyhub.github.io/issues/8"] },
   { time: "2026-11-25 19:13", id: "news-refresh-2026-11-25-evening", request: "뉴스 예약 및 보완 실행 확인", status: "부분", reflection: "17:21 KST 예약은 Pages 배포에 성공했습니다. 직전 30분에 성공한 예약이 없어 19:25 KST에 수동 보완했고 빌드가 성공했습니다. 같은 뉴스와 커밋이라 추가 배포는 생략됐습니다. 운영 스냅샷에서 14개 피드·112건을 확인했습니다.", reason: "Actions 원본 로그의 수집 건수와 피드 실패 건수, 30분 주기의 지속 여부는 미확인입니다.", links: ["https://github.com/everyhub/everyhub.github.io/actions/runs/45575503149","https://github.com/everyhub/everyhub.github.io/actions/runs/45594849070","https://everyhub.github.io/news/"] },
   { time: "2026-11-25 22:46", id: "automatic-feature-selection", request: "승인 대신 자동 추가하되 개인에 맞춘 기능은 피하고, 필요성·최근 검색 수요·공식 근거가 있는 기능만 추가", status: "부분", reflection: "방문자 집계는 추가하지 않았습니다. 별도 승인 없이 회당 최대 1건만 선정하며, 적합한 후보가 없으면 유지보수를 우선하도록 절차를 바꿨습니다. 이번에는 신규 기능을 추가하지 않았습니다.", links: ["https://everyhub.github.io/ops-7f3a9c2d/recommendations/","https://github.com/everyhub/everyhub.github.io/blob/main/docs/daily-proposals.md"] },
-  { time: "2026-11-26 14:13", id: "daily-feature-review-2026-11-26-afternoon", request: "14:13 자동 기능 점검·구현 및 배포·뉴스 예약 확인", status: "진행중", reflection: "네이버 데이터랩 31일 비교와 2026년 현행 법령 원문을 바탕으로 예금·적금 이자 계산기(/tools/deposit-interest/)를 구현하고 로컬 단위 테스트·브라우저 감사를 통과했습니다. 배포 후 운영 반영과 뉴스 예약을 확인합니다.", links: ["https://everyhub.github.io/tools/deposit-interest/","https://everyhub.github.io/ops-7f3a9c2d/recommendations/","https://datalab.naver.com/keyword/trendResult.naver?hashKey=N_ab2f0d867f66cca6b6173ad2e50a8502"] },
+  { time: "2026-11-26 14:13", id: "daily-feature-review-2026-11-26-afternoon", request: "14:13 자동 기능 점검·구현 및 배포·뉴스 예약 확인", status: "완료", reflection: "네이버 데이터랩 31일 비교와 2026년 현행 법령 원문을 바탕으로 예금·적금 이자 계산기(/tools/deposit-interest/)를 추가하고 Pages 배포(45761588069)와 운영 390·1440px 동작·오프라인 0요청·관리 페이지를 확인했습니다. 최근 30분 내 뉴스 예약이 없어 14:27 KST 보완 실행(45761732433)으로 빌드·배포 성공 및 14개 피드·112건을 확인했습니다.", links: ["https://everyhub.github.io/tools/deposit-interest/","https://everyhub.github.io/ops-7f3a9c2d/recommendations/","https://github.com/everyhub/everyhub.github.io/actions/runs/45761588069","https://github.com/everyhub/everyhub.github.io/actions/runs/45761732433"] },
 ];
 
 export function hasCompletionEvidence(item) {
@@ -156,9 +156,8 @@ export function renderRequirementsAudit(entries = adminTimeline) {
 }
 
 export const adminPending = [
-  '자동 기능 점검: 새 기준에 따른 실제 예약 실행 확인',
   '추천 운영용 GitHub 토큰 만료일(2027-01-23) 전에 동일한 최소 권한으로 교체하고 연결 확인',
-  '별도 Refresh news 워크플로: 2026-11-25 09:04·17:21 KST 예약 성공 2건을 확인했으며 반복 주기는 미확인',
+  '별도 Refresh news 워크플로: 2026-11-25 09:04·17:21, 2026-11-26 03:48·11:08 KST 예약 성공 4건을 확인했으며 30분 반복 주기는 미확인',
   '공식 고시 전인 2027년 구직급여 상한·일부 보험 상·하한·산재 요율·간이세액표 확인',
   'Google Search Console·네이버 서치어드바이저 색인과 sitemap 처리 결과 확인',
   'AdSense 승인·광고 정책·상업 운영 조건 확인',

@@ -363,7 +363,7 @@ export const auditItems = {
     verified('방문자 집계·추적 추가 안 함', '/', '변경에 집계·추적 코드를 도입하지 않았습니다. 60a10a1 운영 홈·관리 타임라인·추천 탭을 390·1440px에서 열었을 때 외부 요청은 0건이었습니다.'),
     { ...verified('이슈 #5~#9 사유 기록 및 종료', '/ops-7f3a9c2d/recommendations/', 'GitHub API에서 다섯 이슈가 사유 댓글과 함께 not_planned로 닫힌 것을 확인했습니다. 60a10a1 운영 추천 탭의 390·1440px에서 각 카드와 사유가 보이는 것을 확인했습니다. #7은 최근 수요와 공식 근거가 있지만 기존 거절을 유지했습니다.'),
       links: [site + '/ops-7f3a9c2d/recommendations/', ...[5, 6, 7, 8, 9].map((id) => repo + '/issues/' + id)] },
-    open('정기 Devin 실행에 새 절차 적용 확인', '저장소 운영 절차를 갱신했습니다. 예약 정의가 이를 따르는지 또는 새 정책으로 실행된 기록은 확인하지 못했습니다.', '미확인', ['https://app.devin.ai/automations/24995db258e34007bc506bbdf23280c9']),
+    verified('정기 Devin 실행에 새 절차 적용 확인', repo + '/actions/runs/45761588069', '2026-11-26 14:13 KST 정기 예약 실행이 새 기준(필요성·검색 수요·공식 근거, 회당 최대 1건)으로 수행돼 예금·적금 이자 계산기 1건을 선정·배포·기록한 것을 확인했습니다.'),
   ],
   'admin-active-work': [
     verified('운영 관리 페이지에 현재 작업·단계와 시작·갱신 시각 표시', '/ops-7f3a9c2d/', '0b3ec81 운영 390·1440px에서 실제 작업 제목, 배포 검증 단계 및 KST 시각 2개 확인'),
@@ -390,8 +390,8 @@ export const auditItems = {
   ],
   'daily-feature-review-2026-11-26-afternoon': [
     verified('검색 수요·공식 법령 근거 검증 및 1건 선정', 'https://datalab.naver.com/keyword/trendResult.naver?hashKey=N_ab2f0d867f66cca6b6173ad2e50a8502', '네이버 데이터랩 2026-10-26~11-25 비교에서 예금·적금 이자 계산기가 31일 전 기간 최고 상대 지수를 기록했고, 국가법령정보센터에서 소득세법 제129조·지방세법 제103조의13·조세특례제한법 제88조의2·제89조의3·국고금 관리법 제47조 원문을 확인했습니다.'),
-    open('예금·적금 이자 계산기 운영 배포 및 브라우저 검증', '로컬 단위 테스트 98건과 Chromium(390/768/1024/1440px)·Pixel 7 감사를 통과했습니다. Pages 배포 후 운영 사이트에서 동작·오프라인 0요청·관리 페이지를 확인합니다.', '진행중', [site + '/tools/deposit-interest/']),
-    open('뉴스 예약 실행 확인 및 보완 갱신', '배포 후 최근 news.yml 예약 실행 기록을 확인하고 직전 30분 성공 예약이 없으면 보완 실행합니다.', '진행중', [repo + '/actions/workflows/news.yml']),
+    verified('예금·적금 이자 계산기 운영 배포 및 브라우저 검증', repo + '/actions/runs/45761588069', '22567a6 Pages 배포 성공 후 운영 /tools/deposit-interest/·/tools/everyday/·sitemap.xml·관리 페이지 HTTP 200과 noindex, connect-src none, 오프라인 계산·오류 시 복사 비활성·초기화·홈 바로가기 검색(적금)을 확인했습니다. 로컬 단위 테스트 98건과 Chromium(390/768/1024/1440px)·Pixel 7 감사를 통과했습니다(Firefox·WebKit은 환경 미설치로 미실행).'),
+    verified('뉴스 예약 실행 확인 및 보완 갱신', repo + '/actions/runs/45761732433', '2026-11-26 03:48 KST(45678945682)·11:08 KST(45740409324) 예약 성공을 확인했고, 직전 30분 성공 예약이 없어 14:27 KST 수동 보완 실행(45761732433)으로 refresh / build·deploy 성공과 운영 news-data.json 14개 피드·112건을 확인했습니다.'),
   ],
 };
 
