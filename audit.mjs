@@ -341,7 +341,10 @@ async function auditPlayTool(page, context) {
         }
       }
       await tool.getByRole('button', { name: '지우기' }).click();
-      if (await entries.count() !== 2 || await entries.first().inputValue() || (await copy.count() && await copy.isVisible())) issue('Entry reset did not clear data and results');
+      if (await count.inputValue() !== '2' || await entries.count() !== 2 || await result.textContent() ||
+          (await copy.count() && await copy.isVisible())) issue('Entry reset did not restore the default count and clear results');
+      await count.selectOption('3');
+      if (await tool.locator('[data-entry-input]').evaluateAll((inputs) => inputs.some((input) => input.value))) issue('Entry reset did not clear saved fields');
       cases++;
     }
   } finally {

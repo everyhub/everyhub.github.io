@@ -15,10 +15,10 @@ export function entryBoxes({ max, countLabel, unit, groups }) {
 export function bindEntryBoxes(form) {
   const count = form.querySelector('[data-entry-count]');
   const groups = [...form.querySelectorAll('[data-entry-group]')];
-  function sync() {
+  function sync(size = Number(count.value)) {
     for (const group of groups) {
       const list = group.querySelector('[data-entry-list]');
-      while (list.children.length < Number(count.value)) {
+      while (list.children.length < size) {
         const row = list.firstElementChild.cloneNode(true);
         row.querySelector('span').textContent = `${group.dataset.entryLabel} ${list.children.length + 1}`;
         const input = row.querySelector('input');
@@ -27,15 +27,15 @@ export function bindEntryBoxes(form) {
         list.append(row);
       }
       [...list.children].forEach((row, index) => {
-        row.hidden = index >= Number(count.value);
+        row.hidden = index >= size;
         row.querySelector('input').disabled = row.hidden;
       });
     }
     const active = [...form.querySelectorAll('[data-entry-input]:enabled')];
     active.forEach((input, index) => { input.enterKeyHint = index === active.length - 1 ? 'go' : 'next'; });
   }
-  count.addEventListener('change', sync);
-  form.addEventListener('reset', () => queueMicrotask(sync));
+  count.addEventListener('change', () => sync());
+  form.addEventListener('reset', () => sync(Number(count.options[0].value)));
   form.addEventListener('keydown', (event) => {
     if (event.key !== 'Enter' || event.isComposing || event.keyCode === 229 || !event.target.matches('[data-entry-input]')) return;
     const active = [...form.querySelectorAll('[data-entry-input]:enabled')];
