@@ -547,10 +547,13 @@ async function auditViewport(origin) {
             const initial = await frame();
             await page.waitForTimeout(150);
             if (await page.locator('[data-wish-motion]').isVisible() || await frame() !== initial) issue('Wish tree did not start still with reduced motion');
+            const trunkAlpha = await canvas.evaluate(node => node.getContext('2d')
+              .getImageData(Math.floor(node.width / 2), Math.floor(node.height * .91), 1, 1).data[3]);
+            if (trunkAlpha !== 255) issue('Wish tree backdrop was not painted at its measured size');
           } finally {
             await page.emulateMedia({ reducedMotion: null });
           }
-          cases += 5;
+          cases += 6;
           continue;
         }
         if (route === '/tools/csv-json-converter/') {

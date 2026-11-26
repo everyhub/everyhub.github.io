@@ -12,6 +12,8 @@ const count = tree.querySelector('[data-wish-count]');
 const list = tree.querySelector('[data-wish-list]');
 const canvas = tree.querySelector('canvas');
 const paint = canvas.getContext('2d');
+const backdrop = document.createElement('canvas');
+const background = backdrop.getContext('2d');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 
 function showStorageNotice() {
@@ -35,57 +37,151 @@ const flurries = Array.from({ length: 48 }, (_, i) => ({
   radius: .55 + i % 4 * .32,
   speed: 3 + i % 7 * 1.7,
 }));
-const colors = ['#a0f9d0', '#e8fdf8', '#ffd79b', '#6de2b5', '#b1e7ff'];
-const branchLights = Array.from({ length: 108 }, (_, i) => ({
-  level: (i + 1) / 110,
-  offset: i * 2.39996,
-  reach: .35 + (i * 7 % 11) / 17,
-  size: .7 + i % 4 * .26,
-}));
+const colors = ['#ffd17b', '#ffc0b2', '#fff2ca', '#ffab98', '#bdf3d4'];
+const baubles = [
+  [.16, .77, '#a54852'], [.29, -.56, '#db9c50'], [.38, .32, '#be5265'],
+  [.51, .59, '#d49e48'], [.65, -.36, '#b84b5a'], [.79, .25, '#d59c52'],
+];
 
-function glow(x, y, radius, color) {
-  const halo = paint.createRadialGradient(x, y, 0, x, y, radius);
+function glow(x, y, radius, color, ctx = paint) {
+  const halo = ctx.createRadialGradient(x, y, 0, x, y, radius);
   halo.addColorStop(0, color);
   halo.addColorStop(1, 'transparent');
-  paint.fillStyle = halo;
-  paint.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+  ctx.fillStyle = halo;
+  ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+}
+
+function geometry() {
+  return { center: width / 2, base: height * .865, top: height * .15,
+    spread: Math.min(width * .36, height * .39) };
+}
+
+function gift(ctx, x, y, size, color, ribbon) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(size, size);
+  ctx.fillStyle = '#101e28';
+  ctx.beginPath();
+  ctx.ellipse(.06, .02, .66, .11, 0, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.fillStyle = color;
+  ctx.fillRect(-.5, -.68, 1, .68);
+  ctx.fillStyle = '#0d1e314f';
+  ctx.fillRect(.28, -.67, .22, .67);
+  ctx.fillStyle = color;
+  ctx.fillRect(-.55, -.76, 1.1, .16);
+  ctx.fillStyle = '#fff4d838';
+  ctx.fillRect(-.55, -.76, 1.1, .05);
+  ctx.fillStyle = ribbon;
+  ctx.fillRect(-.08, -.76, .16, .76);
+  ctx.strokeStyle = ribbon;
+  ctx.lineWidth = .045;
+  ctx.beginPath();
+  ctx.moveTo(0, -.76);
+  ctx.bezierCurveTo(-.51, -.83, -.34, -1.19, 0, -.76);
+  ctx.bezierCurveTo(.34, -1.19, .51, -.83, 0, -.76);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function foliage(ctx, x, tip, hem, radius, tier) {
+  const rise = hem - tip;
+  ctx.save();
+  ctx.translate(x, tip);
+  ctx.scale(radius, rise);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  for (const side of [1, -1]) {
+    const points = [[.28, .34], [.42, .48], [.31, .47], [.55, .65], [.68, .71],
+      [.55, .71], [.79, .86], [1, .96], [.85, 1], [.77, .97], [.66, 1.035],
+      [.54, 1.01], [.41, 1.065], [.25, 1.04], [.12, 1.075], [0, 1.058]];
+    if (side < 0) points.reverse();
+    for (const [px, py] of points) ctx.lineTo(px * side, py);
+  }
+  ctx.closePath();
+  const green = ctx.createLinearGradient(-.7, .13, .65, 1);
+  green.addColorStop(0, tier % 2 ? '#488a63' : '#5d9c70');
+  green.addColorStop(.52, '#205344');
+  green.addColorStop(1, '#0e342e');
+  ctx.fillStyle = green;
+  ctx.fill();
+  ctx.clip();
+
+  for (let i = 0; i < 82; i++) {
+    const px = (i * 37 % 83) / 42 - 1;
+    const py = .16 + (i * 19 % 89) / 99;
+    const reach = .055 + (i % 5) * .025;
+    const direction = Math.sign(px) || 1;
+    ctx.strokeStyle = i % 3 ? '#92bc903a' : '#d2dcb34d';
+    ctx.lineWidth = .008 + (i % 3) * .003;
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.quadraticCurveTo(px + direction * reach * .52, py + .056, px + direction * reach, py + .075);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function paintBackdrop(dpr) {
+  if (!background || !width || !height) return;
+  backdrop.width = canvas.width;
+  backdrop.height = canvas.height;
+  background.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const { center, base, top, spread } = geometry();
+  const span = base - top;
+  const ground = height * .935;
+  glow(center, height * .52, span * .81, '#23776f5c', background);
+  for (let i = 0; i < 24; i++) {
+    const x = width * ((i * 67 + 18) % 101) / 101;
+    const y = height * (.09 + ((i * 41 + 7) % 97) / 121);
+    glow(x, y, 3 + i % 5 * 2, i % 3 ? '#aacdc42b' : '#e3bc8052', background);
+  }
+  background.save();
+  background.translate(center, ground);
+  background.scale(1, .15);
+  glow(0, 0, Math.min(width * .48, spread * 1.43), '#b6ced5a8', background);
+  glow(0, -14, spread * .88, '#d0e6e565', background);
+  background.restore();
+  const bark = background.createLinearGradient(center - 10, 0, center + 10, 0);
+  bark.addColorStop(0, '#8e6146');
+  bark.addColorStop(.5, '#624737');
+  bark.addColorStop(1, '#352e29');
+  background.fillStyle = bark;
+  background.fillRect(center - 8, base - 18, 16, ground - base + 13);
+  const tiers = [[.58, 1.0, 1], [.44, .84, .84], [.29, .69, .68], [.145, .53, .51], [0, .35, .35]];
+  tiers.forEach(([tip, hem, reach], i) => foliage(background, center, top + tip * span, top + hem * span, spread * reach, i));
+  for (const [tip, hem, reach] of tiers) {
+    const y = top + span * (tip * .3 + hem * .7);
+    const radius = spread * reach;
+    background.strokeStyle = '#edc58391';
+    background.lineWidth = 1.25;
+    background.beginPath();
+    background.moveTo(center - radius * .55, y - 4);
+    background.bezierCurveTo(center - radius * .15, y + 12, center + radius * .28, y + 11, center + radius * .62, y);
+    background.stroke();
+  }
+  gift(background, center - spread * .68, ground + 2, spread * .24, '#9b4151', '#f0c985');
+  gift(background, center - spread * .4, ground + 5, spread * .16, '#c5834a', '#fae2ad');
+  gift(background, center + spread * .65, ground + 3, spread * .2, '#3c6b7b', '#e9c49c');
 }
 
 function draw() {
   paint.clearRect(0, 0, width, height);
+  if (backdrop.width === canvas.width && backdrop.height === canvas.height && width && height) {
+    paint.drawImage(backdrop, 0, 0, width, height);
+  }
   const seconds = elapsed / 1000;
   const rotation = seconds * .32 + .45;
-  const center = width / 2;
-  const base = height * .89;
-  const top = height * .14;
+  const { center, base, top, spread } = geometry();
   const span = base - top;
-  const spread = Math.min(width * .35, height * .38);
-  const project = (level, offset = 0, reach = 1) => {
-    const { radius, x, depth } = helixPoint(level, rotation + offset);
+  const project = (level) => {
+    const { radius, x, depth } = helixPoint(level, rotation);
     return {
-      x: center + spread * x * reach * (1 + depth * .11),
-      y: base - level * span + depth * radius * reach * height * .032,
+      x: center + spread * x * (1 + depth * .06),
+      y: base - level * span + depth * radius * height * .035,
       depth,
     };
   };
-
-  glow(center, height * .59, span * .64, '#16836532');
-  const canopy = paint.createLinearGradient(center - spread, 0, center + spread, 0);
-  canopy.addColorStop(0, '#32a97400');
-  canopy.addColorStop(.5, '#248b68a0');
-  canopy.addColorStop(1, '#32a97400');
-  paint.fillStyle = canopy;
-  paint.beginPath();
-  paint.moveTo(center, top - 4);
-  paint.quadraticCurveTo(center + spread * .58, top + span * .41, center + spread, base);
-  paint.quadraticCurveTo(center, base + span * .12, center - spread, base);
-  paint.quadraticCurveTo(center - spread * .58, top + span * .41, center, top - 4);
-  paint.fill();
-  paint.save();
-  paint.translate(center, base + height * .035);
-  paint.scale(1, .17);
-  glow(0, 0, spread * 1.1, '#b8f4df53');
-  paint.restore();
 
   for (const { x, y, radius, speed } of flurries) {
     const drift = Math.sin(seconds * .32 + x * 14) * 7;
@@ -95,36 +191,20 @@ function draw() {
     paint.fill();
   }
 
-  const trunk = paint.createLinearGradient(center, top, center, base + 12);
-  trunk.addColorStop(0, '#ffe7a38c');
-  trunk.addColorStop(.88, '#80d3aa63');
-  trunk.addColorStop(1, '#ffe7a374');
-  paint.strokeStyle = trunk;
-  paint.lineWidth = 2;
-  paint.beginPath();
-  paint.moveTo(center, top);
-  paint.lineTo(center, base + 12);
-  paint.stroke();
-
-  for (const { level, offset, reach, size } of branchLights) {
-    const { x, y, depth } = project(level, offset, reach);
-    paint.fillStyle = depth > 0 ? '#88e5ab76' : '#54c78e39';
+  for (const [level, placement, color] of baubles) {
+    const x = center + spread * placement * (1 - level);
+    const y = base - level * span;
+    const radius = Math.max(4, spread * (.057 - level * .02));
+    const glass = paint.createRadialGradient(x - radius * .35, y - radius * .45, .4, x, y, radius);
+    glass.addColorStop(0, '#fff0cf');
+    glass.addColorStop(.31, color);
+    glass.addColorStop(1, '#482a37');
+    paint.fillStyle = '#daae73';
+    paint.fillRect(x - 1.5, y - radius - 2, 3, 3);
+    paint.fillStyle = glass;
     paint.beginPath();
-    paint.arc(x, y, size, 0, 2 * Math.PI);
+    paint.arc(x, y, radius, 0, 2 * Math.PI);
     paint.fill();
-  }
-
-  const segments = 360;
-  let a = project(0);
-  for (let i = 1; i <= segments; i++) {
-    const b = project(i / segments);
-    paint.strokeStyle = a.depth > 0 ? '#79e1bd91' : '#79e1bd39';
-    paint.lineWidth = a.depth > 0 ? 1.7 : 1;
-    paint.beginPath();
-    paint.moveTo(a.x, a.y);
-    paint.lineTo(b.x, b.y);
-    paint.stroke();
-    a = b;
   }
 
   const ascent = arrival === null || reduced.matches ? 1 : Math.min(1, (elapsed - arrival) / 2600);
@@ -133,25 +213,56 @@ function draw() {
   })).sort((a, b) => a.depth - b.depth);
   for (const { x, y, depth, i, text } of ornaments) {
     const own = i >= sampleWishes.length;
-    const size = (own ? 3.45 : 2.45) * (1 + depth * .26);
+    const size = (own ? 3.45 : 2.15) * (1 + depth * .34);
     const color = own ? '#ffdf9d' : colors[i % colors.length];
-    const twinkle = .84 + .16 * Math.sin(seconds * 1.3 + i * 2.3);
-    paint.globalAlpha = (.65 + depth * .25) * twinkle;
-    glow(x, y, size * 3.3, color + '80');
+    const twinkle = .78 + .22 * Math.sin(seconds * (1.1 + i % 5 * .37) + i * 2.3);
+    paint.globalAlpha = (.65 + depth * .27) * twinkle;
+    glow(x, y, size * 5, color + '92');
     paint.fillStyle = color;
     paint.beginPath();
     paint.arc(x, y, size, 0, 2 * Math.PI);
     paint.fill();
-    paint.globalAlpha = (own ? .29 : .2) + depth * .12;
+    paint.globalAlpha = (own ? .23 : .14) + depth * .08;
+    paint.fillStyle = '#fff5db';
     paint.font = '9px system-ui, sans-serif';
     paint.textAlign = 'center';
     paint.fillText(text, x, y - 7, Math.min(100, spread * .7));
   }
   paint.globalAlpha = 1;
 
-  const starY = top - 13;
-  glow(center, starY, 36 + 3 * Math.sin(seconds * 1.5), '#ffda796f');
-  paint.fillStyle = '#ffe9a8';
+  if (arrival !== null && !reduced.matches && ascent > .68 && ascent < 1) {
+    const { x, y } = project(wishLevel(ornaments.length - 1, ornaments.length, ascent));
+    const burst = (ascent - .68) / .32;
+    paint.globalAlpha = 1 - burst;
+    paint.fillStyle = '#ffedb0';
+    for (let i = 0; i < 10; i++) {
+      const angle = i * 2.39996;
+      const reach = (6 + 24 * burst) * (1 - i % 3 * .18);
+      paint.beginPath();
+      paint.arc(x + Math.cos(angle) * reach, y + Math.sin(angle) * reach, 1.45, 0, 2 * Math.PI);
+      paint.fill();
+    }
+    paint.globalAlpha = 1;
+  }
+
+  const starY = top - 12;
+  const pulse = Math.sin(seconds * 1.5);
+  glow(center, starY, 39 + 5 * pulse, '#ffce6c92');
+  paint.strokeStyle = '#ffdf9769';
+  paint.lineWidth = 1;
+  for (let i = 0; i < 8; i++) {
+    const angle = i * Math.PI / 4;
+    const reach = (i % 2 ? 22 : 27) + pulse * 2;
+    paint.beginPath();
+    paint.moveTo(center + 13 * Math.cos(angle), starY + 13 * Math.sin(angle));
+    paint.lineTo(center + reach * Math.cos(angle), starY + reach * Math.sin(angle));
+    paint.stroke();
+  }
+  const gold = paint.createLinearGradient(center - 10, starY - 12, center + 10, starY + 14);
+  gold.addColorStop(0, '#fff9d2');
+  gold.addColorStop(.53, '#ffe7a0');
+  gold.addColorStop(1, '#e5a84c');
+  paint.fillStyle = gold;
   paint.beginPath();
   for (let i = 0; i < 10; i++) {
     const angle = i * Math.PI / 5 - Math.PI / 2;
@@ -245,6 +356,7 @@ if (paint) {
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     paint.setTransform(dpr, 0, 0, dpr, 0, 0);
+    paintBackdrop(dpr);
     draw();
   }).observe(canvas);
   motion.addEventListener('click', () => {
