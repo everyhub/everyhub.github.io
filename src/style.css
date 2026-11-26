@@ -290,6 +290,7 @@ summary { cursor: pointer; padding: .5rem 0; font-weight: 700; }
 .play-disclosure { color: var(--muted); font-size: .94rem; }
 .play-card-preview { margin: 1rem 0; max-width: 26rem; }
 .play-card-preview canvas { display: block; width: 100%; height: auto; border-radius: .8rem; }
+[data-play-save][hidden] { display: none; }
 .play-private { background: #fff6eb; border: 1px solid #eedcc9; border-radius: .8rem; padding: .85rem 1rem; }
 .play-private h2 { margin: 0; overflow-wrap: anywhere; }
 .play-roulette { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); align-items: center; gap: 1rem; }
