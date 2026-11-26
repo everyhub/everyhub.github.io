@@ -11,7 +11,7 @@ export const utilityGroups = [
   { path: 'tools/writing/', name: '글쓰기', description: '글자 수, 원고 정리와 텍스트 비교' },
   { path: 'tools/image-pdf/', name: '이미지·PDF', description: '사진 편집, PDF 변환과 페이지 편집' },
   { path: 'tools/date-time/', name: '날짜·시간', description: '만 나이, 날짜 차이, 근무일과 세계 시간' },
-  { path: 'tools/everyday/', name: '생활 계산', description: '예금·적금 이자, 단위 환산, 할인율, 더치페이와 추첨' },
+  { path: 'tools/everyday/', name: '생활 계산', description: '예금·적금·대출 이자, 단위 환산, 할인율, 더치페이와 추첨' },
   { path: 'tools/developer/', name: '개발 도구', description: 'JSON, 인코딩, QR 코드, 비밀번호와 색상' },
 ];
 
@@ -27,6 +27,7 @@ const additions = [
   ['world-time', '날짜·시간', '세계 시간·시차 변환기', '서울에서 입력한 날짜와 시각을 주요 해외 도시의 현지 시각으로 바꿉니다.'],
   ['lunar-calendar', '날짜·시간', '음력·양력 변환기', '한국천문연구원 달력자료로 2026~2028년 음력 날짜를 양력과 서로 바꿉니다.'],
   ['deposit-interest', '생활 계산', '예금·적금 이자 계산기', '정기예금과 정기적금의 세전·세후 이자와 만기 수령액을 단리·월복리 및 과세 기준별로 계산합니다.'],
+  ['loan-interest', '생활 계산', '대출 이자 계산기', '대출 원금·기간·금리와 거치 기간을 입력해 원리금균등·원금균등·만기일시상환의 월 상환액과 총이자를 계산합니다.'],
   ['bmi', '생활 계산', 'BMI 체질량지수 계산기', '키와 체중으로 한국 성인의 BMI와 대한비만학회 기준 구간을 확인합니다.'],
   ['unit-converter', '생활 계산', '길이·무게·온도 단위 변환기', '센티미터·인치, 킬로그램·파운드, 섭씨·화씨를 환산합니다.'],
   ['percentage', '생활 계산', '퍼센트·할인율 계산기', '할인가, 가격 변동률, 전체 대비 비율을 계산합니다.'],

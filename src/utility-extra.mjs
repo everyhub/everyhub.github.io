@@ -132,6 +132,101 @@ export function depositInterest({ product, amount, months, rate, compounding, ta
   return { principal, grossInterest, incomeTax, localTax, ruralTax, tax, taxRate, netInterest, totalPayout: principal + netInterest };
 }
 
+function simulateLoan(principal, months, monthlyRate, method, graceMonths) {
+  const graceMonthlyInterest = Math.round(principal * monthlyRate);
+  if (method === 'bullet') {
+    const totalInterest = graceMonthlyInterest * months;
+    return {
+      graceMonthlyInterest: 0,
+      firstPayment: months === 1 ? principal + graceMonthlyInterest : graceMonthlyInterest,
+      lastPayment: principal + graceMonthlyInterest,
+      monthlyInterest: graceMonthlyInterest,
+      totalInterest,
+      totalPayment: principal + totalInterest,
+    };
+  }
+  const repayMonths = months - graceMonths;
+  let remaining = principal;
+  let totalInterest = graceMonthlyInterest * graceMonths;
+  let firstPayment = 0;
+  let lastPayment = 0;
+  if (method === 'equal-payment') {
+    const basePayment = monthlyRate === 0
+      ? principal / repayMonths
+      : principal * (monthlyRate * (1 + monthlyRate) ** repayMonths) / ((1 + monthlyRate) ** repayMonths - 1);
+    for (let i = 1; i <= repayMonths; i++) {
+      const interest = Math.round(remaining * monthlyRate);
+      let principalPart;
+      let payment;
+      if (i === repayMonths) {
+        principalPart = remaining;
+        payment = principalPart + interest;
+      } else {
+        payment = Math.round(basePayment);
+        principalPart = Math.min(remaining, Math.max(0, payment - interest));
+        payment = principalPart + interest;
+      }
+      remaining -= principalPart;
+      totalInterest += interest;
+      if (i === 1) firstPayment = payment;
+      if (i === repayMonths) lastPayment = payment;
+    }
+    return {
+      graceMonthlyInterest,
+      monthlyPayment: Math.round(basePayment),
+      firstPayment,
+      lastPayment,
+      totalInterest,
+      totalPayment: principal + totalInterest,
+    };
+  }
+  const basePrincipal = Math.floor(principal / repayMonths);
+  for (let i = 1; i <= repayMonths; i++) {
+    const interest = Math.round(remaining * monthlyRate);
+    const principalPart = i === repayMonths ? remaining : basePrincipal;
+    const payment = principalPart + interest;
+    remaining -= principalPart;
+    totalInterest += interest;
+    if (i === 1) firstPayment = payment;
+    if (i === repayMonths) lastPayment = payment;
+  }
+  return {
+    graceMonthlyInterest,
+    monthlyPrincipal: basePrincipal,
+    firstPayment,
+    lastPayment,
+    totalInterest,
+    totalPayment: principal + totalInterest,
+  };
+}
+
+export function loanInterest({ principal, months, rate, method, graceMonths = 0 }) {
+  if (!['equal-payment', 'equal-principal', 'bullet'].includes(method)) throw new Error('상환 방식을 선택해 주세요.');
+  if (!Number.isSafeInteger(principal) || principal < 1 || principal > 1_000_000_000_000) {
+    throw new Error('대출 원금은 1원~1조 원 사이의 정수로 입력해 주세요.');
+  }
+  if (!Number.isSafeInteger(months) || months < 1 || months > 600) {
+    throw new Error('대출 기간은 1~600개월 사이의 정수로 입력해 주세요.');
+  }
+  if (!Number.isFinite(rate) || rate < 0 || rate > 100) {
+    throw new Error('연 이자율은 0~100% 사이의 숫자로 입력해 주세요.');
+  }
+  if (!Number.isSafeInteger(graceMonths) || graceMonths < 0 || graceMonths >= months) {
+    throw new Error('거치 기간은 0개월 이상, 대출 기간보다 작은 정수로 입력해 주세요.');
+  }
+  if (method === 'bullet' && graceMonths > 0) {
+    throw new Error('만기일시상환은 전체 기간 이자만 납부하므로 거치 기간을 0개월로 입력해 주세요.');
+  }
+  const monthlyRate = (rate / 100) / 12;
+  const result = simulateLoan(principal, months, monthlyRate, method, graceMonths);
+  const comparison = {
+    equalPaymentInterest: simulateLoan(principal, months, monthlyRate, 'equal-payment', method === 'bullet' ? 0 : graceMonths).totalInterest,
+    equalPrincipalInterest: simulateLoan(principal, months, monthlyRate, 'equal-principal', method === 'bullet' ? 0 : graceMonths).totalInterest,
+    bulletInterest: simulateLoan(principal, months, monthlyRate, 'bullet', 0).totalInterest,
+  };
+  return { method, principal, months, graceMonths, rate, ...result, comparison };
+}
+
 export function secureIndex(size, cryptoSource = globalThis.crypto) {
   if (!Number.isSafeInteger(size) || size < 1 || size > 2 ** 32) throw new RangeError('지원하지 않는 범위입니다.');
   const slot = new Uint32Array(1);

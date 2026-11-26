@@ -5,7 +5,7 @@ import { ageAt, characterLimit, convertArea, countText, difference, fitImage } f
 import { lunarToSolar, solarToLunar } from '../src/lunar-calendar.mjs';
 import { utilityPages } from '../src/utility-pages.mjs';
 import { utilityGroups, utilitySections } from '../src/utility-config.mjs';
-import { bmi, cleanText, colorCode, compareLines, convertUnit, depositInterest, drawNames, encodeText, formatJSON, ladderDraw, percentage, randomPassword, secureIndex, splitBill, workdays, worldTime } from '../src/utility-extra.mjs';
+import { bmi, cleanText, colorCode, compareLines, convertUnit, depositInterest, drawNames, encodeText, formatJSON, ladderDraw, loanInterest, percentage, randomPassword, secureIndex, splitBill, workdays, worldTime } from '../src/utility-extra.mjs';
 import { cropWindow, drawQR, makePDF, pdfPageSelection } from '../src/utility-files.mjs';
 import { PDFDocument } from '../src/utility-vendor/pdf-lib-1.17.1.mjs';
 
@@ -49,11 +49,11 @@ test('면적 환산과 이미지 크기 조절', () => {
 
 test('공개 도구는 광고 없이 렌더링하고 편집기와 Worker를 같은 출처로 제한한다', async () => {
   const pages = utilityPages({ baseURL: 'https://example.com/subpath/', adsenseClient: 'ca-pub-1' });
-  assert.equal(pages.length, 35);
+  assert.equal(pages.length, 36);
   const hubs = new Set(['tools/', ...utilityGroups.map(({ path }) => path)]);
   for (const { path, html } of pages) {
     assert.ok(html.includes(`rel="canonical" href="https://example.com/subpath/${path}"`));
-    const noConnection = ['tools/photo-location/', 'tools/csv-json-converter/', 'tools/deposit-interest/'].includes(path);
+    const noConnection = ['tools/photo-location/', 'tools/csv-json-converter/', 'tools/deposit-interest/', 'tools/loan-interest/'].includes(path);
     assert.ok(html.includes(noConnection ? "connect-src 'none'" : "connect-src 'self'"), path);
     assert.doesNotMatch(html, /googlesyndication|Google AdSense/);
     if (!hubs.has(path)) {
@@ -175,6 +175,33 @@ test('예금·적금 이자 계산기는 단리·월복리와 법정 과세 기�
   assert.throws(() => depositInterest({ product: 'deposit', amount: 0, months: 12, rate: 3.5, compounding: 'simple', taxType: 'normal' }), /정수로/);
   assert.throws(() => depositInterest({ product: 'deposit', amount: 1_000_000, months: 601, rate: 3.5, compounding: 'simple', taxType: 'normal' }), /600개월/);
   assert.throws(() => depositInterest({ product: 'deposit', amount: 1_000_000, months: 12, rate: 101, compounding: 'simple', taxType: 'normal' }), /100%/);
+});
+
+test('대출 이자 계산기는 원리금균등·원금균등·만기일시상환과 거치 기간을 정확히 계산한다', () => {
+  const ep = loanInterest({ principal: 100_000_000, months: 120, rate: 4.5, method: 'equal-payment' });
+  assert.equal(ep.firstPayment, 1_036_384);
+  assert.equal(ep.totalInterest, 24_366_093);
+  assert.equal(ep.totalPayment, 124_366_093);
+  const eq = loanInterest({ principal: 100_000_000, months: 120, rate: 4.5, method: 'equal-principal' });
+  assert.equal(eq.firstPayment, 1_208_333);
+  assert.equal(eq.lastPayment, 836_498);
+  assert.equal(eq.totalInterest, 22_687_500);
+  const bl = loanInterest({ principal: 100_000_000, months: 120, rate: 4.5, method: 'bullet' });
+  assert.equal(bl.monthlyInterest, 375_000);
+  assert.equal(bl.lastPayment, 100_375_000);
+  assert.equal(bl.totalInterest, 45_000_000);
+  assert.ok(eq.totalInterest < ep.totalInterest && ep.totalInterest < bl.totalInterest);
+  const graced = loanInterest({ principal: 12_000_000, months: 12, rate: 6, method: 'equal-principal', graceMonths: 2 });
+  assert.equal(graced.graceMonthlyInterest, 60_000);
+  assert.equal(graced.totalInterest, 450_000);
+  const zero = loanInterest({ principal: 12_000_000, months: 12, rate: 0, method: 'equal-payment' });
+  assert.equal(zero.firstPayment, 1_000_000);
+  assert.equal(zero.totalInterest, 0);
+  assert.throws(() => loanInterest({ principal: 0, months: 12, rate: 4.5, method: 'equal-payment' }), /정수로/);
+  assert.throws(() => loanInterest({ principal: 10_000_000, months: 601, rate: 4.5, method: 'equal-payment' }), /600개월/);
+  assert.throws(() => loanInterest({ principal: 10_000_000, months: 12, rate: 101, method: 'equal-payment' }), /100%/);
+  assert.throws(() => loanInterest({ principal: 10_000_000, months: 12, rate: 4.5, method: 'equal-payment', graceMonths: 12 }), /거치 기간/);
+  assert.throws(() => loanInterest({ principal: 10_000_000, months: 12, rate: 4.5, method: 'bullet', graceMonths: 1 }), /만기일시상환/);
 });
 
 test('developer tools round-trip UTF-8 and reject invalid input', () => {

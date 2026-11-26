@@ -96,6 +96,33 @@ const calculate = {
       `만기 예상 수령액: ${number(totalPayout)}원`,
     ].join('\n');
   },
+  'loan-interest'() {
+    const method = fields.method.value;
+    const graceMonths = method === 'bullet' ? 0 : fields.graceMonths.valueAsNumber;
+    const res = extra.loanInterest({
+      principal: fields.principal.valueAsNumber,
+      months: fields.months.valueAsNumber,
+      rate: fields.rate.valueAsNumber,
+      method,
+      graceMonths,
+    });
+    const methodName = method === 'equal-payment' ? '원리금균등분할상환'
+      : method === 'equal-principal' ? '원금균등분할상환' : '만기일시상환';
+    const lines = [`상환 방식: ${methodName} (${res.months}개월${res.graceMonths > 0 ? `, 거치 ${res.graceMonths}개월` : ''})`];
+    if (res.graceMonths > 0) lines.push(`거치 기간 월 이자: ${number(res.graceMonthlyInterest)}원`);
+    if (method === 'equal-payment') {
+      lines.push(`월 상환액 (원금+이자): ${number(res.firstPayment)}원${res.lastPayment !== res.firstPayment ? ` (마지막 회차 ${number(res.lastPayment)}원)` : ''}`);
+    } else if (method === 'equal-principal') {
+      lines.push(`첫 상환 월 납입액: ${number(res.firstPayment)}원 (마지막 회차 ${number(res.lastPayment)}원)`);
+    } else {
+      lines.push(`월 이자: ${number(res.monthlyInterest)}원 (만기 회차 ${number(res.lastPayment)}원)`);
+    }
+    lines.push(`총 대출 이자: ${number(res.totalInterest)}원`);
+    lines.push(`총 상환 금액: ${number(res.totalPayment)}원`);
+    lines.push(`방식별 총이자 비교 — 원리금균등 ${number(res.comparison.equalPaymentInterest)}원 · 원금균등 ${number(res.comparison.equalPrincipalInterest)}원 · 만기일시 ${number(res.comparison.bulletInterest)}원`);
+    if (res.rate > 20) lines.push('참고: 이자제한법상 법정 최고이자율(연 20%)을 초과한 금리입니다.');
+    return lines.join('\n');
+  },
   bmi() {
     const { value, category } = extra.bmi(fields.height.valueAsNumber, fields.weight.valueAsNumber);
     return `BMI ${value.toFixed(2)} · ${category} (한국 성인 기준)`;
@@ -331,6 +358,9 @@ form.addEventListener('reset', () => {
     else if (tool === 'deposit-interest') {
       fields.product.dispatchEvent(new Event('change'));
       result.value = calculate[tool]();
+    } else if (tool === 'loan-interest') {
+      fields.method.dispatchEvent(new Event('change'));
+      result.value = calculate[tool]();
     } else if (tool === 'lunar-calendar') fields.mode.dispatchEvent(new Event('change'));
     else if (tool === 'passport-photo') fields.format.dispatchEvent(new Event('change'));
     else result.value = tool === 'area-converter' ? calculate[tool]() : '';
@@ -378,5 +408,14 @@ if (tool === 'lunar-calendar') {
   };
   fields.product.addEventListener('change', syncProduct);
   syncProduct();
+  result.value = calculate[tool]();
+} else if (tool === 'loan-interest') {
+  const syncMethod = () => {
+    const bullet = fields.method.value === 'bullet';
+    if (bullet) fields.graceMonths.value = '0';
+    fields.graceMonths.disabled = bullet;
+  };
+  fields.method.addEventListener('change', syncMethod);
+  syncMethod();
   result.value = calculate[tool]();
 } else if (tool === 'area-converter') result.value = calculate[tool]();

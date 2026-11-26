@@ -393,6 +393,11 @@ export const auditItems = {
     verified('예금·적금 이자 계산기 운영 배포 및 브라우저 검증', repo + '/actions/runs/45761588069', '22567a6 Pages 배포 성공 후 운영 /tools/deposit-interest/·/tools/everyday/·sitemap.xml·관리 페이지 HTTP 200과 noindex, connect-src none, 오프라인 계산·오류 시 복사 비활성·초기화·홈 바로가기 검색(적금)을 확인했습니다. 로컬 단위 테스트 98건과 Chromium(390/768/1024/1440px)·Pixel 7 감사를 통과했습니다(Firefox·WebKit은 환경 미설치로 미실행).'),
     verified('뉴스 예약 실행 확인 및 보완 갱신', repo + '/actions/runs/45761732433', '2026-11-26 03:48 KST(45678945682)·11:08 KST(45740409324) 예약 성공을 확인했고, 직전 30분 성공 예약이 없어 14:27 KST 수동 보완 실행(45761732433)으로 refresh / build·deploy 성공과 운영 news-data.json 14개 피드·112건을 확인했습니다.'),
   ],
+  'daily-feature-review-2026-11-26-evening': [
+    verified('검색 수요·공식 법령 근거 검증 및 1건 선정', 'https://datalab.naver.com/keyword/trendResult.naver?hashKey=N_044082948704453c0488a2768e1e59d8', '네이버 데이터랩 2026-10-26~11-25 비교에서 대출 이자 계산기가 31일 전 기간 최고 상대 지수(최소 45.6, 평균 75.3, 최대 100.0)를 기록했고, 국가법령정보센터(이자제한법 제2조·최고이자율 규정·금융소비자보호법 제19조)와 한국주택금융공사 원문을 확인했습니다.'),
+    open('대출 이자 계산기 운영 배포 및 브라우저 검증', '로컬 단위 테스트 99건과 브라우저 감사를 통과했습니다. Pages 배포 후 운영 사이트에서 동작·오프라인 0요청·관리 페이지를 확인합니다.', '진행중', [site + '/tools/loan-interest/']),
+    open('뉴스 예약 실행 확인 및 보완 갱신', '배포 후 최근 news.yml 예약 실행 기록을 확인하고 직전 30분 성공 예약이 없으면 보완 실행합니다.', '진행중', [repo + '/actions/workflows/news.yml']),
+  ],
 };
 
 export const unconfirmed = (requirement, reason, links) => open(requirement, reason, '미확인', links);
