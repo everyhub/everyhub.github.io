@@ -5,7 +5,7 @@ import { ageAt, characterLimit, convertArea, countText, difference, fitImage } f
 import { lunarToSolar, solarToLunar } from '../src/lunar-calendar.mjs';
 import { utilityPages } from '../src/utility-pages.mjs';
 import { utilityGroups, utilitySections } from '../src/utility-config.mjs';
-import { bmi, cleanText, colorCode, compareLines, convertUnit, depositInterest, drawNames, encodeText, formatJSON, ladderDraw, loanInterest, percentage, randomPassword, secureIndex, splitBill, workdays, worldTime } from '../src/utility-extra.mjs';
+import { bmi, carTax, cleanText, colorCode, compareLines, convertUnit, depositInterest, drawNames, encodeText, formatJSON, ladderDraw, loanInterest, percentage, randomPassword, secureIndex, splitBill, workdays, worldTime } from '../src/utility-extra.mjs';
 import { cropWindow, drawQR, makePDF, pdfPageSelection } from '../src/utility-files.mjs';
 import { PDFDocument } from '../src/utility-vendor/pdf-lib-1.17.1.mjs';
 
@@ -49,11 +49,11 @@ test('면적 환산과 이미지 크기 조절', () => {
 
 test('공개 도구는 광고 없이 렌더링하고 편집기와 Worker를 같은 출처로 제한한다', async () => {
   const pages = utilityPages({ baseURL: 'https://example.com/subpath/', adsenseClient: 'ca-pub-1' });
-  assert.equal(pages.length, 35);
+  assert.equal(pages.length, 36);
   const hubs = new Set(['tools/', ...utilityGroups.map(({ path }) => path)]);
   for (const { path, html } of pages) {
     assert.ok(html.includes(`rel="canonical" href="https://example.com/subpath/${path}"`));
-    const noConnection = ['tools/photo-location/', 'tools/csv-json-converter/', 'tools/deposit-interest/', 'tools/loan-interest/'].includes(path);
+    const noConnection = ['tools/photo-location/', 'tools/csv-json-converter/', 'tools/deposit-interest/', 'tools/loan-interest/', 'tools/car-tax/'].includes(path);
     assert.ok(html.includes(noConnection ? "connect-src 'none'" : "connect-src 'self'"), path);
     assert.doesNotMatch(html, /googlesyndication|Google AdSense/);
     if (!hubs.has(path)) {
@@ -202,6 +202,55 @@ test('대출 이자 계산기는 원리금균등·원금균등·만기일시상�
   assert.throws(() => loanInterest({ principal: 10_000_000, months: 12, rate: 101, method: 'equal-payment' }), /100%/);
   assert.throws(() => loanInterest({ principal: 10_000_000, months: 12, rate: 4.5, method: 'equal-payment', graceMonths: 12 }), /거치 기간/);
   assert.throws(() => loanInterest({ principal: 10_000_000, months: 12, rate: 4.5, method: 'bullet', graceMonths: 1 }), /만기일시상환/);
+});
+
+test('자동차세 계산기는 배기량·전기차·차령 경감·지방교육세·연납 공제를 정확히 계산한다', () => {
+  const new2000 = carTax({ vehicleType: 'engine', usage: 'private', displacement: 2000, regYear: 2026, regHalf: 'first', taxYear: 2026, prepayment: 'jan' });
+  assert.equal(new2000.unitRate, 200);
+  assert.equal(new2000.annualBase, 400_000);
+  assert.equal(new2000.annualEdu, 120_000);
+  assert.equal(new2000.annualTotal, 520_000);
+  assert.equal(new2000.firstReductionPercent, 0);
+  assert.equal(new2000.selectedPrepayment.base, 381_690);
+  assert.equal(new2000.selectedPrepayment.edu, 114_500);
+  assert.equal(new2000.selectedPrepayment.due, 496_190);
+  assert.equal(new2000.selectedPrepayment.savings, 23_810);
+
+  const splitAge = carTax({ vehicleType: 'engine', usage: 'private', displacement: 1600, regYear: 2024, regHalf: 'second', taxYear: 2026, prepayment: 'sep' });
+  assert.equal(splitAge.unitRate, 140);
+  assert.equal(splitAge.firstAge, 2);
+  assert.equal(splitAge.secondAge, 3);
+  assert.equal(splitAge.firstReductionPercent, 0);
+  assert.equal(splitAge.secondReductionPercent, 5);
+  assert.equal(splitAge.firstHalfBase, 112_000);
+  assert.equal(splitAge.secondHalfBase, 106_400);
+  assert.equal(splitAge.prepayments.sep.base, 103_740);
+
+  const oldCar = carTax({ vehicleType: 'engine', usage: 'private', displacement: 1000, regYear: 2010, regHalf: 'first', taxYear: 2026, prepayment: 'none' });
+  assert.equal(oldCar.unitRate, 80);
+  assert.equal(oldCar.firstReductionPercent, 50);
+  assert.equal(oldCar.annualBase, 40_000);
+  assert.equal(oldCar.annualEdu, 12_000);
+  assert.equal(oldCar.smallTaxLumpSum, true);
+
+  const ev = carTax({ vehicleType: 'electric', usage: 'private', regYear: 2020, regHalf: 'first', taxYear: 2026, prepayment: 'jan' });
+  assert.equal(ev.annualBase, 100_000);
+  assert.equal(ev.annualEdu, 30_000);
+  assert.equal(ev.annualTotal, 130_000);
+  assert.equal(ev.firstReductionPercent, 0);
+  assert.equal(ev.selectedPrepayment.due, 124_040);
+  assert.equal(ev.smallTaxLumpSum, true);
+
+  const taxi = carTax({ vehicleType: 'engine', usage: 'commercial', displacement: 2000, regYear: 2020, regHalf: 'first', taxYear: 2026, prepayment: 'none' });
+  assert.equal(taxi.unitRate, 19);
+  assert.equal(taxi.annualBase, 38_000);
+  assert.equal(taxi.annualEdu, 0);
+  assert.equal(taxi.annualTotal, 38_000);
+  assert.equal(taxi.firstReductionPercent, 0);
+
+  assert.throws(() => carTax({ vehicleType: 'engine', usage: 'private', displacement: 0, regYear: 2025, regHalf: 'first', taxYear: 2026 }), /배기량/);
+  assert.throws(() => carTax({ vehicleType: 'engine', usage: 'private', displacement: 2000, regYear: 2027, regHalf: 'first', taxYear: 2026 }), /최초 등록 연도/);
+  assert.throws(() => carTax({ vehicleType: 'engine', usage: 'private', displacement: 2000, regYear: 2025, regHalf: 'first', taxYear: 2028 }), /과세 연도/);
 });
 
 test('developer tools round-trip UTF-8 and reject invalid input', () => {

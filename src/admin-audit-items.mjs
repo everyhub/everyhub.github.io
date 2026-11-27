@@ -430,6 +430,11 @@ export const auditItems = {
     verified('소원 트리·사다리의 기존 주소와 놀이 분류', '/info/christmas-wish-tree/', '생활 정보·생활 계산의 중복 노출을 없앴습니다. 기존 주소와 canonical을 유지하고 검색·사이트맵에서는 놀이로 분류합니다.'),
     verified('포춘쿠키 질문과 신규 놀이 후보 검토', '/play/prompt-fortune-cookie/', '전체 질문을 점검하고 평범하거나 모호한 질문을 구체적인 놀이·퀴즈로 바꿨습니다. 주사위·빙고·퀴즈 타이머는 최근 탐색 수요를 확인하지 못해 추가하지 않았습니다.'),
   ],
+  'daily-feature-review-2026-11-27-afternoon': [
+    verified('검색 수요·공식 법령 근거 검증 및 1건 선정', 'https://datalab.naver.com/keyword/trendResult.naver?hashKey=N_f929c93bf625b3e190287f5f6a50aee0', '네이버 데이터랩 2026-10-27~11-26 5개 후보 비교에서 자동차세 계산기가 31일 전 기간 양의 상대 지수(최소 12.8, 평균 15.8, 최대 18.6)를 기록했고, 국가법령정보센터에서 2026년 현행 지방세법 제127·128·150·151조, 시행령 제122·125조(연납 공제율 5%), 지방세기본법 제59조 원문을 직접 확인했습니다.'),
+    open('자동차세 계산기 운영 배포 및 브라우저 검증', 'Pages 배포 완료 후 운영 /tools/car-tax/ 동작·오프라인 0요청·관리 페이지를 확인합니다.', '진행중'),
+    open('뉴스 예약 실행 확인 및 보완 갱신', 'Pages 배포 완료 후 최근 30분 뉴스 예약 실행을 확인하고 필요 시 수동 보완합니다.', '진행중'),
+  ],
 };
 
 export const unconfirmed = (requirement, reason, links) => open(requirement, reason, '미확인', links);

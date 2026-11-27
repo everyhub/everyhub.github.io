@@ -116,7 +116,7 @@ export function layout({ config, title, description, path, root, main, faq, calc
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  ${privatePage ? `<meta http-equiv="Content-Security-Policy" content="default-src 'self';${path === 'tools/image-resize/' ? " script-src 'self' 'wasm-unsafe-eval';" : ''} connect-src ${networkless || ['tools/photo-location/', 'tools/csv-json-converter/', 'tools/deposit-interest/', 'tools/loan-interest/'].includes(path) ? "'none'" : "'self'"}; img-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'">` : ''}
+  ${privatePage ? `<meta http-equiv="Content-Security-Policy" content="default-src 'self';${path === 'tools/image-resize/' ? " script-src 'self' 'wasm-unsafe-eval';" : ''} connect-src ${networkless || ['tools/photo-location/', 'tools/csv-json-converter/', 'tools/deposit-interest/', 'tools/loan-interest/', 'tools/car-tax/'].includes(path) ? "'none'" : "'self'"}; img-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'">` : ''}
   <meta name="viewport" content="width=device-width, initial-scale=1">
   ${robots ? `<meta name="robots" content="${escape(robots)}">` : ''}
   <title>${escape(title)}</title>

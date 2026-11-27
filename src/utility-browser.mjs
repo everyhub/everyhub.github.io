@@ -123,6 +123,49 @@ const calculate = {
     if (res.rate > 20) lines.push('참고: 이자제한법상 법정 최고이자율(연 20%)을 초과한 금리입니다.');
     return lines.join('\n');
   },
+  'car-tax'() {
+    const vehicleType = fields.vehicleType.value;
+    const res = extra.carTax({
+      vehicleType,
+      usage: fields.usage.value,
+      displacement: vehicleType === 'electric' ? 0 : fields.displacement.valueAsNumber,
+      regYear: fields.regYear.valueAsNumber,
+      regHalf: fields.regHalf.value,
+      taxYear: Number(fields.taxYear.value),
+      prepayment: fields.prepayment.value,
+    });
+    const prepayNames = { jan: '1월 연납', mar: '3월 연납', jun: '6월 연납', sep: '9월 연납' };
+    const typeSummary = res.vehicleType === 'electric'
+      ? `${res.usage === 'private' ? '비영업용' : '영업용'} 전기·태양열·알코올 승용차 (정액 연 ${number(res.annualBase)}원)`
+      : `${res.usage === 'private' ? '비영업용' : '영업용'} 승용차 ${number(res.displacement)}cc (cc당 ${number(res.unitRate)}원)`;
+    const reductionSummary = res.vehicleType === 'engine' && res.usage === 'private'
+      ? (res.firstReductionPercent === res.secondReductionPercent
+        ? `차령 경감: ${res.firstReductionPercent}% (${res.secondAge}년차)`
+        : `차령 경감: 1기분 ${res.firstReductionPercent}% (${res.firstAge}년차) · 2기분 ${res.secondReductionPercent}% (${res.secondAge}년차)`)
+      : '차령 경감: 미적용 (영업용·전기차)';
+    const lines = [
+      `${res.taxYear}년 ${typeSummary}`,
+      reductionSummary,
+      `정기 납부 연세액 합계: ${number(res.annualTotal)}원 (자동차세 ${number(res.annualBase)}원 + 지방교육세 ${number(res.annualEdu)}원)`,
+      `1기분 (6월): ${number(res.firstHalfTotal)}원 · 2기분 (12월): ${number(res.secondHalfTotal)}원`,
+    ];
+    if (res.selectedPrepayment) {
+      const label = prepayNames[res.prepayment];
+      const sp = res.selectedPrepayment;
+      if (res.prepayment === 'sep') {
+        lines.push(`${label} 예상 납부액 (2기분): ${number(sp.due)}원 (연간 합계 ${number(sp.annualSum)}원, 정기 대비 ${number(sp.savings)}원 절감)`);
+      } else {
+        lines.push(`${label} 예상 납부액: ${number(sp.due)}원 (본세 ${number(sp.base)}원 + 교육세 ${number(sp.edu)}원, 정기 대비 ${number(sp.savings)}원 절감)`);
+      }
+    }
+    lines.push(
+      `연납 시기별 연간 합계 — 1월 ${number(res.prepayments.jan.annualSum)}원(-${number(res.prepayments.jan.savings)}원) · 3월 ${number(res.prepayments.mar.annualSum)}원(-${number(res.prepayments.mar.savings)}원) · 6월 ${number(res.prepayments.jun.annualSum)}원(-${number(res.prepayments.jun.savings)}원) · 9월 ${number(res.prepayments.sep.annualSum)}원(-${number(res.prepayments.sep.savings)}원)`,
+    );
+    if (res.smallTaxLumpSum) {
+      lines.push('참고: 자동차세 본세 연세액이 10만 원 이하이므로 6월 제1기분에 연세액 전액이 일괄 부과될 수 있습니다(지방세법 제128조 제4항).');
+    }
+    return lines.join('\n');
+  },
   bmi() {
     const { value, category } = extra.bmi(fields.height.valueAsNumber, fields.weight.valueAsNumber);
     return `BMI ${value.toFixed(2)} · ${category} (한국 성인 기준)`;
@@ -337,6 +380,9 @@ form.addEventListener('reset', () => {
     } else if (tool === 'loan-interest') {
       fields.method.dispatchEvent(new Event('change'));
       result.value = calculate[tool]();
+    } else if (tool === 'car-tax') {
+      fields.vehicleType.dispatchEvent(new Event('change'));
+      result.value = calculate[tool]();
     } else if (tool === 'lunar-calendar') fields.mode.dispatchEvent(new Event('change'));
     else if (tool === 'passport-photo') fields.format.dispatchEvent(new Event('change'));
     else result.value = tool === 'area-converter' ? calculate[tool]() : '';
@@ -393,5 +439,13 @@ if (tool === 'lunar-calendar') {
   };
   fields.method.addEventListener('change', syncMethod);
   syncMethod();
+  result.value = calculate[tool]();
+} else if (tool === 'car-tax') {
+  const syncVehicle = () => {
+    const electric = fields.vehicleType.value === 'electric';
+    fields.displacement.disabled = electric;
+  };
+  fields.vehicleType.addEventListener('change', syncVehicle);
+  syncVehicle();
   result.value = calculate[tool]();
 } else if (tool === 'area-converter') result.value = calculate[tool]();

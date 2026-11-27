@@ -227,6 +227,122 @@ export function loanInterest({ principal, months, rate, method, graceMonths = 0 
   return { method, principal, months, graceMonths, rate, ...result, comparison };
 }
 
+const floor10 = (value) => Math.floor((value + 1e-9) / 10) * 10;
+const isLeapYear = (year) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+
+export function carTax({ vehicleType, usage, displacement = 0, regYear, regHalf, taxYear = 2026, prepayment = 'none' }) {
+  if (!['engine', 'electric'].includes(vehicleType)) throw new Error('차량 유형을 선택해 주세요.');
+  if (!['private', 'commercial'].includes(usage)) throw new Error('용도 구분을 선택해 주세요.');
+  if (!['first', 'second'].includes(regHalf)) throw new Error('최초 등록 반기를 선택해 주세요.');
+  if (!['none', 'jan', 'mar', 'jun', 'sep'].includes(prepayment)) throw new Error('납부 방식을 선택해 주세요.');
+  if (!Number.isSafeInteger(taxYear) || taxYear < 2026 || taxYear > 2027) {
+    throw new Error('과세 연도는 2026~2027년 중에서 선택해 주세요.');
+  }
+  if (!Number.isSafeInteger(regYear) || regYear < 1980 || regYear > taxYear) {
+    throw new Error(`최초 등록 연도는 1980~${taxYear}년 사이의 정수로 입력해 주세요.`);
+  }
+  if (vehicleType === 'engine' && (!Number.isSafeInteger(displacement) || displacement < 1 || displacement > 20_000)) {
+    throw new Error('배기량은 1~20,000cc 사이의 정수로 입력해 주세요.');
+  }
+
+  let unitRate = 0;
+  let standardAnnual;
+  if (vehicleType === 'electric') {
+    standardAnnual = usage === 'private' ? 100_000 : 20_000;
+  } else if (usage === 'private') {
+    unitRate = displacement <= 1000 ? 80 : displacement <= 1600 ? 140 : 200;
+    standardAnnual = displacement * unitRate;
+  } else {
+    unitRate = displacement <= 1600 ? 18 : displacement <= 2500 ? 19 : 24;
+    standardAnnual = displacement * unitRate;
+  }
+
+  const rawAge1 = regHalf === 'first' ? taxYear - regYear + 1 : taxYear - regYear;
+  const rawAge2 = taxYear - regYear + 1;
+  const applyAgeReduction = vehicleType === 'engine' && usage === 'private';
+  const reductionFor = (age) => (applyAgeReduction ? (Math.min(12, Math.max(2, age)) - 2) * 0.05 : 0);
+  const firstReduction = reductionFor(rawAge1);
+  const secondReduction = reductionFor(rawAge2);
+
+  const firstHalfBase = floor10((standardAnnual / 2) * (1 - firstReduction));
+  const secondHalfBase = floor10((standardAnnual / 2) * (1 - secondReduction));
+  const annualBase = firstHalfBase + secondHalfBase;
+
+  const eduRate = usage === 'private' ? 0.3 : 0;
+  const firstHalfEdu = floor10(firstHalfBase * eduRate);
+  const secondHalfEdu = floor10(secondHalfBase * eduRate);
+  const firstHalfTotal = firstHalfBase + firstHalfEdu;
+  const secondHalfTotal = secondHalfBase + secondHalfEdu;
+  const annualEdu = firstHalfEdu + secondHalfEdu;
+  const annualTotal = annualBase + annualEdu;
+
+  const prepayRate = 0.05;
+  const daysInYear = isLeapYear(taxYear) ? 366 : 365;
+  const janDays = isLeapYear(taxYear) ? 335 : 334;
+  const marDays = 275;
+
+  const calcPrepay = (mode) => {
+    if (mode === 'jan') {
+      const base = floor10(annualBase - annualBase * (janDays / daysInYear) * prepayRate);
+      const edu = floor10(base * eduRate);
+      const due = base + edu;
+      return { due, annualSum: due, base, edu, savings: annualTotal - due };
+    }
+    if (mode === 'mar') {
+      const base = floor10(annualBase - annualBase * (marDays / daysInYear) * prepayRate);
+      const edu = floor10(base * eduRate);
+      const due = base + edu;
+      return { due, annualSum: due, base, edu, savings: annualTotal - due };
+    }
+    if (mode === 'jun') {
+      const discountedSecondBase = floor10(secondHalfBase * (1 - prepayRate));
+      const base = firstHalfBase + discountedSecondBase;
+      const edu = floor10(base * eduRate);
+      const due = base + edu;
+      return { due, annualSum: due, base, edu, savings: annualTotal - due };
+    }
+    const discountedSecondBase = floor10(secondHalfBase * (1 - (92 / 184) * prepayRate));
+    const discountedSecondEdu = floor10(discountedSecondBase * eduRate);
+    const due = discountedSecondBase + discountedSecondEdu;
+    const annualSum = firstHalfTotal + due;
+    return { due, annualSum, base: discountedSecondBase, edu: discountedSecondEdu, savings: annualTotal - annualSum };
+  };
+
+  const prepayments = {
+    jan: calcPrepay('jan'),
+    mar: calcPrepay('mar'),
+    jun: calcPrepay('jun'),
+    sep: calcPrepay('sep'),
+  };
+
+  return {
+    vehicleType,
+    usage,
+    displacement: vehicleType === 'engine' ? displacement : 0,
+    unitRate,
+    regYear,
+    regHalf,
+    taxYear,
+    prepayment,
+    firstAge: Math.max(0, rawAge1),
+    secondAge: Math.max(1, rawAge2),
+    firstReductionPercent: Math.round(firstReduction * 100),
+    secondReductionPercent: Math.round(secondReduction * 100),
+    firstHalfBase,
+    firstHalfEdu,
+    firstHalfTotal,
+    secondHalfBase,
+    secondHalfEdu,
+    secondHalfTotal,
+    annualBase,
+    annualEdu,
+    annualTotal,
+    smallTaxLumpSum: annualBase <= 100_000,
+    selectedPrepayment: prepayment === 'none' ? null : prepayments[prepayment],
+    prepayments,
+  };
+}
+
 export function secureIndex(size, cryptoSource = globalThis.crypto) {
   if (!Number.isSafeInteger(size) || size < 1 || size > 2 ** 32) throw new RangeError('지원하지 않는 범위입니다.');
   const slot = new Uint32Array(1);

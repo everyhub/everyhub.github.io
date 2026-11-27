@@ -263,7 +263,7 @@ test('새 선정 기준에서 추가하지 않은 후보는 해당 근거와 함
     assert.ok(card.includes(`href="https://github.com/everyhub/everyhub.github.io/issues/${number}"`), id);
     assert.ok(proposal.decision && card.includes(proposal.decision), id);
   }
-  assert.match(html, /최근 점검: 1건 추가 \(대출 이자 계산기\)/);
+  assert.match(html, /최근 점검: 1건 추가 \(자동차세 계산기\)/);
 });
 
 test('주거 사례 제목과 도입문은 금액과 원 단위를 함께 줄바꿈한다', () => {

@@ -11,6 +11,7 @@ const preferences = {
   'character-count': ['preset'],
   'deposit-interest': ['product', 'compounding', 'taxType'],
   'loan-interest': ['method'],
+  'car-tax': ['vehicleType', 'usage', 'regHalf', 'taxYear', 'prepayment'],
   'unit-converter': ['pair'],
   'area-converter': ['unit'],
   'password-generator': ['length', 'symbols'],
