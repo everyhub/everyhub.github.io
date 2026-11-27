@@ -88,7 +88,7 @@ const requests = [
   { time: "2026-11-26 23:20", id: "prompt-fortune-cookie", request: "포춘쿠키에서 질문을 뽑아 AI에 물어보는 놀이", status: "완료", reflection: "놀이에 한국어 질문 102개를 담은 AI 프롬프트 포춘쿠키를 추가했습니다. 질문은 브라우저에서 뽑고, 복사한 뒤 원하는 AI에 직접 붙여 넣을 수 있습니다.", links: ["https://everyhub.github.io/play/prompt-fortune-cookie/"] },
   { time: "2026-11-26 23:30", id: "remove-unsolicited-site-pages", request: "사용자가 요청하지 않은 공통 안내 페이지와 링크 제거", status: "완료", reflection: "두 페이지와 공통 탐색 링크를 제거했습니다. 자동 운영에도 재추가 금지 기준을 적용하며, ads.txt와 소유권 확인 태그는 유지합니다.", links: ["https://everyhub.github.io/"] },
   { time: "2026-11-26 23:46", id: "play-ux-review", request: "놀이 입력칸·결과 개선, 소원 트리 노출 정리, 포춘쿠키와 새 놀이 후보 검토", status: "완료", reflection: "네 놀이를 개수 선택과 개별 입력칸으로 바꿨습니다. 기존 소원 트리와 사다리 주소를 유지하고 놀이에서만 분류합니다. 포춘쿠키의 평범하거나 모호한 질문을 다듬었습니다. 새 놀이는 추가하지 않았습니다.", links: ["https://everyhub.github.io/play/", "https://everyhub.github.io/tools/ladder-draw/", "https://everyhub.github.io/play/prompt-fortune-cookie/"] },
-  { time: "2026-11-27 14:13", id: "daily-feature-review-2026-11-27-afternoon", request: "14:13 자동 기능 점검·구현 및 배포·뉴스 예약 확인", status: "진행중", reflection: "네이버 데이터랩 31일 비교와 2026년 현행 지방세법·시행령 원문을 바탕으로 자동차세 계산기(/tools/car-tax/)를 추가하고 배포·운영 검증과 뉴스 예약 점검을 진행합니다.", links: ["https://everyhub.github.io/tools/car-tax/","https://everyhub.github.io/ops-7f3a9c2d/recommendations/"] },
+  { time: "2026-11-27 14:13", id: "daily-feature-review-2026-11-27-afternoon", request: "14:13 자동 기능 점검·구현 및 배포·뉴스 예약 확인", status: "완료", reflection: "네이버 데이터랩 31일 비교와 2026년 현행 지방세법·시행령 원문을 근거로 자동차세 계산기(/tools/car-tax/)를 추가하고 npm test·브라우저 감사(Chromium·Pixel)·Pages 배포(#45946438033) 및 운영 반영을 확인했습니다. 최근 뉴스 예약(#45932922831, 12:13 KST) 이후 30분 내 예약이 없어 수동 보완 실행(#45946650076, 빌드 성공·변경 없음으로 배포 생략)을 완료했습니다.", links: ["https://everyhub.github.io/tools/car-tax/","https://everyhub.github.io/ops-7f3a9c2d/recommendations/","https://github.com/everyhub/everyhub.github.io/actions/runs/45946438033","https://github.com/everyhub/everyhub.github.io/actions/runs/45946650076"] },
 ];
 
 export function hasCompletionEvidence(item) {
@@ -168,7 +168,7 @@ export function renderRequirementsAudit(entries = adminTimeline) {
 
 export const adminPending = [
   '추천 운영용 GitHub 토큰 만료일(2027-01-23) 전에 동일한 최소 권한으로 교체하고 연결 확인',
-  '별도 Refresh news 워크플로: 2026-11-25 09:04·17:21, 2026-11-26 03:48·11:08 KST 예약 성공 4건을 확인했으며 30분 반복 주기는 미확인',
+  '별도 Refresh news 워크플로: 2026-11-27 12:13 KST(#45932922831)까지 예약 성공을 확인했고 14:35 KST 수동 보완(#45946650076, 예약 성공에 미산입)을 실행했으나 30분 반복 주기는 미확인',
   '공식 고시 전인 2027년 구직급여 상한·일부 보험 상·하한·산재 요율·간이세액표 확인',
   'Google Search Console·네이버 서치어드바이저 색인과 sitemap 처리 결과 확인',
   'AdSense 승인·광고 정책·상업 운영 조건 확인',
